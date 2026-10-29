@@ -46,6 +46,9 @@ expanders introduce private operators. Dynamic handler and restart frames use na
 Their parameters and condition associations are retained as Lisp data; host
 handler/restart clusters and short-lived native objects are never captured.
 The installers reconstruct the native dynamic context for each trampoline step.
+Restart bindings have separate activation identities; cloning a segment
+rebases condition associations to those fresh bindings, including recursive
+invocation of the same continuation.
 The driver skips native context installation when a frame has no handlers or restarts.
 `restart-case` is normalized on every implementation as well. Its virtual
 exits survive capture and reinstatement. Signaling forms, including lexical
@@ -81,6 +84,9 @@ For CLISP, CMUCL and MKCL, the flake pins Bordeaux Threads 0.8.8;
 It also patches the external environment library's list-valued DEFCONSTANTs
 to DEFPARAMETERs so compiling and loading it works on Clasp. These dependency
 patches are applied during the Nix build, outside the OOPArts source tree.
+For ECL/macOS, the flake also gives Alexandria's private CDR5 type generator
+a fixed argument count to avoid an observed macro-expansion arity failure.
+The generated type/predicate definitions are unchanged.
 A package manager such as Quicklisp or the root Nix flake resolves their
 transitive dependencies. See [the license ledger](../THIRD_PARTY.md) for license
 and distribution boundaries. No external C solver or FFI is used by SAT.

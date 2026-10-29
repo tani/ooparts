@@ -1,5 +1,6 @@
 (uiop:define-package #:ooparts-tests/continuation/fixture
   (:use #:cl #:ooparts/continuation)
+  (:import-from #:ooparts-tests/continuation/adapters #:with-error-adapter)
   (:export #:checks))
 (in-package #:ooparts-tests/continuation/fixture)
 (defun/cps factorial (n)
@@ -35,6 +36,16 @@
              (invoke-restart 'recover (first (simple-condition-format-arguments condition))))))
       (restart-case (error "Reloaded restart ~D" (shift k k))
         (recover (answer) answer)))))
+(defun capture-associated-restart ()
+  (with-error-adapter
+      ((lambda/cps (condition)
+         (shift k k)
+         (invoke-restart 'recover
+                         (list (not (null (find-restart 'recover condition)))
+                               (null (find-restart 'recover (make-condition 'simple-error)))))))
+    (reset (restart-case (error "Capture inside an associated extent")
+             (recover (answer) answer)))))
+(defparameter *saved-associated-restart* (capture-associated-restart))
 (defun outer-macro-environment ()
   (let ((x 5))
     (macrolet ((twice (v) `(+ ,v ,v)))
@@ -71,4 +82,7 @@
   (assert (equal '(11 12 :outside)
                  (list (funcall *saved-special* 0) (funcall *saved-special* 0) *special*)))
   (assert (equal '(31 43) (list (funcall *saved-restart* 31) (funcall *saved-restart* 43))))
+  (assert (equal '((t t) (t t))
+                 (list (funcall *saved-associated-restart* nil)
+                       (funcall *saved-associated-restart* nil))))
   (format t "Fresh FASL/core checks passed.~%"))

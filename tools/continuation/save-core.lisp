@@ -1,6 +1,7 @@
 (require "asdf")
 (asdf:load-asd (merge-pathnames "../../ooparts.asd" *load-truename*))
-(asdf:load-system "ooparts/continuation")
+(asdf:load-asd (merge-pathnames "../../ooparts-tests.asd" *load-truename*))
+(asdf:load-system "ooparts-tests/continuation/adapters")
 (load (uiop:getenv "OOPARTS_CONT_FIXTURE_FASL"))
 (sb-ext:save-lisp-and-die (uiop:getenv "OOPARTS_CONT_TEST_CORE")
   :toplevel (lambda ()

@@ -2,6 +2,7 @@
   (:use #:cl #:ooparts/continuation #:ooparts-tests/continuation/reference)
   (:import-from #:bordeaux-threads)
   (:import-from #:trivial-garbage)
+  (:import-from #:ooparts-tests/continuation/adapters #:with-error-adapter)
   (:export #:run-tests))
 (in-package #:ooparts-tests/continuation/suite)
 (defvar *cases* nil)
@@ -316,6 +317,35 @@
         (restart-case (error "Captured value ~D" (shift k (setq saved k) :captured))
           (recover (answer) answer))))
     (list (funcall saved 4) (funcall saved 5))))
+
+(defun reentrant-restart-associations ()
+  (let ((saved nil) (first (make-condition 'simple-error))
+        (second (make-condition 'simple-error)))
+    (with-error-adapter
+        ((lambda/cps (condition)
+           (if (eq condition first)
+               (invoke-restart 'recover (funcall saved second))
+               (invoke-restart 'recover
+                               (list (not (null (find-restart 'recover first)))
+                                     (not (null (find-restart 'recover second))))))))
+      (reset
+        (restart-case (error (shift k (setf saved k) :captured))
+          (recover (answer) answer)))
+      (funcall saved first))))
+(case= restart-reentrant-associations '(t t) (reentrant-restart-associations))
+
+(defun captured-restart-associations ()
+  (let ((saved nil) (condition (make-condition 'simple-error))
+        (other (make-condition 'simple-error)))
+    (with-error-adapter
+        ((lambda/cps (datum)
+           (shift k (setf saved k) :captured)
+           (invoke-restart 'recover
+                           (list (not (null (find-restart 'recover datum)))
+                                 (null (find-restart 'recover other))))))
+      (reset (restart-case (error condition) (recover (answer) answer)))
+      (list (funcall saved nil) (funcall saved nil)))))
+(case= restart-captured-associations '((t t) (t t)) (captured-restart-associations))
 (case= error-cleanup '(:cleanup :handled)
   (let ((log nil))
     (handler-case (reset (unwind-protect (error "x") (push :cleanup log)))

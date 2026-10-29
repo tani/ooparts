@@ -114,7 +114,7 @@ sbcl --script tools/test.lisp continuation
 SBCL=sbcl bash tools/continuation/test.sh
 ```
 
-The regression suite has 3170 checks, including 1328 independently reduced core
+The regression suite has 3178 checks, including 1328 independently reduced core
 terms in both transformation modes. The shell driver also checks fresh-process
 FASL and saved-core reloads. A captured restart is invoked after loading
 a compiled fixture and again after restoring a saved core. Restart tests also

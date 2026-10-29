@@ -145,7 +145,8 @@
       "license": "LicenseRef-Public-Domain-OR-MIT-0",
       "relationship": "transitive cl-environments and bordeaux-threads dependency",
       "license_evidence": "LICENCE",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts.",
+      "nix_modifications": "On ECL/macOS only, make the private CDR5 type generator fixed-arity to avoid a macro-expansion arity failure; all generated definitions remain identical. Preserve the upstream license and notices in the dependency output."
     },
     {
       "name": "Anaphora",

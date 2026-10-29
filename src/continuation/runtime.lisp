@@ -14,9 +14,17 @@
 ;; Each frame is immutable. Capturing retains a segment; invocation copies its
 ;; spine and attaches a fresh prompt and the caller's continuation. The closures
 ;; in frames take NEXT explicitly: none closes over the old continuation tail.
+(defstruct (restart-binding (:constructor restart-binding (installer))) installer)
 (defstruct (frame (:constructor %frame (kind data next bindings handlers)))
   kind data next bindings handlers)
 (defun frame (kind data next)
+  ;; Each activation owns its restart identity, even when the installer code
+  ;; is shared by several invocations of the same captured continuation.
+  (case kind
+    (:restarts
+     (setf data (restart-binding (if (restart-binding-p data)
+                                    (restart-binding-installer data) data))))
+    (:restart-condition (setf data (cons (car data) (cdr data)))))
   (%frame kind data next
           (if (eq kind :special)
               (append (reverse data) (when next (frame-bindings next)))
@@ -185,8 +193,8 @@
       (driver-transfer driver target (lambda (target) (funcall code target)) target))))
 
 (defun clone-segment (segment old-prompt tail)
-  ;; Only pending transitions contain frame references requiring rebasing.
-  (unless (some (lambda (p) (member (frame-kind p) '(:transition :enter))) segment)
+  ;; Pending transfers and restart associations refer to captured identities.
+  (unless (some (lambda (p) (member (frame-kind p) '(:transition :enter :restart-condition))) segment)
     (let ((next tail))
       (dolist (p (reverse segment))
         (setf next (frame (frame-kind p) (frame-data p) next)))
@@ -199,6 +207,8 @@
     (labels ((copy-one (old next)
                (let ((new (frame (frame-kind old) (frame-data old) next)))
                  (setf (gethash old mapping) new)
+                 (when (eq (frame-kind old) :restarts)
+                   (setf (gethash (frame-data old) mapping) (frame-data new)))
                  (push (cons old new) pending) new))
              (rebase (old)
                (or (gethash old mapping)
@@ -217,6 +227,10 @@
       (loop while pending
             for pair = (pop pending) for old = (car pair) for new = (cdr pair)
             do (case (frame-kind old)
+                 (:restart-condition
+                  (let* ((association (frame-data new))
+                         (binding (gethash (car association) mapping)))
+                    (when binding (setf (car association) binding))))
                  (:transition (setf (frame-data new) (rebase-goal (frame-data old))))
                  (:enter
                   (let* ((state (frame-data old)) (goal (rebase-goal (entry-state-goal state))))
@@ -283,17 +297,18 @@
                      ((functionp (car remaining))
                       (funcall (car remaining) (lambda () (install (cdr remaining)))))
                      ((eq (caar remaining) :restarts)
-                      (let ((installer (cdar remaining)))
-                        (funcall installer (lambda () (install (cdr remaining)))
-                                 (cdr (assoc installer conditions :test #'eq)))))
+                      (let ((binding (cdar remaining)))
+                        (funcall (restart-binding-installer binding)
+                                 (lambda () (install (cdr remaining)))
+                                 (cdr (assoc binding conditions :test #'eq)))))
                      (t (install (cdr remaining))))))
       (install (reverse installers)))))
 
 (defun push-restart-condition (condition k body)
-  (let ((installer (loop for p = k then (frame-next p) while p
+  (let ((binding (loop for p = k then (frame-next p) while p
                          when (eq (frame-kind p) :restarts) return (frame-data p))))
-    (unless installer (error "No virtual restart binding for condition ~S" condition))
-    (funcall body (frame :restart-condition (cons installer condition) k))))
+    (unless binding (error "No virtual restart binding for condition ~S" condition))
+    (funcall body (frame :restart-condition (cons binding condition) k))))
 
 (defun push-specials (symbols values k body)
   (let ((cells (loop for sym in symbols for tail = values then (cdr tail)

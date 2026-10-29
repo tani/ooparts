@@ -33,6 +33,24 @@
           # The v0.9 API builds unsupported atomics on CMUCL and drops CLISP.
           # OOPArts needs the stable v0.8 recursive-lock/thread API only.
           lispFor = impl: pkgs.${impl}.withOverrides (self: super: {
+            alexandria = if impl == "ecl" && pkgs.stdenv.isDarwin then super.alexandria.overrideLispAttrs {
+              # ECL/macOS fails while expanding the optional-argument CDR5
+              # generator. Fixed arity preserves every generated definition.
+              src = pkgs.runCommand "alexandria-ecl-fixed-arity-source" {} ''
+                cp -R ${super.alexandria.src} "$out"
+                chmod -R u+w "$out"
+                substituteInPlace "$out/alexandria-1/types.lisp" \
+                  --replace-fail '(frob (type &optional (base-type type))' '(frob (type base-type)' \
+                  --replace-fail '(frob integer)' '(frob integer integer)' \
+                  --replace-fail '(frob rational)' '(frob rational rational)' \
+                  --replace-fail '(frob real)' '(frob real real)' \
+                  --replace-fail '(frob float)' '(frob float float)' \
+                  --replace-fail '(frob short-float)' '(frob short-float short-float)' \
+                  --replace-fail '(frob single-float)' '(frob single-float single-float)' \
+                  --replace-fail '(frob double-float)' '(frob double-float double-float)' \
+                  --replace-fail '(frob long-float)' '(frob long-float long-float)'
+              '';
+            } else super.alexandria;
             bordeaux-threads = if builtins.elem impl [ "clisp" "cmucl_binary" "mkcl" ] then pkgs.${impl}.buildASDFSystem {
               pname = "bordeaux-threads";
               version = "0.8.8";

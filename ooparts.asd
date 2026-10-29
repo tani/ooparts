@@ -3,9 +3,10 @@
   :description "OOPArts: Common Lisp libraries"
   :version "0.1.0"
   :license "MIT"
-  :depends-on ("ooparts/continuation" "ooparts/prolog")
+  :depends-on ("ooparts/continuation" "ooparts/prolog" "ooparts/sat")
   :in-order-to ((asdf:test-op (asdf:test-op "ooparts/continuation/tests")
-                             (asdf:test-op "ooparts/prolog/tests"))))
+                             (asdf:test-op "ooparts/prolog/tests")
+                             (asdf:test-op "ooparts/sat/tests"))))
 
 (asdf:defsystem "ooparts/continuation"
   :description "Selective CPS shift/reset for SBCL"
@@ -55,3 +56,40 @@
   :build-operation "asdf:program-op"
   :build-pathname "ooparts-prolog"
   :entry-point "ooparts/prolog/src/prolog/cli:main")
+
+(asdf:defsystem "ooparts/sat"
+  :description "SATCH production solver with a Common Lisp interface"
+  :version "0.3.0"
+  :license "MIT"
+  :pathname "sat/"
+  :serial t
+  :components ((:file "src/package") (:file "src/runtime")
+               (:file "src/generated/prefix")
+               (:file "src/generated/part-00")
+               (:file "src/generated/part-01")
+               (:file "src/generated/part-02")
+               (:file "src/generated/part-03")
+               (:file "src/generated/part-04")
+               (:file "src/generated/part-05")
+               (:file "src/generated/part-06")
+               (:file "src/generated/part-07")
+               (:file "src/generated/part-08")
+               (:file "src/generated/part-09")
+               (:file "src/generated/part-10")
+               (:file "src/generated/part-11")
+               (:file "src/generated/part-12")
+               (:file "src/generated/part-13")
+               (:file "src/generated/part-14")
+               (:file "src/api") (:file "src/interface"))
+  :in-order-to ((asdf:test-op (asdf:test-op "ooparts/sat/tests"))))
+
+(asdf:register-system-packages "ooparts/sat"
+  '("OOPARTS/SAT" "SAT" "OOPARTS/SAT/LOW-LEVEL" "OOPARTS/SAT/IMPL"))
+
+(asdf:defsystem "ooparts/sat/tests"
+  :depends-on ("ooparts/sat")
+  :pathname "sat/tests/"
+  :perform (asdf:test-op (op component)
+             (declare (ignore op))
+             (dolist (file '("api.lisp" "numeric-boundaries.lisp" "interface.lisp"))
+               (load (merge-pathnames file (asdf:component-pathname component))))))

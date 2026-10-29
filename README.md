@@ -50,6 +50,33 @@ use `ooparts/prolog/src/...`. Build the `ooparts-prolog` command with
 sbcl --dynamic-space-size 2048 --control-stack-size 1 --script prolog/tests/run.lisp
 ```
 
-`ooparts` loads both libraries; `(asdf:test-system "ooparts")` tests both.
+## ooparts/sat
+
+The default production SATCH solver, translated function-for-function to SBCL
+Common Lisp, with a resource-managed Lisp interface. No C solver or FFI is used.
+
+```lisp
+(asdf:load-system "ooparts/sat")
+(sat:solve-cnf '((1 2) (-1 2) (-2 3)))
+;; => :SAT, #(1 2 3) or #(-1 2 3), (:STATUS :SAT ...)
+
+(sat:with-solver (solver)
+  (let ((x (sat:new-variable solver)))
+    (sat:add-clause solver (list x))
+    (sat:solve solver)
+    (sat:value solver x)))
+;; => T
+```
+
+`ooparts/sat` (alias `sat`) returns `:sat`, `:unsat` or `:unknown`, a detached
+signed model vector, and a statistics plist. It accepts lists/vectors of integer
+clauses and strict DIMACS streams/files. `with-solver` releases native arenas'
+solver allocations on every exit. The original C-style interface is available
+in `ooparts/sat/low-level`.
+
+See [the SAT documentation](sat/README.md) for the API, proof streams, state
+rules, platform limits, tests and upstream license. Requires SBCL on Linux x86-64.
+
+`ooparts` loads all three libraries; `(asdf:test-system "ooparts")` tests all three.
 Prolog is portable Common Lisp; continuation currently requires SBCL.
 Bundled third-party ISO test cases retain their original licenses and notices.

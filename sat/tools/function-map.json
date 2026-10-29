@@ -1,0 +1,1706 @@
+[
+  {
+    "c_function": "LITERAL",
+    "lisp_function": "|c/LITERAL|",
+    "source": "upstream/satch.c:971:1",
+    "frame": false
+  },
+  {
+    "c_function": "INDEX",
+    "lisp_function": "|c/INDEX|",
+    "source": "upstream/satch.c:980:1",
+    "frame": false
+  },
+  {
+    "c_function": "SIGN_BIT",
+    "lisp_function": "|c/SIGN_BIT|",
+    "source": "upstream/satch.c:988:1",
+    "frame": false
+  },
+  {
+    "c_function": "INT_SIGN",
+    "lisp_function": "|c/INT_SIGN|",
+    "source": "upstream/satch.c:997:1",
+    "frame": false
+  },
+  {
+    "c_function": "NOT",
+    "lisp_function": "|c/NOT|",
+    "source": "upstream/satch.c:1005:1",
+    "frame": false
+  },
+  {
+    "c_function": "export_literal",
+    "lisp_function": "|c/export_literal|",
+    "source": "upstream/satch.c:1199:1",
+    "frame": false
+  },
+  {
+    "c_function": "fatal_error",
+    "lisp_function": "|c/fatal_error|",
+    "source": "upstream/satch.c:1283:1",
+    "frame": false
+  },
+  {
+    "c_function": "out_of_memory",
+    "lisp_function": "|c/out_of_memory|",
+    "source": "upstream/satch.c:1299:1",
+    "frame": false
+  },
+  {
+    "c_function": "message",
+    "lisp_function": "|c/message|",
+    "source": "upstream/satch.c:1309:1",
+    "frame": false
+  },
+  {
+    "c_function": "internal_section",
+    "lisp_function": "|c/internal_section|",
+    "source": "upstream/satch.c:1330:1",
+    "frame": false
+  },
+  {
+    "c_function": "is_temporary_binary",
+    "lisp_function": "|c/is_temporary_binary|",
+    "source": "upstream/satch.c:1357:1",
+    "frame": false
+  },
+  {
+    "c_function": "process_time",
+    "lisp_function": "|c/process_time|",
+    "source": "upstream/satch.c:1598:1",
+    "frame": true
+  },
+  {
+    "c_function": "maximum_resident_set_size",
+    "lisp_function": "|c/maximum_resident_set_size|",
+    "source": "upstream/satch.c:1612:1",
+    "frame": true
+  },
+  {
+    "c_function": "current_resident_set_size",
+    "lisp_function": "|c/current_resident_set_size|",
+    "source": "upstream/satch.c:1624:1",
+    "frame": true
+  },
+  {
+    "c_function": "percent",
+    "lisp_function": "|c/percent|",
+    "source": "upstream/satch.c:1645:1",
+    "frame": false
+  },
+  {
+    "c_function": "relative",
+    "lisp_function": "|c/relative|",
+    "source": "upstream/satch.c:1651:1",
+    "frame": false
+  },
+  {
+    "c_function": "init_profiles",
+    "lisp_function": "|c/init_profiles|",
+    "source": "upstream/satch.c:1674:1",
+    "frame": false
+  },
+  {
+    "c_function": "start_profiling",
+    "lisp_function": "|c/start_profiling|",
+    "source": "upstream/satch.c:1685:1",
+    "frame": false
+  },
+  {
+    "c_function": "stop_profiling",
+    "lisp_function": "|c/stop_profiling|",
+    "source": "upstream/satch.c:1705:1",
+    "frame": false
+  },
+  {
+    "c_function": "flush_profiles",
+    "lisp_function": "|c/flush_profiles|",
+    "source": "upstream/satch.c:1721:1",
+    "frame": false
+  },
+  {
+    "c_function": "print_profiles",
+    "lisp_function": "|c/print_profiles|",
+    "source": "upstream/satch.c:1745:1",
+    "frame": false
+  },
+  {
+    "c_function": "print_statistics",
+    "lisp_function": "|c/print_statistics|",
+    "source": "upstream/satch.c:1816:1",
+    "frame": true
+  },
+  {
+    "c_function": "print_resource_usage",
+    "lisp_function": "|c/print_resource_usage|",
+    "source": "upstream/satch.c:1977:1",
+    "frame": false
+  },
+  {
+    "c_function": "start_addition_proof_line",
+    "lisp_function": "|c/start_addition_proof_line|",
+    "source": "upstream/satch.c:2002:1",
+    "frame": false
+  },
+  {
+    "c_function": "start_deletion_proof_line",
+    "lisp_function": "|c/start_deletion_proof_line|",
+    "source": "upstream/satch.c:2010:1",
+    "frame": false
+  },
+  {
+    "c_function": "add_external_literal_to_proof_line",
+    "lisp_function": "|c/add_external_literal_to_proof_line|",
+    "source": "upstream/satch.c:2019:1",
+    "frame": false
+  },
+  {
+    "c_function": "add_internal_literal_to_proof_line",
+    "lisp_function": "|c/add_internal_literal_to_proof_line|",
+    "source": "upstream/satch.c:2052:1",
+    "frame": false
+  },
+  {
+    "c_function": "end_proof_line",
+    "lisp_function": "|c/end_proof_line|",
+    "source": "upstream/satch.c:2059:1",
+    "frame": false
+  },
+  {
+    "c_function": "trace_and_check_addition",
+    "lisp_function": "|c/trace_and_check_addition|",
+    "source": "upstream/satch.c:2081:1",
+    "frame": false
+  },
+  {
+    "c_function": "trace_and_check_deletion",
+    "lisp_function": "|c/trace_and_check_deletion|",
+    "source": "upstream/satch.c:2103:1",
+    "frame": false
+  },
+  {
+    "c_function": "trace_and_check_empty_addition",
+    "lisp_function": "|c/trace_and_check_empty_addition|",
+    "source": "upstream/satch.c:2121:1",
+    "frame": false
+  },
+  {
+    "c_function": "trace_and_check_unit_addition",
+    "lisp_function": "|c/trace_and_check_unit_addition|",
+    "source": "upstream/satch.c:2127:1",
+    "frame": true
+  },
+  {
+    "c_function": "trace_and_check_temporary_addition",
+    "lisp_function": "|c/trace_and_check_temporary_addition|",
+    "source": "upstream/satch.c:2135:1",
+    "frame": false
+  },
+  {
+    "c_function": "trace_and_check_binary_deletion",
+    "lisp_function": "|c/trace_and_check_binary_deletion|",
+    "source": "upstream/satch.c:2146:1",
+    "frame": true
+  },
+  {
+    "c_function": "trace_and_check_clause_addition",
+    "lisp_function": "|c/trace_and_check_clause_addition|",
+    "source": "upstream/satch.c:2158:1",
+    "frame": false
+  },
+  {
+    "c_function": "trace_and_check_clause_deletion",
+    "lisp_function": "|c/trace_and_check_clause_deletion|",
+    "source": "upstream/satch.c:2167:1",
+    "frame": false
+  },
+  {
+    "c_function": "bytes_clause",
+    "lisp_function": "|c/bytes_clause|",
+    "source": "upstream/satch.c:2182:1",
+    "frame": false
+  },
+  {
+    "c_function": "allocate_clause",
+    "lisp_function": "|c/allocate_clause|",
+    "source": "upstream/satch.c:2191:1",
+    "frame": false
+  },
+  {
+    "c_function": "deallocate_clause",
+    "lisp_function": "|c/deallocate_clause|",
+    "source": "upstream/satch.c:2201:1",
+    "frame": false
+  },
+  {
+    "c_function": "add_clause",
+    "lisp_function": "|c/add_clause|",
+    "source": "upstream/satch.c:2246:1",
+    "frame": false
+  },
+  {
+    "c_function": "new_irredundant_clause",
+    "lisp_function": "|c/new_irredundant_clause|",
+    "source": "upstream/satch.c:2294:1",
+    "frame": false
+  },
+  {
+    "c_function": "new_redundant_clause",
+    "lisp_function": "|c/new_redundant_clause|",
+    "source": "upstream/satch.c:2309:1",
+    "frame": false
+  },
+  {
+    "c_function": "delete_clause",
+    "lisp_function": "|c/delete_clause|",
+    "source": "upstream/satch.c:2335:1",
+    "frame": false
+  },
+  {
+    "c_function": "watch_literal",
+    "lisp_function": "|c/watch_literal|",
+    "source": "upstream/satch.c:2357:1",
+    "frame": true
+  },
+  {
+    "c_function": "unwatch_literal",
+    "lisp_function": "|c/unwatch_literal|",
+    "source": "upstream/satch.c:2393:1",
+    "frame": true
+  },
+  {
+    "c_function": "watch_clause",
+    "lisp_function": "|c/watch_clause|",
+    "source": "upstream/satch.c:2456:1",
+    "frame": false
+  },
+  {
+    "c_function": "init_binary",
+    "lisp_function": "|c/init_binary|",
+    "source": "upstream/satch.c:2483:1",
+    "frame": false
+  },
+  {
+    "c_function": "release_binary",
+    "lisp_function": "|c/release_binary|",
+    "source": "upstream/satch.c:2498:1",
+    "frame": false
+  },
+  {
+    "c_function": "binary_clause",
+    "lisp_function": "|c/binary_clause|",
+    "source": "upstream/satch.c:2514:1",
+    "frame": false
+  },
+  {
+    "c_function": "is_tagged_clause",
+    "lisp_function": "|c/is_tagged_clause|",
+    "source": "upstream/satch.c:2552:1",
+    "frame": false
+  },
+  {
+    "c_function": "tag_binary_clause",
+    "lisp_function": "|c/tag_binary_clause|",
+    "source": "upstream/satch.c:2559:1",
+    "frame": false
+  },
+  {
+    "c_function": "tagged_clause_to_literal",
+    "lisp_function": "|c/tagged_clause_to_literal|",
+    "source": "upstream/satch.c:2568:1",
+    "frame": false
+  },
+  {
+    "c_function": "tagged_clause_to_redundant",
+    "lisp_function": "|c/tagged_clause_to_redundant|",
+    "source": "upstream/satch.c:2577:1",
+    "frame": false
+  },
+  {
+    "c_function": "untag_clause",
+    "lisp_function": "|c/untag_clause|",
+    "source": "upstream/satch.c:2606:1",
+    "frame": false
+  },
+  {
+    "c_function": "bubble_up",
+    "lisp_function": "|c/bubble_up|",
+    "source": "upstream/satch.c:2708:1",
+    "frame": false
+  },
+  {
+    "c_function": "bubble_down",
+    "lisp_function": "|c/bubble_down|",
+    "source": "upstream/satch.c:2737:1",
+    "frame": false
+  },
+  {
+    "c_function": "push_heap",
+    "lisp_function": "|c/push_heap|",
+    "source": "upstream/satch.c:2788:1",
+    "frame": false
+  },
+  {
+    "c_function": "max_heap",
+    "lisp_function": "|c/max_heap|",
+    "source": "upstream/satch.c:2801:1",
+    "frame": false
+  },
+  {
+    "c_function": "pop_heap",
+    "lisp_function": "|c/pop_heap|",
+    "source": "upstream/satch.c:2807:1",
+    "frame": false
+  },
+  {
+    "c_function": "update_heap",
+    "lisp_function": "|c/update_heap|",
+    "source": "upstream/satch.c:2827:1",
+    "frame": false
+  },
+  {
+    "c_function": "heap_score",
+    "lisp_function": "|c/heap_score|",
+    "source": "upstream/satch.c:2847:1",
+    "frame": false
+  },
+  {
+    "c_function": "rescore_scores",
+    "lisp_function": "|c/rescore_scores|",
+    "source": "upstream/satch.c:2853:1",
+    "frame": false
+  },
+  {
+    "c_function": "resize_heap",
+    "lisp_function": "|c/resize_heap|",
+    "source": "upstream/satch.c:2881:1",
+    "frame": false
+  },
+  {
+    "c_function": "release_heap",
+    "lisp_function": "|c/release_heap|",
+    "source": "upstream/satch.c:2891:1",
+    "frame": false
+  },
+  {
+    "c_function": "init_scores",
+    "lisp_function": "|c/init_scores|",
+    "source": "upstream/satch.c:2900:1",
+    "frame": false
+  },
+  {
+    "c_function": "activate_scores",
+    "lisp_function": "|c/activate_scores|",
+    "source": "upstream/satch.c:2927:1",
+    "frame": false
+  },
+  {
+    "c_function": "get_scores",
+    "lisp_function": "|c/get_scores|",
+    "source": "upstream/satch.c:2978:1",
+    "frame": false
+  },
+  {
+    "c_function": "bump_variable_score",
+    "lisp_function": "|c/bump_variable_score|",
+    "source": "upstream/satch.c:2997:1",
+    "frame": false
+  },
+  {
+    "c_function": "bump_score_increment",
+    "lisp_function": "|c/bump_score_increment|",
+    "source": "upstream/satch.c:3010:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_eliminate_literal",
+    "lisp_function": "|c/mark_eliminate_literal|",
+    "source": "upstream/satch.c:3206:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_eliminate_clause",
+    "lisp_function": "|c/mark_eliminate_clause|",
+    "source": "upstream/satch.c:3220:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_subsume_variable",
+    "lisp_function": "|c/mark_subsume_variable|",
+    "source": "upstream/satch.c:3234:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_subsume_literal",
+    "lisp_function": "|c/mark_subsume_literal|",
+    "source": "upstream/satch.c:3248:1",
+    "frame": false
+  },
+  {
+    "c_function": "watch_binary",
+    "lisp_function": "|c/watch_binary|",
+    "source": "upstream/satch.c:3265:1",
+    "frame": true
+  },
+  {
+    "c_function": "add_new_binary_and_watch_it",
+    "lisp_function": "|c/add_new_binary_and_watch_it|",
+    "source": "upstream/satch.c:3278:1",
+    "frame": false
+  },
+  {
+    "c_function": "really_delete_binary",
+    "lisp_function": "|c/really_delete_binary|",
+    "source": "upstream/satch.c:3300:1",
+    "frame": false
+  },
+  {
+    "c_function": "delete_binary",
+    "lisp_function": "|c/delete_binary|",
+    "source": "upstream/satch.c:3319:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_garbage",
+    "lisp_function": "|c/mark_garbage|",
+    "source": "upstream/satch.c:3353:1",
+    "frame": false
+  },
+  {
+    "c_function": "connect_literal",
+    "lisp_function": "|c/connect_literal|",
+    "source": "upstream/satch.c:3385:1",
+    "frame": true
+  },
+  {
+    "c_function": "connect_clause",
+    "lisp_function": "|c/connect_clause|",
+    "source": "upstream/satch.c:3407:1",
+    "frame": false
+  },
+  {
+    "c_function": "disconnect_literal",
+    "lisp_function": "|c/disconnect_literal|",
+    "source": "upstream/satch.c:3421:1",
+    "frame": false
+  },
+  {
+    "c_function": "assignement_level",
+    "lisp_function": "|c/assignement_level|",
+    "source": "upstream/satch.c:3486:1",
+    "frame": false
+  },
+  {
+    "c_function": "assign",
+    "lisp_function": "|c/assign|",
+    "source": "upstream/satch.c:3534:1",
+    "frame": true
+  },
+  {
+    "c_function": "activate_literals",
+    "lisp_function": "|c/activate_literals|",
+    "source": "upstream/satch.c:3663:1",
+    "frame": false
+  },
+  {
+    "c_function": "restamp_queue",
+    "lisp_function": "|c/restamp_queue|",
+    "source": "upstream/satch.c:3713:1",
+    "frame": false
+  },
+  {
+    "c_function": "enqueue",
+    "lisp_function": "|c/enqueue|",
+    "source": "upstream/satch.c:3737:1",
+    "frame": false
+  },
+  {
+    "c_function": "dequeue",
+    "lisp_function": "|c/dequeue|",
+    "source": "upstream/satch.c:3791:1",
+    "frame": false
+  },
+  {
+    "c_function": "resize_queue",
+    "lisp_function": "|c/resize_queue|",
+    "source": "upstream/satch.c:3832:1",
+    "frame": false
+  },
+  {
+    "c_function": "init_queue",
+    "lisp_function": "|c/init_queue|",
+    "source": "upstream/satch.c:3838:1",
+    "frame": false
+  },
+  {
+    "c_function": "activate_queue",
+    "lisp_function": "|c/activate_queue|",
+    "source": "upstream/satch.c:3853:1",
+    "frame": false
+  },
+  {
+    "c_function": "get_queue",
+    "lisp_function": "|c/get_queue|",
+    "source": "upstream/satch.c:3892:1",
+    "frame": false
+  },
+  {
+    "c_function": "move_variable_to_front",
+    "lisp_function": "|c/move_variable_to_front|",
+    "source": "upstream/satch.c:3911:1",
+    "frame": false
+  },
+  {
+    "c_function": "release_queue",
+    "lisp_function": "|c/release_queue|",
+    "source": "upstream/satch.c:3923:1",
+    "frame": false
+  },
+  {
+    "c_function": "resize_trail",
+    "lisp_function": "|c/resize_trail|",
+    "source": "upstream/satch.c:3962:1",
+    "frame": false
+  },
+  {
+    "c_function": "increase_capacity",
+    "lisp_function": "|c/increase_capacity|",
+    "source": "upstream/satch.c:3984:1",
+    "frame": false
+  },
+  {
+    "c_function": "increase_size",
+    "lisp_function": "|c/increase_size|",
+    "source": "upstream/satch.c:4051:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_literal",
+    "lisp_function": "|c/mark_literal|",
+    "source": "upstream/satch.c:4092:1",
+    "frame": false
+  },
+  {
+    "c_function": "marked_literal",
+    "lisp_function": "|c/marked_literal|",
+    "source": "upstream/satch.c:4100:1",
+    "frame": false
+  },
+  {
+    "c_function": "unmark_literal",
+    "lisp_function": "|c/unmark_literal|",
+    "source": "upstream/satch.c:4110:1",
+    "frame": false
+  },
+  {
+    "c_function": "imported_clause_trivial_or_satisfied",
+    "lisp_function": "|c/imported_clause_trivial_or_satisfied|",
+    "source": "upstream/satch.c:4123:1",
+    "frame": false
+  },
+  {
+    "c_function": "import_literal",
+    "lisp_function": "|c/import_literal|",
+    "source": "upstream/satch.c:4179:1",
+    "frame": false
+  },
+  {
+    "c_function": "cache_lines",
+    "lisp_function": "|c/cache_lines|",
+    "source": "upstream/satch.c:4213:1",
+    "frame": false
+  },
+  {
+    "c_function": "propagate_literal",
+    "lisp_function": "|c/propagate_literal|",
+    "source": "upstream/satch.c:4239:1",
+    "frame": true
+  },
+  {
+    "c_function": "flush_units",
+    "lisp_function": "|c/flush_units|",
+    "source": "upstream/satch.c:4597:1",
+    "frame": false
+  },
+  {
+    "c_function": "boolean_constraint_propagation",
+    "lisp_function": "|c/boolean_constraint_propagation|",
+    "source": "upstream/satch.c:4649:1",
+    "frame": true
+  },
+  {
+    "c_function": "save_phases",
+    "lisp_function": "|c/save_phases|",
+    "source": "upstream/satch.c:4692:1",
+    "frame": false
+  },
+  {
+    "c_function": "update_target_phases",
+    "lisp_function": "|c/update_target_phases|",
+    "source": "upstream/satch.c:4703:1",
+    "frame": false
+  },
+  {
+    "c_function": "update_best_phases",
+    "lisp_function": "|c/update_best_phases|",
+    "source": "upstream/satch.c:4716:1",
+    "frame": false
+  },
+  {
+    "c_function": "assigned_variables",
+    "lisp_function": "|c/assigned_variables|",
+    "source": "upstream/satch.c:4734:1",
+    "frame": false
+  },
+  {
+    "c_function": "update_phases",
+    "lisp_function": "|c/update_phases|",
+    "source": "upstream/satch.c:4741:1",
+    "frame": false
+  },
+  {
+    "c_function": "backtrack",
+    "lisp_function": "|c/backtrack|",
+    "source": "upstream/satch.c:4773:1",
+    "frame": false
+  },
+  {
+    "c_function": "update_phases_and_backtrack_to_root_level",
+    "lisp_function": "|c/update_phases_and_backtrack_to_root_level|",
+    "source": "upstream/satch.c:4974:1",
+    "frame": false
+  },
+  {
+    "c_function": "averages",
+    "lisp_function": "|c/averages|",
+    "source": "upstream/satch.c:5013:1",
+    "frame": false
+  },
+  {
+    "c_function": "update_slow_average",
+    "lisp_function": "|c/update_slow_average|",
+    "source": "upstream/satch.c:5019:1",
+    "frame": false
+  },
+  {
+    "c_function": "unbiased_slow_average",
+    "lisp_function": "|c/unbiased_slow_average|",
+    "source": "upstream/satch.c:5025:1",
+    "frame": false
+  },
+  {
+    "c_function": "update_fast_average",
+    "lisp_function": "|c/update_fast_average|",
+    "source": "upstream/satch.c:5038:1",
+    "frame": false
+  },
+  {
+    "c_function": "unbiased_fast_average",
+    "lisp_function": "|c/unbiased_fast_average|",
+    "source": "upstream/satch.c:5044:1",
+    "frame": false
+  },
+  {
+    "c_function": "update_betas",
+    "lisp_function": "|c/update_betas|",
+    "source": "upstream/satch.c:5057:1",
+    "frame": false
+  },
+  {
+    "c_function": "init_one_set_of_averages",
+    "lisp_function": "|c/init_one_set_of_averages|",
+    "source": "upstream/satch.c:5069:1",
+    "frame": false
+  },
+  {
+    "c_function": "init_averages",
+    "lisp_function": "|c/init_averages|",
+    "source": "upstream/satch.c:5078:1",
+    "frame": false
+  },
+  {
+    "c_function": "sort_deduced_clause",
+    "lisp_function": "|c/sort_deduced_clause|",
+    "source": "upstream/satch.c:5099:1",
+    "frame": true
+  },
+  {
+    "c_function": "mark_removable",
+    "lisp_function": "|c/mark_removable|",
+    "source": "upstream/satch.c:5179:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_poisoned",
+    "lisp_function": "|c/mark_poisoned|",
+    "source": "upstream/satch.c:5188:1",
+    "frame": false
+  },
+  {
+    "c_function": "minimize_literal",
+    "lisp_function": "|c/minimize_literal|",
+    "source": "upstream/satch.c:5210:1",
+    "frame": false
+  },
+  {
+    "c_function": "reset_removable_and_poisoned",
+    "lisp_function": "|c/reset_removable_and_poisoned|",
+    "source": "upstream/satch.c:5311:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_analyzed",
+    "lisp_function": "|c/mark_analyzed|",
+    "source": "upstream/satch.c:5334:1",
+    "frame": true
+  },
+  {
+    "c_function": "analyze_literal",
+    "lisp_function": "|c/analyze_literal|",
+    "source": "upstream/satch.c:5348:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_shrunken",
+    "lisp_function": "|c/mark_shrunken|",
+    "source": "upstream/satch.c:5373:1",
+    "frame": false
+  },
+  {
+    "c_function": "reset_shrunken",
+    "lisp_function": "|c/reset_shrunken|",
+    "source": "upstream/satch.c:5384:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_shrunken_as_removable",
+    "lisp_function": "|c/mark_shrunken_as_removable|",
+    "source": "upstream/satch.c:5396:1",
+    "frame": false
+  },
+  {
+    "c_function": "shrink_literal",
+    "lisp_function": "|c/shrink_literal|",
+    "source": "upstream/satch.c:5417:1",
+    "frame": false
+  },
+  {
+    "c_function": "shrunken_block",
+    "lisp_function": "|c/shrunken_block|",
+    "source": "upstream/satch.c:5436:1",
+    "frame": false
+  },
+  {
+    "c_function": "next_block",
+    "lisp_function": "|c/next_block|",
+    "source": "upstream/satch.c:5465:1",
+    "frame": false
+  },
+  {
+    "c_function": "shrink_block",
+    "lisp_function": "|c/shrink_block|",
+    "source": "upstream/satch.c:5487:1",
+    "frame": false
+  },
+  {
+    "c_function": "minimize_block",
+    "lisp_function": "|c/minimize_block|",
+    "source": "upstream/satch.c:5578:1",
+    "frame": false
+  },
+  {
+    "c_function": "shrink_deduced_clause",
+    "lisp_function": "|c/shrink_deduced_clause|",
+    "source": "upstream/satch.c:5593:1",
+    "frame": false
+  },
+  {
+    "c_function": "bump_reason_side_literals",
+    "lisp_function": "|c/bump_reason_side_literals|",
+    "source": "upstream/satch.c:5642:1",
+    "frame": false
+  },
+  {
+    "c_function": "add_stamps",
+    "lisp_function": "|c/add_stamps|",
+    "source": "upstream/satch.c:5683:1",
+    "frame": false
+  },
+  {
+    "c_function": "sort_analyzed",
+    "lisp_function": "|c/sort_analyzed|",
+    "source": "upstream/satch.c:5724:1",
+    "frame": true
+  },
+  {
+    "c_function": "find_conflict_level",
+    "lisp_function": "|c/find_conflict_level|",
+    "source": "upstream/satch.c:5763:1",
+    "frame": false
+  },
+  {
+    "c_function": "reuse_scored_trail_from",
+    "lisp_function": "|c/reuse_scored_trail_from|",
+    "source": "upstream/satch.c:5869:1",
+    "frame": true
+  },
+  {
+    "c_function": "reuse_stamped_trail_from",
+    "lisp_function": "|c/reuse_stamped_trail_from|",
+    "source": "upstream/satch.c:5899:1",
+    "frame": true
+  },
+  {
+    "c_function": "determine_jump_level",
+    "lisp_function": "|c/determine_jump_level|",
+    "source": "upstream/satch.c:5940:1",
+    "frame": false
+  },
+  {
+    "c_function": "analyze_conflict",
+    "lisp_function": "|c/analyze_conflict|",
+    "source": "upstream/satch.c:6061:1",
+    "frame": true
+  },
+  {
+    "c_function": "max_stamped_unassigned_variable_on_decision_queue",
+    "lisp_function": "|c/max_stamped_unassigned_variable_on_decision_queue|",
+    "source": "upstream/satch.c:6450:1",
+    "frame": false
+  },
+  {
+    "c_function": "max_score_unassigned_variable_on_binary_heap",
+    "lisp_function": "|c/max_score_unassigned_variable_on_binary_heap|",
+    "source": "upstream/satch.c:6479:1",
+    "frame": false
+  },
+  {
+    "c_function": "decide_variable",
+    "lisp_function": "|c/decide_variable|",
+    "source": "upstream/satch.c:6516:1",
+    "frame": false
+  },
+  {
+    "c_function": "original_phase",
+    "lisp_function": "|c/original_phase|",
+    "source": "upstream/satch.c:6547:1",
+    "frame": false
+  },
+  {
+    "c_function": "decide_phase",
+    "lisp_function": "|c/decide_phase|",
+    "source": "upstream/satch.c:6557:1",
+    "frame": false
+  },
+  {
+    "c_function": "decide",
+    "lisp_function": "|c/decide|",
+    "source": "upstream/satch.c:6580:1",
+    "frame": false
+  },
+  {
+    "c_function": "report",
+    "lisp_function": "|c/report|",
+    "source": "upstream/satch.c:6694:1",
+    "frame": true
+  },
+  {
+    "c_function": "iterate",
+    "lisp_function": "|c/iterate|",
+    "source": "upstream/satch.c:6916:1",
+    "frame": false
+  },
+  {
+    "c_function": "logn",
+    "lisp_function": "|c/logn|",
+    "source": "upstream/satch.c:6929:1",
+    "frame": false
+  },
+  {
+    "c_function": "nlognlogn",
+    "lisp_function": "|c/nlognlogn|",
+    "source": "upstream/satch.c:6942:1",
+    "frame": false
+  },
+  {
+    "c_function": "nlogn",
+    "lisp_function": "|c/nlogn|",
+    "source": "upstream/satch.c:6955:1",
+    "frame": false
+  },
+  {
+    "c_function": "nlognlognlogn",
+    "lisp_function": "|c/nlognlognlogn|",
+    "source": "upstream/satch.c:6970:1",
+    "frame": false
+  },
+  {
+    "c_function": "ndivlogn",
+    "lisp_function": "|c/ndivlogn|",
+    "source": "upstream/satch.c:6985:1",
+    "frame": false
+  },
+  {
+    "c_function": "quadratic",
+    "lisp_function": "|c/quadratic|",
+    "source": "upstream/satch.c:7000:1",
+    "frame": false
+  },
+  {
+    "c_function": "scale_interval",
+    "lisp_function": "|c/scale_interval|",
+    "source": "upstream/satch.c:7030:1",
+    "frame": false
+  },
+  {
+    "c_function": "reuse_stamped_trail",
+    "lisp_function": "|c/reuse_stamped_trail|",
+    "source": "upstream/satch.c:7059:1",
+    "frame": false
+  },
+  {
+    "c_function": "reuse_scored_trail",
+    "lisp_function": "|c/reuse_scored_trail|",
+    "source": "upstream/satch.c:7089:1",
+    "frame": false
+  },
+  {
+    "c_function": "reuse_trail",
+    "lisp_function": "|c/reuse_trail|",
+    "source": "upstream/satch.c:7118:1",
+    "frame": false
+  },
+  {
+    "c_function": "restarting",
+    "lisp_function": "|c/restarting|",
+    "source": "upstream/satch.c:7176:1",
+    "frame": false
+  },
+  {
+    "c_function": "restart",
+    "lisp_function": "|c/restart|",
+    "source": "upstream/satch.c:7207:1",
+    "frame": false
+  },
+  {
+    "c_function": "rephasing",
+    "lisp_function": "|c/rephasing|",
+    "source": "upstream/satch.c:7295:1",
+    "frame": false
+  },
+  {
+    "c_function": "original_phases",
+    "lisp_function": "|c/original_phases|",
+    "source": "upstream/satch.c:7303:1",
+    "frame": false
+  },
+  {
+    "c_function": "inverted_phases",
+    "lisp_function": "|c/inverted_phases|",
+    "source": "upstream/satch.c:7313:1",
+    "frame": false
+  },
+  {
+    "c_function": "best_phases",
+    "lisp_function": "|c/best_phases|",
+    "source": "upstream/satch.c:7325:1",
+    "frame": false
+  },
+  {
+    "c_function": "rephase",
+    "lisp_function": "|c/rephase|",
+    "source": "upstream/satch.c:7341:1",
+    "frame": true
+  },
+  {
+    "c_function": "reducing",
+    "lisp_function": "|c/reducing|",
+    "source": "upstream/satch.c:7392:1",
+    "frame": false
+  },
+  {
+    "c_function": "set_protect_flag_of_reasons",
+    "lisp_function": "|c/set_protect_flag_of_reasons|",
+    "source": "upstream/satch.c:7404:1",
+    "frame": false
+  },
+  {
+    "c_function": "clause_satisfied",
+    "lisp_function": "|c/clause_satisfied|",
+    "source": "upstream/satch.c:7433:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_garbage_if_satisfied",
+    "lisp_function": "|c/mark_garbage_if_satisfied|",
+    "source": "upstream/satch.c:7553:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_irredundant_clauses_as_garbage_if_satisfied",
+    "lisp_function": "|c/mark_irredundant_clauses_as_garbage_if_satisfied|",
+    "source": "upstream/satch.c:7581:1",
+    "frame": false
+  },
+  {
+    "c_function": "gather_reduce_candidates",
+    "lisp_function": "|c/gather_reduce_candidates|",
+    "source": "upstream/satch.c:7598:1",
+    "frame": false
+  },
+  {
+    "c_function": "flush_garbage_watches",
+    "lisp_function": "|c/flush_garbage_watches|",
+    "source": "upstream/satch.c:7661:1",
+    "frame": true
+  },
+  {
+    "c_function": "delete_garbage_clauses",
+    "lisp_function": "|c/delete_garbage_clauses|",
+    "source": "upstream/satch.c:7728:1",
+    "frame": false
+  },
+  {
+    "c_function": "rank_clause",
+    "lisp_function": "|c/rank_clause|",
+    "source": "upstream/satch.c:7771:1",
+    "frame": false
+  },
+  {
+    "c_function": "sort_reduce_candidates",
+    "lisp_function": "|c/sort_reduce_candidates|",
+    "source": "upstream/satch.c:7777:1",
+    "frame": true
+  },
+  {
+    "c_function": "mark_garbage_candidates",
+    "lisp_function": "|c/mark_garbage_candidates|",
+    "source": "upstream/satch.c:7843:1",
+    "frame": false
+  },
+  {
+    "c_function": "reduce",
+    "lisp_function": "|c/reduce|",
+    "source": "upstream/satch.c:7939:1",
+    "frame": true
+  },
+  {
+    "c_function": "start_mode",
+    "lisp_function": "|c/start_mode|",
+    "source": "upstream/satch.c:8045:1",
+    "frame": false
+  },
+  {
+    "c_function": "stop_mode",
+    "lisp_function": "|c/stop_mode|",
+    "source": "upstream/satch.c:8062:1",
+    "frame": false
+  },
+  {
+    "c_function": "switching",
+    "lisp_function": "|c/switching|",
+    "source": "upstream/satch.c:8092:1",
+    "frame": false
+  },
+  {
+    "c_function": "set_new_mode_switching_limit",
+    "lisp_function": "|c/set_new_mode_switching_limit|",
+    "source": "upstream/satch.c:8101:1",
+    "frame": false
+  },
+  {
+    "c_function": "mode_ticks_limit_hit",
+    "lisp_function": "|c/mode_ticks_limit_hit|",
+    "source": "upstream/satch.c:8115:1",
+    "frame": false
+  },
+  {
+    "c_function": "switch_to_focused_mode",
+    "lisp_function": "|c/switch_to_focused_mode|",
+    "source": "upstream/satch.c:8123:1",
+    "frame": false
+  },
+  {
+    "c_function": "switch_to_stable_mode",
+    "lisp_function": "|c/switch_to_stable_mode|",
+    "source": "upstream/satch.c:8133:1",
+    "frame": false
+  },
+  {
+    "c_function": "switch_mode",
+    "lisp_function": "|c/switch_mode|",
+    "source": "upstream/satch.c:8167:1",
+    "frame": false
+  },
+  {
+    "c_function": "more_elimination_candidates",
+    "lisp_function": "|c/more_elimination_candidates|",
+    "source": "upstream/satch.c:8203:1",
+    "frame": false
+  },
+  {
+    "c_function": "more_subsumption_candidates",
+    "lisp_function": "|c/more_subsumption_candidates|",
+    "source": "upstream/satch.c:8212:1",
+    "frame": false
+  },
+  {
+    "c_function": "eliminating",
+    "lisp_function": "|c/eliminating|",
+    "source": "upstream/satch.c:8220:1",
+    "frame": false
+  },
+  {
+    "c_function": "flush_redundant_watches",
+    "lisp_function": "|c/flush_redundant_watches|",
+    "source": "upstream/satch.c:8258:1",
+    "frame": true
+  },
+  {
+    "c_function": "connect_occurrences_in_irredundant_clauses",
+    "lisp_function": "|c/connect_occurrences_in_irredundant_clauses|",
+    "source": "upstream/satch.c:8372:1",
+    "frame": false
+  },
+  {
+    "c_function": "switch_to_dense_mode",
+    "lisp_function": "|c/switch_to_dense_mode|",
+    "source": "upstream/satch.c:8386:1",
+    "frame": false
+  },
+  {
+    "c_function": "disconnect_all_clauses",
+    "lisp_function": "|c/disconnect_all_clauses|",
+    "source": "upstream/satch.c:8406:1",
+    "frame": true
+  },
+  {
+    "c_function": "watch_saved_redundant_binaries",
+    "lisp_function": "|c/watch_saved_redundant_binaries|",
+    "source": "upstream/satch.c:8452:1",
+    "frame": true
+  },
+  {
+    "c_function": "watch_clauses",
+    "lisp_function": "|c/watch_clauses|",
+    "source": "upstream/satch.c:8476:1",
+    "frame": false
+  },
+  {
+    "c_function": "switch_to_sparse_mode",
+    "lisp_function": "|c/switch_to_sparse_mode|",
+    "source": "upstream/satch.c:8483:1",
+    "frame": false
+  },
+  {
+    "c_function": "clause_eliminated",
+    "lisp_function": "|c/clause_eliminated|",
+    "source": "upstream/satch.c:8501:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_satisfied_eliminated_redundant_clauses_garbage",
+    "lisp_function": "|c/mark_satisfied_eliminated_redundant_clauses_garbage|",
+    "source": "upstream/satch.c:8513:1",
+    "frame": false
+  },
+  {
+    "c_function": "mark_and_collect_garbage_clauses_after_elimination",
+    "lisp_function": "|c/mark_and_collect_garbage_clauses_after_elimination|",
+    "source": "upstream/satch.c:8529:1",
+    "frame": true
+  },
+  {
+    "c_function": "backward_subsume_marked",
+    "lisp_function": "|c/backward_subsume_marked|",
+    "source": "upstream/satch.c:8570:1",
+    "frame": true
+  },
+  {
+    "c_function": "backward_subsume_with_clause",
+    "lisp_function": "|c/backward_subsume_with_clause|",
+    "source": "upstream/satch.c:8839:1",
+    "frame": false
+  },
+  {
+    "c_function": "backward_subsume_literal",
+    "lisp_function": "|c/backward_subsume_literal|",
+    "source": "upstream/satch.c:8966:1",
+    "frame": true
+  },
+  {
+    "c_function": "remove_duplicated_virtual_binary_clauses",
+    "lisp_function": "|c/remove_duplicated_virtual_binary_clauses|",
+    "source": "upstream/satch.c:9028:1",
+    "frame": true
+  },
+  {
+    "c_function": "backward_subsume_variable",
+    "lisp_function": "|c/backward_subsume_variable|",
+    "source": "upstream/satch.c:9091:1",
+    "frame": false
+  },
+  {
+    "c_function": "subsumption_ticks_limit_hit",
+    "lisp_function": "|c/subsumption_ticks_limit_hit|",
+    "source": "upstream/satch.c:9114:1",
+    "frame": false
+  },
+  {
+    "c_function": "full_backward_subsumption",
+    "lisp_function": "|c/full_backward_subsumption|",
+    "source": "upstream/satch.c:9122:1",
+    "frame": false
+  },
+  {
+    "c_function": "actual_number_of_occurrences",
+    "lisp_function": "|c/actual_number_of_occurrences|",
+    "source": "upstream/satch.c:9233:1",
+    "frame": true
+  },
+  {
+    "c_function": "can_be_eliminated",
+    "lisp_function": "|c/can_be_eliminated|",
+    "source": "upstream/satch.c:9311:1",
+    "frame": false
+  },
+  {
+    "c_function": "produces_few_resolvents",
+    "lisp_function": "|c/produces_few_resolvents|",
+    "source": "upstream/satch.c:9351:1",
+    "frame": true
+  },
+  {
+    "c_function": "add_and_connect_resolvent",
+    "lisp_function": "|c/add_and_connect_resolvent|",
+    "source": "upstream/satch.c:9486:1",
+    "frame": false
+  },
+  {
+    "c_function": "push_clause_on_extension_stack",
+    "lisp_function": "|c/push_clause_on_extension_stack|",
+    "source": "upstream/satch.c:9534:1",
+    "frame": false
+  },
+  {
+    "c_function": "push_unit_on_extension_stack",
+    "lisp_function": "|c/push_unit_on_extension_stack|",
+    "source": "upstream/satch.c:9549:1",
+    "frame": false
+  },
+  {
+    "c_function": "push_clauses_on_extension_stack",
+    "lisp_function": "|c/push_clauses_on_extension_stack|",
+    "source": "upstream/satch.c:9556:1",
+    "frame": true
+  },
+  {
+    "c_function": "eliminate_watched_clause",
+    "lisp_function": "|c/eliminate_watched_clause|",
+    "source": "upstream/satch.c:9566:1",
+    "frame": false
+  },
+  {
+    "c_function": "eliminate_watched_clauses",
+    "lisp_function": "|c/eliminate_watched_clauses|",
+    "source": "upstream/satch.c:9597:1",
+    "frame": true
+  },
+  {
+    "c_function": "eliminate_variable",
+    "lisp_function": "|c/eliminate_variable|",
+    "source": "upstream/satch.c:9612:1",
+    "frame": false
+  },
+  {
+    "c_function": "set_elimination_ticks_limit",
+    "lisp_function": "|c/set_elimination_ticks_limit|",
+    "source": "upstream/satch.c:9733:1",
+    "frame": false
+  },
+  {
+    "c_function": "elimination_ticks_limit_hit",
+    "lisp_function": "|c/elimination_ticks_limit_hit|",
+    "source": "upstream/satch.c:9754:1",
+    "frame": false
+  },
+  {
+    "c_function": "set_subsumption_ticks_limit",
+    "lisp_function": "|c/set_subsumption_ticks_limit|",
+    "source": "upstream/satch.c:9765:1",
+    "frame": false
+  },
+  {
+    "c_function": "eliminate_variables",
+    "lisp_function": "|c/eliminate_variables|",
+    "source": "upstream/satch.c:9792:1",
+    "frame": false
+  },
+  {
+    "c_function": "extend_solution",
+    "lisp_function": "|c/extend_solution|",
+    "source": "upstream/satch.c:9938:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_fixed",
+    "lisp_function": "|c/satch_fixed|",
+    "source": "upstream/satch.c:9979:1",
+    "frame": false
+  },
+  {
+    "c_function": "int_compare",
+    "lisp_function": "|c/int_compare|",
+    "source": "upstream/satch.c:9992:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_sort_lits_by_counts",
+    "lisp_function": "|c/vivify_sort_lits_by_counts|",
+    "source": "upstream/satch.c:10015:1",
+    "frame": true
+  },
+  {
+    "c_function": "vivify_sort_stack_by_counts",
+    "lisp_function": "|c/vivify_sort_stack_by_counts|",
+    "source": "upstream/satch.c:10034:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_sort_clause_by_counts",
+    "lisp_function": "|c/vivify_sort_clause_by_counts|",
+    "source": "upstream/satch.c:10041:1",
+    "frame": true
+  },
+  {
+    "c_function": "worse_candidate",
+    "lisp_function": "|c/worse_candidate|",
+    "source": "upstream/satch.c:10059:1",
+    "frame": false
+  },
+  {
+    "c_function": "sort_vivification_candidates",
+    "lisp_function": "|c/sort_vivification_candidates|",
+    "source": "upstream/satch.c:10104:1",
+    "frame": false
+  },
+  {
+    "c_function": "count_literal",
+    "lisp_function": "|c/count_literal|",
+    "source": "upstream/satch.c:10118:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_count_clause",
+    "lisp_function": "|c/vivify_count_clause|",
+    "source": "upstream/satch.c:10127:1",
+    "frame": false
+  },
+  {
+    "c_function": "flush_large_watches",
+    "lisp_function": "|c/flush_large_watches|",
+    "source": "upstream/satch.c:10134:1",
+    "frame": true
+  },
+  {
+    "c_function": "watch_large_clauses",
+    "lisp_function": "|c/watch_large_clauses|",
+    "source": "upstream/satch.c:10175:1",
+    "frame": false
+  },
+  {
+    "c_function": "promote_clause",
+    "lisp_function": "|c/promote_clause|",
+    "source": "upstream/satch.c:10206:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_marked_literal",
+    "lisp_function": "|c/vivify_marked_literal|",
+    "source": "upstream/satch.c:10246:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_mark_literal",
+    "lisp_function": "|c/vivify_mark_literal|",
+    "source": "upstream/satch.c:10254:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_boolean_constraint_propagation",
+    "lisp_function": "|c/vivify_boolean_constraint_propagation|",
+    "source": "upstream/satch.c:10263:1",
+    "frame": true
+  },
+  {
+    "c_function": "vivify_binary_or_large_conflict",
+    "lisp_function": "|c/vivify_binary_or_large_conflict|",
+    "source": "upstream/satch.c:10294:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_mark_garbage",
+    "lisp_function": "|c/vivify_mark_garbage|",
+    "source": "upstream/satch.c:10322:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_learn",
+    "lisp_function": "|c/vivify_learn|",
+    "source": "upstream/satch.c:10336:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_analyze",
+    "lisp_function": "|c/vivify_analyze|",
+    "source": "upstream/satch.c:10582:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_reset_analyzed",
+    "lisp_function": "|c/vivify_reset_analyzed|",
+    "source": "upstream/satch.c:10730:1",
+    "frame": true
+  },
+  {
+    "c_function": "vivify_unit_conflict",
+    "lisp_function": "|c/vivify_unit_conflict|",
+    "source": "upstream/satch.c:10744:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_clause",
+    "lisp_function": "|c/vivify_clause|",
+    "source": "upstream/satch.c:10769:1",
+    "frame": true
+  },
+  {
+    "c_function": "simplify_vivification_candidate",
+    "lisp_function": "|c/simplify_vivification_candidate|",
+    "source": "upstream/satch.c:10984:1",
+    "frame": false
+  },
+  {
+    "c_function": "schedule_vivification_candidates",
+    "lisp_function": "|c/schedule_vivification_candidates|",
+    "source": "upstream/satch.c:11089:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_round",
+    "lisp_function": "|c/vivify_round|",
+    "source": "upstream/satch.c:11223:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_redundant_tier1",
+    "lisp_function": "|c/vivify_redundant_tier1|",
+    "source": "upstream/satch.c:11418:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_redundant_tier2",
+    "lisp_function": "|c/vivify_redundant_tier2|",
+    "source": "upstream/satch.c:11426:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_irredundant",
+    "lisp_function": "|c/vivify_irredundant|",
+    "source": "upstream/satch.c:11433:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify_adjustment",
+    "lisp_function": "|c/vivify_adjustment|",
+    "source": "upstream/satch.c:11474:1",
+    "frame": false
+  },
+  {
+    "c_function": "really_vivify",
+    "lisp_function": "|c/really_vivify|",
+    "source": "upstream/satch.c:11481:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivify",
+    "lisp_function": "|c/vivify|",
+    "source": "upstream/satch.c:11499:1",
+    "frame": false
+  },
+  {
+    "c_function": "vivifying",
+    "lisp_function": "|c/vivifying|",
+    "source": "upstream/satch.c:11593:1",
+    "frame": false
+  },
+  {
+    "c_function": "init_limits",
+    "lisp_function": "|c/init_limits|",
+    "source": "upstream/satch.c:11612:1",
+    "frame": false
+  },
+  {
+    "c_function": "solve",
+    "lisp_function": "|c/solve|",
+    "source": "upstream/satch.c:11657:1",
+    "frame": false
+  },
+  {
+    "c_function": "invalid_usage",
+    "lisp_function": "|c/invalid_usage|",
+    "source": "upstream/satch.c:11779:1",
+    "frame": false
+  },
+  {
+    "c_function": "internal_init",
+    "lisp_function": "|c/internal_init|",
+    "source": "upstream/satch.c:11820:1",
+    "frame": false
+  },
+  {
+    "c_function": "internal_release",
+    "lisp_function": "|c/internal_release|",
+    "source": "upstream/satch.c:11855:1",
+    "frame": false
+  },
+  {
+    "c_function": "internal_add",
+    "lisp_function": "|c/internal_add|",
+    "source": "upstream/satch.c:11994:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_init",
+    "lisp_function": "|c/satch_init|",
+    "source": "upstream/satch.c:12142:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_release",
+    "lisp_function": "|c/satch_release|",
+    "source": "upstream/satch.c:12148:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_add",
+    "lisp_function": "|c/satch_add|",
+    "source": "upstream/satch.c:12161:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_add_empty",
+    "lisp_function": "|c/satch_add_empty|",
+    "source": "upstream/satch.c:12174:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_add_unit",
+    "lisp_function": "|c/satch_add_unit|",
+    "source": "upstream/satch.c:12182:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_add_binary_clause",
+    "lisp_function": "|c/satch_add_binary_clause|",
+    "source": "upstream/satch.c:12192:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_add_ternary_clause",
+    "lisp_function": "|c/satch_add_ternary_clause|",
+    "source": "upstream/satch.c:12204:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_add_quaternary_clause",
+    "lisp_function": "|c/satch_add_quaternary_clause|",
+    "source": "upstream/satch.c:12218:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_reserve",
+    "lisp_function": "|c/satch_reserve|",
+    "source": "upstream/satch.c:12240:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_maximum_variable",
+    "lisp_function": "|c/satch_maximum_variable|",
+    "source": "upstream/satch.c:12250:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_val",
+    "lisp_function": "|c/satch_val|",
+    "source": "upstream/satch.c:12266:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_solve",
+    "lisp_function": "|c/satch_solve|",
+    "source": "upstream/satch.c:12294:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_set_verbose_level",
+    "lisp_function": "|c/satch_set_verbose_level|",
+    "source": "upstream/satch.c:12322:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_enable_logging_messages",
+    "lisp_function": "|c/satch_enable_logging_messages|",
+    "source": "upstream/satch.c:12335:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_ascii_proof",
+    "lisp_function": "|c/satch_ascii_proof|",
+    "source": "upstream/satch.c:12349:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_trace_proof",
+    "lisp_function": "|c/satch_trace_proof|",
+    "source": "upstream/satch.c:12356:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_process_time",
+    "lisp_function": "|c/satch_process_time|",
+    "source": "upstream/satch.c:12365:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_start_profiling_parsing",
+    "lisp_function": "|c/satch_start_profiling_parsing|",
+    "source": "upstream/satch.c:12371:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_stop_profiling_parsing",
+    "lisp_function": "|c/satch_stop_profiling_parsing|",
+    "source": "upstream/satch.c:12378:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_section",
+    "lisp_function": "|c/satch_section|",
+    "source": "upstream/satch.c:12385:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_statistics",
+    "lisp_function": "|c/satch_statistics|",
+    "source": "upstream/satch.c:12392:1",
+    "frame": false
+  },
+  {
+    "c_function": "satch_conflicts",
+    "lisp_function": "|c/satch_conflicts|",
+    "source": "upstream/satch.c:12401:1",
+    "frame": false
+  }
+]

@@ -6,3 +6,5 @@ continuation/benchmarks/vendor/
 prolog/iso-results*/
 iso-results*/
 /ooparts-prolog
+sat/tests/build/
+sat/tools/layout-probe

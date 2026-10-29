@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: sudo apt-get update && sudo apt-get install -y sbcl
       - run: bash continuation/tests/run.sh
-      - name: Test both libraries in one image
+      - name: Test all libraries in one image
         run: >-
           sbcl --dynamic-space-size 2048 --control-stack-size 1 --non-interactive
           --eval '(require :asdf)'

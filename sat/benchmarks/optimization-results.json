@@ -1,0 +1,5985 @@
+{
+  "environment": {
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "gcc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+    "sbcl": "SBCL 2.2.9.debian",
+    "affinity_cpu": 0,
+    "groups": 5,
+    "c_flags": "-O3 -DNDEBUG, separate translation units, no LTO"
+  },
+  "summary": {
+    "geometric_mean_speedup": 3.9243133893997695,
+    "before_over_c_geomean": 37.78914078344978,
+    "after_over_c_geomean": 9.629491081299623,
+    "full_api_speedup_geomean": 3.782840249563337,
+    "min_speedup": 3.501308261901118,
+    "max_speedup": 4.307787829293247
+  },
+  "method": "Warm processes, one pinned CPU, five alternating timed batches. Process CPU medians per solve; no conflict limit. Startup, compilation, parsing, model queries, statistics and IPC excluded. GC inside timed phases included. Both Lisp implementations audited against separate matched-allocator C servers for every iteration; all trace and model digests must match. Allocation counts are cumulative Lisp managed-heap allocations, excluding native arenas.",
+  "cases": [
+    {
+      "name": "binary-chain-4096",
+      "variables": 4096,
+      "clauses": 4096,
+      "c": {
+        "repetitions_per_group": 749,
+        "signature": {
+          "status": 10,
+          "conflicts": 0,
+          "decisions": 0,
+          "propagations": 4096,
+          "ticks": 4096,
+          "reductions": 0,
+          "restarts": 0,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 968707525,
+          "maximum_variable": 4096
+        },
+        "solve_cpu": 1.8053021361815753e-05,
+        "solve_cpu_range": [
+          1.7627706275033377e-05,
+          1.8389e-05
+        ],
+        "total_cpu": 0.00013801960213618157,
+        "total_cpu_range": [
+          0.00013468678371161548,
+          0.00014003392256341788
+        ],
+        "solve_wall": 1.7983736982643522e-05,
+        "solve_wall_range": [
+          1.757649399198932e-05,
+          1.833474098798398e-05
+        ],
+        "total_wall": 0.00013806612016021362,
+        "total_wall_range": [
+          0.00013472917623497997,
+          0.0001400610680907877
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 0.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "before": {
+        "repetitions_per_group": 48,
+        "signature": {
+          "status": 10,
+          "conflicts": 0,
+          "decisions": 0,
+          "propagations": 4096,
+          "ticks": 4096,
+          "reductions": 0,
+          "restarts": 0,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 968707525,
+          "maximum_variable": 4096
+        },
+        "solve_cpu": 0.0009999583333333334,
+        "solve_cpu_range": [
+          0.000966875,
+          0.0014036458333333334
+        ],
+        "total_cpu": 0.012201291666666668,
+        "total_cpu_range": [
+          0.0116234375,
+          0.012519354166666668
+        ],
+        "solve_wall": 0.0014167083333333334,
+        "solve_wall_range": [
+          0.0009166875,
+          0.0019167291666666666
+        ],
+        "total_wall": 0.012250291666666668,
+        "total_wall_range": [
+          0.011666916666666666,
+          0.0127503125
+        ],
+        "solve_cons_bytes": 920234.3333333334,
+        "total_cons_bytes": 9906857.333333334,
+        "gc_build_solve_cpu": 0.000872375,
+        "gc_build_solve_cpu_range": [
+          0.0007771041666666667,
+          0.0010143125
+        ]
+      },
+      "after": {
+        "repetitions_per_group": 183,
+        "signature": {
+          "status": 10,
+          "conflicts": 0,
+          "decisions": 0,
+          "propagations": 4096,
+          "ticks": 4096,
+          "reductions": 0,
+          "restarts": 0,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 968707525,
+          "maximum_variable": 4096
+        },
+        "solve_cpu": 0.0002855956284153005,
+        "solve_cpu_range": [
+          0.00028136612021857925,
+          0.00032561748633879784
+        ],
+        "total_cpu": 0.0035246666666666664,
+        "total_cpu_range": [
+          0.0034380601092896174,
+          0.0037192349726775957
+        ],
+        "solve_wall": 0.0004371639344262295,
+        "solve_wall_range": [
+          0.00028415846994535516,
+          0.0005027486338797815
+        ],
+        "total_wall": 0.00369407650273224,
+        "total_wall_range": [
+          0.003344349726775956,
+          0.0037815136612021857
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 712.0437158469946,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "speedup": 3.501308261901118,
+      "before_over_c": 55.390081986407104,
+      "after_over_c": 15.819824432234295,
+      "full_api_speedup": 3.4616866843200307,
+      "exact_audit": true,
+      "c_raw": [
+        {
+          "repetitions": 749,
+          "solve_cpu": 0.013203152,
+          "total_cpu": 0.100880401,
+          "solve_wall": 0.013164794,
+          "total_wall": 0.100912153,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 3001483592441391570,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 749,
+          "solve_cpu": 0.01352413,
+          "total_cpu": 0.101805113,
+          "solve_wall": 0.013469819,
+          "total_wall": 0.101841042,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 3001483592441391570,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 749,
+          "solve_cpu": 0.013521713,
+          "total_cpu": 0.103376682,
+          "solve_wall": 0.013485326,
+          "total_wall": 0.103411524,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 3001483592441391570,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 749,
+          "solve_cpu": 0.013508947,
+          "total_cpu": 0.104885408,
+          "solve_wall": 0.01346615,
+          "total_wall": 0.10490574,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 3001483592441391570,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 749,
+          "solve_cpu": 0.013773361,
+          "total_cpu": 0.103622013,
+          "solve_wall": 0.013732721,
+          "total_wall": 0.103655472,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 3001483592441391570,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        }
+      ],
+      "before_raw": [
+        {
+          "repetitions": 48,
+          "solve_cpu": 0.047998,
+          "total_cpu": 0.586927,
+          "solve_wall": 0.048002,
+          "total_wall": 0.576015,
+          "solve_cons_bytes": 44204032,
+          "total_cons_bytes": 475558208,
+          "gc_build_solve_cpu": 0.048687,
+          "digest": 9944719442233766611,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 48,
+          "solve_cpu": 0.047858,
+          "total_cpu": 0.58324,
+          "solve_wall": 0.092003,
+          "total_wall": 0.588014,
+          "solve_cons_bytes": 44138496,
+          "total_cons_bytes": 475529152,
+          "gc_build_solve_cpu": 0.038391,
+          "digest": 9944719442233766611,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 48,
+          "solve_cpu": 0.04641,
+          "total_cpu": 0.557925,
+          "solve_wall": 0.044001,
+          "total_wall": 0.560012,
+          "solve_cons_bytes": 44171264,
+          "total_cons_bytes": 475529152,
+          "gc_build_solve_cpu": 0.037301,
+          "digest": 9944719442233766611,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 48,
+          "solve_cpu": 0.056141,
+          "total_cpu": 0.585662,
+          "solve_wall": 0.068002,
+          "total_wall": 0.600015,
+          "solve_cons_bytes": 44138496,
+          "total_cons_bytes": 475529168,
+          "gc_build_solve_cpu": 0.042549,
+          "digest": 9944719442233766611,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 48,
+          "solve_cpu": 0.067375,
+          "total_cpu": 0.600929,
+          "solve_wall": 0.072005,
+          "total_wall": 0.612015,
+          "solve_cons_bytes": 44171248,
+          "total_cons_bytes": 475529152,
+          "gc_build_solve_cpu": 0.041874,
+          "digest": 9944719442233766611,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        }
+      ],
+      "after_raw": [
+        {
+          "repetitions": 183,
+          "solve_cpu": 0.05598,
+          "total_cpu": 0.66062,
+          "solve_wall": 0.092003,
+          "total_wall": 0.680016,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 97536,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15080046935013789640,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 183,
+          "solve_cpu": 0.059588,
+          "total_cpu": 0.68062,
+          "solve_wall": 0.080002,
+          "total_wall": 0.692017,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 130304,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15080046935013789640,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 183,
+          "solve_cpu": 0.051932,
+          "total_cpu": 0.640938,
+          "solve_wall": 0.052001,
+          "total_wall": 0.628015,
+          "solve_cons_bytes": 32768,
+          "total_cons_bytes": 130304,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15080046935013789640,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 183,
+          "solve_cpu": 0.05149,
+          "total_cpu": 0.629165,
+          "solve_wall": 0.080001,
+          "total_wall": 0.612016,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 97776,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15080046935013789640,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        },
+        {
+          "repetitions": 183,
+          "solve_cpu": 0.052264,
+          "total_cpu": 0.645014,
+          "solve_wall": 0.064003,
+          "total_wall": 0.676016,
+          "solve_cons_bytes": 32768,
+          "total_cons_bytes": 162816,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15080046935013789640,
+          "signature": {
+            "status": 10,
+            "conflicts": 0,
+            "decisions": 0,
+            "propagations": 4096,
+            "ticks": 4096,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 968707525,
+            "maximum_variable": 4096
+          }
+        }
+      ]
+    },
+    {
+      "name": "sqrt1042441.cnf",
+      "variables": 659,
+      "clauses": 1877,
+      "c": {
+        "repetitions_per_group": 982,
+        "signature": {
+          "status": 10,
+          "conflicts": 2,
+          "decisions": 4,
+          "propagations": 938,
+          "ticks": 4067,
+          "reductions": 0,
+          "restarts": 1,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 2167027075,
+          "maximum_variable": 659
+        },
+        "solve_cpu": 4.655145010183299e-05,
+        "solve_cpu_range": [
+          4.0427123217922605e-05,
+          7.168591140529531e-05
+        ],
+        "total_cpu": 0.0002041688584521385,
+        "total_cpu_range": [
+          0.00018237642057026477,
+          0.00030206117413441956
+        ],
+        "solve_wall": 4.655103971486762e-05,
+        "solve_wall_range": [
+          4.041109470468432e-05,
+          7.16305682281059e-05
+        ],
+        "total_wall": 0.00020429263543788185,
+        "total_wall_range": [
+          0.00018249020468431772,
+          0.0003024564867617108
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 0.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "before": {
+        "repetitions_per_group": 56,
+        "signature": {
+          "status": 10,
+          "conflicts": 2,
+          "decisions": 4,
+          "propagations": 938,
+          "ticks": 4067,
+          "reductions": 0,
+          "restarts": 1,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 2167027075,
+          "maximum_variable": 659
+        },
+        "solve_cpu": 0.0023058392857142856,
+        "solve_cpu_range": [
+          0.002047107142857143,
+          0.002583285714285714
+        ],
+        "total_cpu": 0.009352892857142856,
+        "total_cpu_range": [
+          0.008585357142857143,
+          0.010496232142857142
+        ],
+        "solve_wall": 0.0025000714285714283,
+        "solve_wall_range": [
+          0.0015714642857142856,
+          0.003642875
+        ],
+        "total_wall": 0.00942880357142857,
+        "total_wall_range": [
+          0.008571625000000001,
+          0.01042882142857143
+        ],
+        "solve_cons_bytes": 1808008.857142857,
+        "total_cons_bytes": 6947500.571428572,
+        "gc_build_solve_cpu": 0.0005497142857142856,
+        "gc_build_solve_cpu_range": [
+          0.00048589285714285715,
+          0.0006143571428571428
+        ]
+      },
+      "after": {
+        "repetitions_per_group": 197,
+        "signature": {
+          "status": 10,
+          "conflicts": 2,
+          "decisions": 4,
+          "propagations": 938,
+          "ticks": 4067,
+          "reductions": 0,
+          "restarts": 1,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 2167027075,
+          "maximum_variable": 659
+        },
+        "solve_cpu": 0.0005986751269035533,
+        "solve_cpu_range": [
+          0.0005366852791878172,
+          0.0006015329949238578
+        ],
+        "total_cpu": 0.0031303756345177664,
+        "total_cpu_range": [
+          0.002878984771573604,
+          0.00314348730964467
+        ],
+        "solve_wall": 0.0006091472081218274,
+        "solve_wall_range": [
+          0.0004873197969543147,
+          0.0006294670050761422
+        ],
+        "total_wall": 0.003126979695431472,
+        "total_wall_range": [
+          0.0029036192893401014,
+          0.003187888324873096
+        ],
+        "solve_cons_bytes": 5616.406091370558,
+        "total_cons_bytes": 59913.09644670051,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          2.4598984771573603e-05
+        ]
+      },
+      "speedup": 3.8515702124463855,
+      "before_over_c": 49.5331355021203,
+      "after_over_c": 12.86050435795082,
+      "full_api_speedup": 2.987786115509958,
+      "exact_audit": true,
+      "c_raw": [
+        {
+          "repetitions": 982,
+          "solve_cpu": 0.048196677,
+          "total_cpu": 0.223940754,
+          "solve_wall": 0.048162463,
+          "total_wall": 0.223986065,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 3591077612554804611,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 982,
+          "solve_cpu": 0.039699435,
+          "total_cpu": 0.179093645,
+          "solve_wall": 0.039683695,
+          "total_wall": 0.179205381,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 3591077612554804611,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 982,
+          "solve_cpu": 0.070395565,
+          "total_cpu": 0.296624073,
+          "solve_wall": 0.070341218,
+          "total_wall": 0.29701227,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 3591077612554804611,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 982,
+          "solve_cpu": 0.045713524,
+          "total_cpu": 0.200493819,
+          "solve_wall": 0.045713121,
+          "total_wall": 0.200615368,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 3591077612554804611,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 982,
+          "solve_cpu": 0.041862186,
+          "total_cpu": 0.191018872,
+          "solve_wall": 0.041814523,
+          "total_wall": 0.191093109,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 3591077612554804611,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        }
+      ],
+      "before_raw": [
+        {
+          "repetitions": 56,
+          "solve_cpu": 0.144664,
+          "total_cpu": 0.587789,
+          "solve_wall": 0.140004,
+          "total_wall": 0.584014,
+          "solve_cons_bytes": 101379072,
+          "total_cons_bytes": 389060032,
+          "gc_build_solve_cpu": 0.034404,
+          "digest": 328272460132137859,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 56,
+          "solve_cpu": 0.129127,
+          "total_cpu": 0.523762,
+          "solve_wall": 0.120005,
+          "total_wall": 0.528013,
+          "solve_cons_bytes": 101118448,
+          "total_cons_bytes": 389059792,
+          "gc_build_solve_cpu": 0.032205,
+          "digest": 328272460132137859,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 56,
+          "solve_cpu": 0.129898,
+          "total_cpu": 0.550232,
+          "solve_wall": 0.140004,
+          "total_wall": 0.552013,
+          "solve_cons_bytes": 101313776,
+          "total_cons_bytes": 389092800,
+          "gc_build_solve_cpu": 0.030784,
+          "digest": 328272460132137859,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 56,
+          "solve_cpu": 0.120176,
+          "total_cpu": 0.48078,
+          "solve_wall": 0.204001,
+          "total_wall": 0.48401,
+          "solve_cons_bytes": 101248496,
+          "total_cons_bytes": 389059776,
+          "gc_build_solve_cpu": 0.030196,
+          "digest": 328272460132137859,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 56,
+          "solve_cpu": 0.114638,
+          "total_cpu": 0.491863,
+          "solve_wall": 0.088002,
+          "total_wall": 0.480011,
+          "solve_cons_bytes": 101118704,
+          "total_cons_bytes": 389092560,
+          "gc_build_solve_cpu": 0.02721,
+          "digest": 328272460132137859,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        }
+      ],
+      "after_raw": [
+        {
+          "repetitions": 197,
+          "solve_cpu": 0.118502,
+          "total_cpu": 0.617105,
+          "solve_wall": 0.120002,
+          "total_wall": 0.628014,
+          "solve_cons_bytes": 1106432,
+          "total_cons_bytes": 11835392,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16605780802515986563,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 197,
+          "solve_cpu": 0.117939,
+          "total_cpu": 0.616684,
+          "solve_wall": 0.108004,
+          "total_wall": 0.620015,
+          "solve_cons_bytes": 1138944,
+          "total_cons_bytes": 11802880,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16605780802515986563,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 197,
+          "solve_cpu": 0.105727,
+          "total_cpu": 0.568734,
+          "solve_wall": 0.096002,
+          "total_wall": 0.572013,
+          "solve_cons_bytes": 1138688,
+          "total_cons_bytes": 11835136,
+          "gc_build_solve_cpu": 0.004846,
+          "digest": 16605780802515986563,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 197,
+          "solve_cpu": 0.107124,
+          "total_cpu": 0.56716,
+          "solve_wall": 0.124005,
+          "total_wall": 0.572013,
+          "solve_cons_bytes": 1073664,
+          "total_cons_bytes": 11802880,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16605780802515986563,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        },
+        {
+          "repetitions": 197,
+          "solve_cpu": 0.118304,
+          "total_cpu": 0.619267,
+          "solve_wall": 0.120002,
+          "total_wall": 0.616015,
+          "solve_cons_bytes": 1105920,
+          "total_cons_bytes": 11769856,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16605780802515986563,
+          "signature": {
+            "status": 10,
+            "conflicts": 2,
+            "decisions": 4,
+            "propagations": 938,
+            "ticks": 4067,
+            "reductions": 0,
+            "restarts": 1,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2167027075,
+            "maximum_variable": 659
+          }
+        }
+      ]
+    },
+    {
+      "name": "add16.cnf",
+      "variables": 330,
+      "clauses": 895,
+      "c": {
+        "repetitions_per_group": 45,
+        "signature": {
+          "status": 20,
+          "conflicts": 279,
+          "decisions": 1561,
+          "propagations": 18233,
+          "ticks": 71273,
+          "reductions": 0,
+          "restarts": 78,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 2166136261,
+          "maximum_variable": 330
+        },
+        "solve_cpu": 0.0017946137555555556,
+        "solve_cpu_range": [
+          0.0017075841333333331,
+          0.0020161426666666666
+        ],
+        "total_cpu": 0.0018897645555555555,
+        "total_cpu_range": [
+          0.0017984438444444445,
+          0.0021410798666666665
+        ],
+        "solve_wall": 0.001794986488888889,
+        "solve_wall_range": [
+          0.0017077376444444444,
+          0.002016300822222222
+        ],
+        "total_wall": 0.0018902295111111111,
+        "total_wall_range": [
+          0.0017987297555555556,
+          0.0021413508666666666
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 0.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "before": {
+        "repetitions_per_group": 3,
+        "signature": {
+          "status": 20,
+          "conflicts": 279,
+          "decisions": 1561,
+          "propagations": 18233,
+          "ticks": 71273,
+          "reductions": 0,
+          "restarts": 78,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 2166136261,
+          "maximum_variable": 330
+        },
+        "solve_cpu": 0.05642933333333333,
+        "solve_cpu_range": [
+          0.050610999999999996,
+          0.066221
+        ],
+        "total_cpu": 0.05970466666666666,
+        "total_cpu_range": [
+          0.055210333333333333,
+          0.07288466666666667
+        ],
+        "solve_wall": 0.05600133333333333,
+        "solve_wall_range": [
+          0.049334333333333334,
+          0.06666833333333333
+        ],
+        "total_wall": 0.06000133333333333,
+        "total_wall_range": [
+          0.054668,
+          0.073335
+        ],
+        "solve_cons_bytes": 42361077.333333336,
+        "total_cons_bytes": 44873040.0,
+        "gc_build_solve_cpu": 0.003391,
+        "gc_build_solve_cpu_range": [
+          0.0028610000000000003,
+          0.004758666666666667
+        ]
+      },
+      "after": {
+        "repetitions_per_group": 10,
+        "signature": {
+          "status": 20,
+          "conflicts": 279,
+          "decisions": 1561,
+          "propagations": 18233,
+          "ticks": 71273,
+          "reductions": 0,
+          "restarts": 78,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 2166136261,
+          "maximum_variable": 330
+        },
+        "solve_cpu": 0.0137542,
+        "solve_cpu_range": [
+          0.0135015,
+          0.0166978
+        ],
+        "total_cpu": 0.0148621,
+        "total_cpu_range": [
+          0.0146149,
+          0.0180066
+        ],
+        "solve_wall": 0.0140004,
+        "solve_wall_range": [
+          0.013200300000000002,
+          0.0168005
+        ],
+        "total_wall": 0.0148004,
+        "total_wall_range": [
+          0.0144003,
+          0.0180005
+        ],
+        "solve_cons_bytes": 101478.4,
+        "total_cons_bytes": 133964.8,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "speedup": 4.102698327298813,
+      "before_over_c": 31.443720498990935,
+      "after_over_c": 7.664156121294264,
+      "full_api_speedup": 4.017242964767204,
+      "exact_audit": true,
+      "c_raw": [
+        {
+          "repetitions": 45,
+          "solve_cpu": 0.09072642,
+          "total_cpu": 0.096348594,
+          "solve_wall": 0.090733537,
+          "total_wall": 0.096360789,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15736011642897755590,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 45,
+          "solve_cpu": 0.076841286,
+          "total_cpu": 0.080929973,
+          "solve_wall": 0.076848194,
+          "total_wall": 0.080942839,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15736011642897755590,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 45,
+          "solve_cpu": 0.078736509,
+          "total_cpu": 0.083327512,
+          "solve_wall": 0.078680266,
+          "total_wall": 0.083335906,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15736011642897755590,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 45,
+          "solve_cpu": 0.080757619,
+          "total_cpu": 0.085039405,
+          "solve_wall": 0.080774392,
+          "total_wall": 0.085060328,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15736011642897755590,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 45,
+          "solve_cpu": 0.08199096,
+          "total_cpu": 0.086136815,
+          "solve_wall": 0.081994924,
+          "total_wall": 0.086144666,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15736011642897755590,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        }
+      ],
+      "before_raw": [
+        {
+          "repetitions": 3,
+          "solve_cpu": 0.166276,
+          "total_cpu": 0.177482,
+          "solve_wall": 0.168004,
+          "total_wall": 0.180004,
+          "solve_cons_bytes": 127082992,
+          "total_cons_bytes": 134651888,
+          "gc_build_solve_cpu": 0.009661,
+          "digest": 14226618951061860372,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 3,
+          "solve_cpu": 0.169288,
+          "total_cpu": 0.179114,
+          "solve_wall": 0.168004,
+          "total_wall": 0.180004,
+          "solve_cons_bytes": 127083232,
+          "total_cons_bytes": 134651616,
+          "gc_build_solve_cpu": 0.013509,
+          "digest": 14226618951061860372,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 3,
+          "solve_cpu": 0.151833,
+          "total_cpu": 0.165631,
+          "solve_wall": 0.148003,
+          "total_wall": 0.164004,
+          "solve_cons_bytes": 127017728,
+          "total_cons_bytes": 134619120,
+          "gc_build_solve_cpu": 0.008583,
+          "digest": 14226618951061860372,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 3,
+          "solve_cpu": 0.174211,
+          "total_cpu": 0.184318,
+          "solve_wall": 0.176003,
+          "total_wall": 0.184004,
+          "solve_cons_bytes": 127083248,
+          "total_cons_bytes": 134619120,
+          "gc_build_solve_cpu": 0.014276,
+          "digest": 14226618951061860372,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 3,
+          "solve_cpu": 0.198663,
+          "total_cpu": 0.218654,
+          "solve_wall": 0.200005,
+          "total_wall": 0.220005,
+          "solve_cons_bytes": 127115760,
+          "total_cons_bytes": 134619120,
+          "gc_build_solve_cpu": 0.010173,
+          "digest": 14226618951061860372,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        }
+      ],
+      "after_raw": [
+        {
+          "repetitions": 10,
+          "solve_cpu": 0.135779,
+          "total_cpu": 0.147292,
+          "solve_wall": 0.140004,
+          "total_wall": 0.148004,
+          "solve_cons_bytes": 1047040,
+          "total_cons_bytes": 1339648,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 6446765689664869709,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 10,
+          "solve_cpu": 0.137542,
+          "total_cpu": 0.148621,
+          "solve_wall": 0.136004,
+          "total_wall": 0.148004,
+          "solve_cons_bytes": 1014784,
+          "total_cons_bytes": 1339904,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 6446765689664869709,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 10,
+          "solve_cpu": 0.135015,
+          "total_cpu": 0.146149,
+          "solve_wall": 0.132003,
+          "total_wall": 0.144003,
+          "solve_cons_bytes": 1014528,
+          "total_cons_bytes": 1307136,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 6446765689664869709,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 10,
+          "solve_cpu": 0.166978,
+          "total_cpu": 0.180066,
+          "solve_wall": 0.168005,
+          "total_wall": 0.180005,
+          "solve_cons_bytes": 1014784,
+          "total_cons_bytes": 1372416,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 6446765689664869709,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        },
+        {
+          "repetitions": 10,
+          "solve_cpu": 0.16185,
+          "total_cpu": 0.175508,
+          "solve_wall": 0.160003,
+          "total_wall": 0.176003,
+          "solve_cons_bytes": 982016,
+          "total_cons_bytes": 1307136,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 6446765689664869709,
+          "signature": {
+            "status": 20,
+            "conflicts": 279,
+            "decisions": 1561,
+            "propagations": 18233,
+            "ticks": 71273,
+            "reductions": 0,
+            "restarts": 78,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 330
+          }
+        }
+      ]
+    },
+    {
+      "name": "ph6.cnf",
+      "variables": 42,
+      "clauses": 133,
+      "c": {
+        "repetitions_per_group": 26,
+        "signature": {
+          "status": 20,
+          "conflicts": 996,
+          "decisions": 1692,
+          "propagations": 13282,
+          "ticks": 82115,
+          "reductions": 2,
+          "restarts": 115,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 1,
+          "vivifications": 0,
+          "model_hash": 2166136261,
+          "maximum_variable": 42
+        },
+        "solve_cpu": 0.003293767153846154,
+        "solve_cpu_range": [
+          0.0032439686153846155,
+          0.0035213214615384615
+        ],
+        "total_cpu": 0.00331734,
+        "total_cpu_range": [
+          0.0032649931923076922,
+          0.003564463807692308
+        ],
+        "solve_wall": 0.0032941149615384616,
+        "solve_wall_range": [
+          0.003244138730769231,
+          0.003521501423076923
+        ],
+        "total_wall": 0.003317733730769231,
+        "total_wall_range": [
+          0.003265209961538462,
+          0.0035647095384615385
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 0.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "before": {
+        "repetitions_per_group": 2,
+        "signature": {
+          "status": 20,
+          "conflicts": 996,
+          "decisions": 1692,
+          "propagations": 13282,
+          "ticks": 82115,
+          "reductions": 2,
+          "restarts": 115,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 1,
+          "vivifications": 0,
+          "model_hash": 2166136261,
+          "maximum_variable": 42
+        },
+        "solve_cpu": 0.132579,
+        "solve_cpu_range": [
+          0.1208075,
+          0.1684205
+        ],
+        "total_cpu": 0.1331215,
+        "total_cpu_range": [
+          0.1213455,
+          0.169111
+        ],
+        "solve_wall": 0.134003,
+        "solve_wall_range": [
+          0.120003,
+          0.170004
+        ],
+        "total_wall": 0.134003,
+        "total_wall_range": [
+          0.120003,
+          0.170004
+        ],
+        "solve_cons_bytes": 96358904.0,
+        "total_cons_bytes": 96751992.0,
+        "gc_build_solve_cpu": 0.0095235,
+        "gc_build_solve_cpu_range": [
+          0.006525,
+          0.0120915
+        ]
+      },
+      "after": {
+        "repetitions_per_group": 5,
+        "signature": {
+          "status": 20,
+          "conflicts": 996,
+          "decisions": 1692,
+          "propagations": 13282,
+          "ticks": 82115,
+          "reductions": 2,
+          "restarts": 115,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 1,
+          "vivifications": 0,
+          "model_hash": 2166136261,
+          "maximum_variable": 42
+        },
+        "solve_cpu": 0.0364542,
+        "solve_cpu_range": [
+          0.0330356,
+          0.042038599999999995
+        ],
+        "total_cpu": 0.036725400000000005,
+        "total_cpu_range": [
+          0.0334162,
+          0.0423266
+        ],
+        "solve_wall": 0.036001,
+        "solve_wall_range": [
+          0.032801000000000004,
+          0.0424012
+        ],
+        "total_wall": 0.036801,
+        "total_wall_range": [
+          0.0336008,
+          0.0424012
+        ],
+        "solve_cons_bytes": 176588.8,
+        "total_cons_bytes": 189593.6,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "speedup": 3.636864887996445,
+      "before_over_c": 40.25147917489754,
+      "after_over_c": 11.067631164343899,
+      "full_api_speedup": 3.624780124927162,
+      "exact_audit": true,
+      "c_raw": [
+        {
+          "repetitions": 26,
+          "solve_cpu": 0.090036049,
+          "total_cpu": 0.090674929,
+          "solve_wall": 0.090064181,
+          "total_wall": 0.090704212,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 1158852323405036787,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 26,
+          "solve_cpu": 0.085235765,
+          "total_cpu": 0.085839193,
+          "solve_wall": 0.08524583,
+          "total_wall": 0.085850378,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 1158852323405036787,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 26,
+          "solve_cpu": 0.084343184,
+          "total_cpu": 0.084889823,
+          "solve_wall": 0.084347607,
+          "total_wall": 0.084895459,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 1158852323405036787,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 26,
+          "solve_cpu": 0.085637946,
+          "total_cpu": 0.08625084,
+          "solve_wall": 0.085646989,
+          "total_wall": 0.086261077,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 1158852323405036787,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 26,
+          "solve_cpu": 0.091554358,
+          "total_cpu": 0.092676059,
+          "solve_wall": 0.091559037,
+          "total_wall": 0.092682448,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 1158852323405036787,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        }
+      ],
+      "before_raw": [
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.274364,
+          "total_cpu": 0.275668,
+          "solve_wall": 0.276007,
+          "total_wall": 0.276007,
+          "solve_cons_bytes": 192717808,
+          "total_cons_bytes": 193503984,
+          "gc_build_solve_cpu": 0.020686,
+          "digest": 5074486771589520307,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.241615,
+          "total_cpu": 0.242691,
+          "solve_wall": 0.240006,
+          "total_wall": 0.244006,
+          "solve_cons_bytes": 192750320,
+          "total_cons_bytes": 193536752,
+          "gc_build_solve_cpu": 0.014033,
+          "digest": 5074486771589520307,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.336841,
+          "total_cpu": 0.338222,
+          "solve_wall": 0.340008,
+          "total_wall": 0.340008,
+          "solve_cons_bytes": 192685280,
+          "total_cons_bytes": 193471456,
+          "gc_build_solve_cpu": 0.024183,
+          "digest": 5074486771589520307,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.242298,
+          "total_cpu": 0.243392,
+          "solve_wall": 0.240006,
+          "total_wall": 0.240006,
+          "solve_cons_bytes": 192717808,
+          "total_cons_bytes": 193504240,
+          "gc_build_solve_cpu": 0.01305,
+          "digest": 5074486771589520307,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.265158,
+          "total_cpu": 0.266243,
+          "solve_wall": 0.268006,
+          "total_wall": 0.268006,
+          "solve_cons_bytes": 192717792,
+          "total_cons_bytes": 193503968,
+          "gc_build_solve_cpu": 0.019047,
+          "digest": 5074486771589520307,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        }
+      ],
+      "after_raw": [
+        {
+          "repetitions": 5,
+          "solve_cpu": 0.182271,
+          "total_cpu": 0.183627,
+          "solve_wall": 0.180005,
+          "total_wall": 0.184005,
+          "solve_cons_bytes": 882944,
+          "total_cons_bytes": 947968,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16814811775998513511,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 5,
+          "solve_cpu": 0.210193,
+          "total_cpu": 0.211633,
+          "solve_wall": 0.212006,
+          "total_wall": 0.212006,
+          "solve_cons_bytes": 915456,
+          "total_cons_bytes": 947968,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16814811775998513511,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 5,
+          "solve_cpu": 0.20239,
+          "total_cpu": 0.203723,
+          "solve_wall": 0.200005,
+          "total_wall": 0.204005,
+          "solve_cons_bytes": 882944,
+          "total_cons_bytes": 947968,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16814811775998513511,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 5,
+          "solve_cpu": 0.166329,
+          "total_cpu": 0.167366,
+          "solve_wall": 0.168004,
+          "total_wall": 0.168004,
+          "solve_cons_bytes": 915456,
+          "total_cons_bytes": 947968,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16814811775998513511,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 5,
+          "solve_cpu": 0.165178,
+          "total_cpu": 0.167081,
+          "solve_wall": 0.164005,
+          "total_wall": 0.168005,
+          "solve_cons_bytes": 850176,
+          "total_cons_bytes": 915200,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16814811775998513511,
+          "signature": {
+            "status": 20,
+            "conflicts": 996,
+            "decisions": 1692,
+            "propagations": 13282,
+            "ticks": 82115,
+            "reductions": 2,
+            "restarts": 115,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        }
+      ]
+    },
+    {
+      "name": "add32.cnf",
+      "variables": 695,
+      "clauses": 1894,
+      "c": {
+        "repetitions_per_group": 7,
+        "signature": {
+          "status": 20,
+          "conflicts": 966,
+          "decisions": 13267,
+          "propagations": 112252,
+          "ticks": 424408,
+          "reductions": 2,
+          "restarts": 307,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 1,
+          "vivifications": 0,
+          "model_hash": 2166136261,
+          "maximum_variable": 695
+        },
+        "solve_cpu": 0.012023594142857143,
+        "solve_cpu_range": [
+          0.011562321142857143,
+          0.012415818714285714
+        ],
+        "total_cpu": 0.012215836285714285,
+        "total_cpu_range": [
+          0.01173548342857143,
+          0.012644130571428571
+        ],
+        "solve_wall": 0.012024811142857143,
+        "solve_wall_range": [
+          0.011562722714285713,
+          0.012417007428571427
+        ],
+        "total_wall": 0.012217140857142858,
+        "total_wall_range": [
+          0.011735963571428571,
+          0.012645510428571429
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 0.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "before": {
+        "repetitions_per_group": 1,
+        "signature": {
+          "status": 20,
+          "conflicts": 966,
+          "decisions": 13267,
+          "propagations": 112252,
+          "ticks": 424408,
+          "reductions": 2,
+          "restarts": 307,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 1,
+          "vivifications": 0,
+          "model_hash": 2166136261,
+          "maximum_variable": 695
+        },
+        "solve_cpu": 0.344598,
+        "solve_cpu_range": [
+          0.332817,
+          0.378634
+        ],
+        "total_cpu": 0.351463,
+        "total_cpu_range": [
+          0.339666,
+          0.391221
+        ],
+        "solve_wall": 0.344008,
+        "solve_wall_range": [
+          0.332008,
+          0.380009
+        ],
+        "total_wall": 0.352008,
+        "total_wall_range": [
+          0.340008,
+          0.39201
+        ],
+        "solve_cons_bytes": 267718608.0,
+        "total_cons_bytes": 273026784.0,
+        "gc_build_solve_cpu": 0.023537,
+        "gc_build_solve_cpu_range": [
+          0.022961,
+          0.024624
+        ]
+      },
+      "after": {
+        "repetitions_per_group": 2,
+        "signature": {
+          "status": 20,
+          "conflicts": 966,
+          "decisions": 13267,
+          "propagations": 112252,
+          "ticks": 424408,
+          "reductions": 2,
+          "restarts": 307,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 1,
+          "vivifications": 0,
+          "model_hash": 2166136261,
+          "maximum_variable": 695
+        },
+        "solve_cpu": 0.089856,
+        "solve_cpu_range": [
+          0.087384,
+          0.0927695
+        ],
+        "total_cpu": 0.0922525,
+        "total_cpu_range": [
+          0.089838,
+          0.0953045
+        ],
+        "solve_wall": 0.0900025,
+        "solve_wall_range": [
+          0.086002,
+          0.0940025
+        ],
+        "total_wall": 0.0920025,
+        "total_wall_range": [
+          0.088002,
+          0.0960025
+        ],
+        "solve_cons_bytes": 785664.0,
+        "total_cons_bytes": 834432.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "speedup": 3.8350026709401708,
+      "before_over_c": 28.660149029124987,
+      "after_over_c": 7.473306145598799,
+      "full_api_speedup": 3.80979377252649,
+      "exact_audit": true,
+      "c_raw": [
+        {
+          "repetitions": 7,
+          "solve_cpu": 0.081104135,
+          "total_cpu": 0.082365885,
+          "solve_wall": 0.08113586,
+          "total_wall": 0.082398309,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 13038334996297140522,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 7,
+          "solve_cpu": 0.084165159,
+          "total_cpu": 0.085510854,
+          "solve_wall": 0.084173678,
+          "total_wall": 0.085519986,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 13038334996297140522,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 7,
+          "solve_cpu": 0.080936248,
+          "total_cpu": 0.082148384,
+          "solve_wall": 0.080939059,
+          "total_wall": 0.082151745,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 13038334996297140522,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 7,
+          "solve_cpu": 0.086910731,
+          "total_cpu": 0.088508914,
+          "solve_wall": 0.086919052,
+          "total_wall": 0.088518573,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 13038334996297140522,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 7,
+          "solve_cpu": 0.085771192,
+          "total_cpu": 0.087073293,
+          "solve_wall": 0.085773048,
+          "total_wall": 0.087076351,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 13038334996297140522,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        }
+      ],
+      "before_raw": [
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.332817,
+          "total_cpu": 0.339666,
+          "solve_wall": 0.332008,
+          "total_wall": 0.340008,
+          "solve_cons_bytes": 267718608,
+          "total_cons_bytes": 273026768,
+          "gc_build_solve_cpu": 0.023137,
+          "digest": 12825947328215945904,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.340947,
+          "total_cpu": 0.347538,
+          "solve_wall": 0.340008,
+          "total_wall": 0.344008,
+          "solve_cons_bytes": 267718624,
+          "total_cons_bytes": 273059296,
+          "gc_build_solve_cpu": 0.022961,
+          "digest": 12825947328215945904,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.344598,
+          "total_cpu": 0.351463,
+          "solve_wall": 0.344008,
+          "total_wall": 0.352008,
+          "solve_cons_bytes": 267718608,
+          "total_cons_bytes": 273026768,
+          "gc_build_solve_cpu": 0.024237,
+          "digest": 12825947328215945904,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.353059,
+          "total_cpu": 0.361432,
+          "solve_wall": 0.352008,
+          "total_wall": 0.360009,
+          "solve_cons_bytes": 267718368,
+          "total_cons_bytes": 273059040,
+          "gc_build_solve_cpu": 0.024624,
+          "digest": 12825947328215945904,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.378634,
+          "total_cpu": 0.391221,
+          "solve_wall": 0.380009,
+          "total_wall": 0.39201,
+          "solve_cons_bytes": 267718624,
+          "total_cons_bytes": 273026784,
+          "gc_build_solve_cpu": 0.023537,
+          "digest": 12825947328215945904,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        }
+      ],
+      "after_raw": [
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.174768,
+          "total_cpu": 0.179676,
+          "solve_wall": 0.172004,
+          "total_wall": 0.176004,
+          "solve_cons_bytes": 1571328,
+          "total_cons_bytes": 1636352,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16864177348291804721,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.179882,
+          "total_cpu": 0.185485,
+          "solve_wall": 0.184003,
+          "total_wall": 0.188003,
+          "solve_cons_bytes": 1538560,
+          "total_cons_bytes": 1668608,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16864177348291804721,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.178216,
+          "total_cpu": 0.183103,
+          "solve_wall": 0.180005,
+          "total_wall": 0.184005,
+          "solve_cons_bytes": 1603840,
+          "total_cons_bytes": 1701376,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16864177348291804721,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.179712,
+          "total_cpu": 0.184505,
+          "solve_wall": 0.176004,
+          "total_wall": 0.184004,
+          "solve_cons_bytes": 1603840,
+          "total_cons_bytes": 1668864,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16864177348291804721,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.185539,
+          "total_cpu": 0.190609,
+          "solve_wall": 0.188005,
+          "total_wall": 0.192005,
+          "solve_cons_bytes": 1571328,
+          "total_cons_bytes": 1701376,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16864177348291804721,
+          "signature": {
+            "status": 20,
+            "conflicts": 966,
+            "decisions": 13267,
+            "propagations": 112252,
+            "ticks": 424408,
+            "reductions": 2,
+            "restarts": 307,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 2166136261,
+            "maximum_variable": 695
+          }
+        }
+      ]
+    },
+    {
+      "name": "add64.cnf",
+      "variables": 1428,
+      "clauses": 3901,
+      "c": {
+        "repetitions_per_group": 3,
+        "signature": {
+          "status": 20,
+          "conflicts": 1490,
+          "decisions": 42898,
+          "propagations": 237320,
+          "ticks": 823341,
+          "reductions": 3,
+          "restarts": 309,
+          "switches": 1,
+          "rephasings": 1,
+          "eliminations": 2,
+          "vivifications": 1,
+          "model_hash": 2166136261,
+          "maximum_variable": 1428
+        },
+        "solve_cpu": 0.030835957666666667,
+        "solve_cpu_range": [
+          0.030440808666666666,
+          0.033373676
+        ],
+        "total_cpu": 0.031143933,
+        "total_cpu_range": [
+          0.030865588333333333,
+          0.03375424
+        ],
+        "solve_wall": 0.03084048,
+        "solve_wall_range": [
+          0.03044379933333333,
+          0.033385456
+        ],
+        "total_wall": 0.03114855633333333,
+        "total_wall_range": [
+          0.030868719333333332,
+          0.033766152333333334
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 0.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "before": {
+        "repetitions_per_group": 1,
+        "signature": {
+          "status": 20,
+          "conflicts": 1490,
+          "decisions": 42898,
+          "propagations": 237320,
+          "ticks": 823352,
+          "reductions": 3,
+          "restarts": 309,
+          "switches": 1,
+          "rephasings": 1,
+          "eliminations": 2,
+          "vivifications": 1,
+          "model_hash": 2166136261,
+          "maximum_variable": 1428
+        },
+        "solve_cpu": 0.845581,
+        "solve_cpu_range": [
+          0.80286,
+          0.890173
+        ],
+        "total_cpu": 0.864566,
+        "total_cpu_range": [
+          0.817529,
+          0.9047
+        ],
+        "solve_wall": 0.84802,
+        "solve_wall_range": [
+          0.804018,
+          0.892021
+        ],
+        "total_wall": 0.86402,
+        "total_wall_range": [
+          0.820019,
+          0.904021
+        ],
+        "solve_cons_bytes": 649696976.0,
+        "total_cons_bytes": 660532816.0,
+        "gc_build_solve_cpu": 0.059657,
+        "gc_build_solve_cpu_range": [
+          0.053133,
+          0.062479
+        ]
+      },
+      "after": {
+        "repetitions_per_group": 1,
+        "signature": {
+          "status": 20,
+          "conflicts": 1490,
+          "decisions": 42898,
+          "propagations": 237320,
+          "ticks": 823352,
+          "reductions": 3,
+          "restarts": 309,
+          "switches": 1,
+          "rephasings": 1,
+          "eliminations": 2,
+          "vivifications": 1,
+          "model_hash": 2166136261,
+          "maximum_variable": 1428
+        },
+        "solve_cpu": 0.219221,
+        "solve_cpu_range": [
+          0.213311,
+          0.231234
+        ],
+        "total_cpu": 0.224778,
+        "total_cpu_range": [
+          0.219109,
+          0.236991
+        ],
+        "solve_wall": 0.220005,
+        "solve_wall_range": [
+          0.212005,
+          0.232005
+        ],
+        "total_wall": 0.224005,
+        "total_wall_range": [
+          0.216005,
+          0.236005
+        ],
+        "solve_cons_bytes": 2357504.0,
+        "total_cons_bytes": 2455040.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "speedup": 3.8572080229540053,
+      "before_over_c": 27.42191467314355,
+      "after_over_c": 7.109265175732665,
+      "full_api_speedup": 3.8463105819964585,
+      "exact_audit": true,
+      "c_raw": [
+        {
+          "repetitions": 3,
+          "solve_cpu": 0.100121028,
+          "total_cpu": 0.10126272,
+          "solve_wall": 0.100156368,
+          "total_wall": 0.101298457,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 11561353595958294163,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823341,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 3,
+          "solve_cpu": 0.091949731,
+          "total_cpu": 0.092974829,
+          "solve_wall": 0.091989334,
+          "total_wall": 0.093014477,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 10498027795036393892,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823345,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 3,
+          "solve_cpu": 0.09384772,
+          "total_cpu": 0.094875232,
+          "solve_wall": 0.093849661,
+          "total_wall": 0.094878237,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4213651267347108337,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823349,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 3,
+          "solve_cpu": 0.091322426,
+          "total_cpu": 0.092596765,
+          "solve_wall": 0.091331398,
+          "total_wall": 0.092606158,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 13054814479470827863,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823353,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 3,
+          "solve_cpu": 0.092507873,
+          "total_cpu": 0.093431799,
+          "solve_wall": 0.09252144,
+          "total_wall": 0.093445669,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 2536609973813611761,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823341,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        }
+      ],
+      "before_raw": [
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.882337,
+          "total_cpu": 0.897656,
+          "solve_wall": 0.88402,
+          "total_wall": 0.89602,
+          "solve_cons_bytes": 649696944,
+          "total_cons_bytes": 660509872,
+          "gc_build_solve_cpu": 0.059657,
+          "digest": 11218714494762679884,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823353,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.845581,
+          "total_cpu": 0.864566,
+          "solve_wall": 0.84802,
+          "total_wall": 0.86402,
+          "solve_cons_bytes": 649631152,
+          "total_cons_bytes": 660476832,
+          "gc_build_solve_cpu": 0.062479,
+          "digest": 105164189517712736,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823349,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.80286,
+          "total_cpu": 0.817529,
+          "solve_wall": 0.804018,
+          "total_wall": 0.820019,
+          "solve_cons_bytes": 649729456,
+          "total_cons_bytes": 660607664,
+          "gc_build_solve_cpu": 0.053133,
+          "digest": 4397717312631669883,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823344,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.890173,
+          "total_cpu": 0.9047,
+          "solve_wall": 0.892021,
+          "total_wall": 0.904021,
+          "solve_cons_bytes": 649696976,
+          "total_cons_bytes": 660574928,
+          "gc_build_solve_cpu": 0.05813,
+          "digest": 5718479638308032148,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823345,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.8359,
+          "total_cpu": 0.850355,
+          "solve_wall": 0.83602,
+          "total_wall": 0.85202,
+          "solve_cons_bytes": 649719888,
+          "total_cons_bytes": 660532816,
+          "gc_build_solve_cpu": 0.061802,
+          "digest": 556046663602639027,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823352,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        }
+      ],
+      "after_raw": [
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.231234,
+          "total_cpu": 0.236991,
+          "solve_wall": 0.232005,
+          "total_wall": 0.236005,
+          "solve_cons_bytes": 2357504,
+          "total_cons_bytes": 2455040,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4397717312631669883,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823344,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.226873,
+          "total_cpu": 0.232786,
+          "solve_wall": 0.224005,
+          "total_wall": 0.232005,
+          "solve_cons_bytes": 2357504,
+          "total_cons_bytes": 2455040,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 105164189517712736,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823349,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.213311,
+          "total_cpu": 0.219109,
+          "solve_wall": 0.212005,
+          "total_wall": 0.216005,
+          "solve_cons_bytes": 2357504,
+          "total_cons_bytes": 2455040,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4397717312631669883,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823344,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.215753,
+          "total_cpu": 0.221633,
+          "solve_wall": 0.216005,
+          "total_wall": 0.220005,
+          "solve_cons_bytes": 2390016,
+          "total_cons_bytes": 2455040,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 5718479638308032148,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823345,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.219221,
+          "total_cpu": 0.224778,
+          "solve_wall": 0.220005,
+          "total_wall": 0.224005,
+          "solve_cons_bytes": 2390016,
+          "total_cons_bytes": 2455040,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 556046663602639027,
+          "signature": {
+            "status": 20,
+            "conflicts": 1490,
+            "decisions": 42898,
+            "propagations": 237320,
+            "ticks": 823352,
+            "reductions": 3,
+            "restarts": 309,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1428
+          }
+        }
+      ]
+    },
+    {
+      "name": "add128.cnf",
+      "variables": 2282,
+      "clauses": 6586,
+      "c": {
+        "repetitions_per_group": 2,
+        "signature": {
+          "status": 20,
+          "conflicts": 2200,
+          "decisions": 81824,
+          "propagations": 574256,
+          "ticks": 2040840,
+          "reductions": 4,
+          "restarts": 324,
+          "switches": 1,
+          "rephasings": 2,
+          "eliminations": 3,
+          "vivifications": 2,
+          "model_hash": 2166136261,
+          "maximum_variable": 2282
+        },
+        "solve_cpu": 0.062372414,
+        "solve_cpu_range": [
+          0.059131689,
+          0.0670187035
+        ],
+        "total_cpu": 0.0629232755,
+        "total_cpu_range": [
+          0.0596818345,
+          0.0677699935
+        ],
+        "solve_wall": 0.062373784,
+        "solve_wall_range": [
+          0.0591380065,
+          0.0670424715
+        ],
+        "total_wall": 0.062924953,
+        "total_wall_range": [
+          0.0596886645,
+          0.0678245105
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 0.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "before": {
+        "repetitions_per_group": 1,
+        "signature": {
+          "status": 20,
+          "conflicts": 2200,
+          "decisions": 81824,
+          "propagations": 574256,
+          "ticks": 2040840,
+          "reductions": 4,
+          "restarts": 324,
+          "switches": 1,
+          "rephasings": 2,
+          "eliminations": 3,
+          "vivifications": 2,
+          "model_hash": 2166136261,
+          "maximum_variable": 2282
+        },
+        "solve_cpu": 1.89506,
+        "solve_cpu_range": [
+          1.835398,
+          2.436019
+        ],
+        "total_cpu": 1.92518,
+        "total_cpu_range": [
+          1.86376,
+          2.469643
+        ],
+        "solve_wall": 1.896044,
+        "solve_wall_range": [
+          1.836043,
+          2.436057
+        ],
+        "total_wall": 1.924044,
+        "total_wall_range": [
+          1.864043,
+          2.468058
+        ],
+        "solve_cons_bytes": 1505995760.0,
+        "total_cons_bytes": 1525152304.0,
+        "gc_build_solve_cpu": 0.120966,
+        "gc_build_solve_cpu_range": [
+          0.11275,
+          0.143282
+        ]
+      },
+      "after": {
+        "repetitions_per_group": 1,
+        "signature": {
+          "status": 20,
+          "conflicts": 2200,
+          "decisions": 81824,
+          "propagations": 574256,
+          "ticks": 2040840,
+          "reductions": 4,
+          "restarts": 324,
+          "switches": 1,
+          "rephasings": 2,
+          "eliminations": 3,
+          "vivifications": 2,
+          "model_hash": 2166136261,
+          "maximum_variable": 2282
+        },
+        "solve_cpu": 0.487639,
+        "solve_cpu_range": [
+          0.469418,
+          0.601386
+        ],
+        "total_cpu": 0.498823,
+        "total_cpu_range": [
+          0.478884,
+          0.611778
+        ],
+        "solve_wall": 0.488011,
+        "solve_wall_range": [
+          0.468011,
+          0.604014
+        ],
+        "total_wall": 0.500011,
+        "total_wall_range": [
+          0.476011,
+          0.612014
+        ],
+        "solve_cons_bytes": 4485632.0,
+        "total_cons_bytes": 4648192.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "speedup": 3.8861945004398746,
+      "before_over_c": 30.382983092493422,
+      "after_over_c": 7.818183852880858,
+      "full_api_speedup": 3.859445133845071,
+      "exact_audit": true,
+      "c_raw": [
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.120962619,
+          "total_cpu": 0.122155408,
+          "solve_wall": 0.120984522,
+          "total_wall": 0.122177468,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 8234961083451523605,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.134037407,
+          "total_cpu": 0.135539987,
+          "solve_wall": 0.134084943,
+          "total_wall": 0.135649021,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 8234961083451523605,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.118263378,
+          "total_cpu": 0.119363669,
+          "solve_wall": 0.118276013,
+          "total_wall": 0.119377329,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 8234961083451523605,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.125836526,
+          "total_cpu": 0.127331523,
+          "solve_wall": 0.125960865,
+          "total_wall": 0.127456288,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 8234961083451523605,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.124744828,
+          "total_cpu": 0.125846551,
+          "solve_wall": 0.124747568,
+          "total_wall": 0.125849906,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 8234961083451523605,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        }
+      ],
+      "before_raw": [
+        {
+          "repetitions": 1,
+          "solve_cpu": 1.89506,
+          "total_cpu": 1.92518,
+          "solve_wall": 1.896044,
+          "total_wall": 1.924044,
+          "solve_cons_bytes": 1506030864,
+          "total_cons_bytes": 1525166080,
+          "gc_build_solve_cpu": 0.120966,
+          "digest": 15283385498241358976,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 1.835398,
+          "total_cpu": 1.86376,
+          "solve_wall": 1.836043,
+          "total_wall": 1.864043,
+          "solve_cons_bytes": 1506017072,
+          "total_cons_bytes": 1525152304,
+          "gc_build_solve_cpu": 0.114061,
+          "digest": 15283385498241358976,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 1.855593,
+          "total_cpu": 1.87974,
+          "solve_wall": 1.856042,
+          "total_wall": 1.880043,
+          "solve_cons_bytes": 1505951792,
+          "total_cons_bytes": 1525054512,
+          "gc_build_solve_cpu": 0.11275,
+          "digest": 15283385498241358976,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 2.436019,
+          "total_cpu": 2.469643,
+          "solve_wall": 2.436057,
+          "total_wall": 2.468058,
+          "solve_cons_bytes": 1505995760,
+          "total_cons_bytes": 1525163504,
+          "gc_build_solve_cpu": 0.143282,
+          "digest": 15283385498241358976,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 2.207328,
+          "total_cpu": 2.233147,
+          "solve_wall": 2.20805,
+          "total_wall": 2.232052,
+          "solve_cons_bytes": 1505919552,
+          "total_cons_bytes": 1525054784,
+          "gc_build_solve_cpu": 0.129179,
+          "digest": 15283385498241358976,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        }
+      ],
+      "after_raw": [
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.497844,
+          "total_cpu": 0.508022,
+          "solve_wall": 0.500012,
+          "total_wall": 0.508012,
+          "solve_cons_bytes": 4485632,
+          "total_cons_bytes": 4648192,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15283385498241358976,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.469418,
+          "total_cpu": 0.478884,
+          "solve_wall": 0.468011,
+          "total_wall": 0.476011,
+          "solve_cons_bytes": 4453120,
+          "total_cons_bytes": 4615680,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15283385498241358976,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.474571,
+          "total_cpu": 0.484169,
+          "solve_wall": 0.476012,
+          "total_wall": 0.484012,
+          "solve_cons_bytes": 4485632,
+          "total_cons_bytes": 4648192,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15283385498241358976,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.601386,
+          "total_cpu": 0.611778,
+          "solve_wall": 0.604014,
+          "total_wall": 0.612014,
+          "solve_cons_bytes": 4453120,
+          "total_cons_bytes": 4648192,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15283385498241358976,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.487639,
+          "total_cpu": 0.498823,
+          "solve_wall": 0.488011,
+          "total_wall": 0.500011,
+          "solve_cons_bytes": 4485632,
+          "total_cons_bytes": 4615680,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15283385498241358976,
+          "signature": {
+            "status": 20,
+            "conflicts": 2200,
+            "decisions": 81824,
+            "propagations": 574256,
+            "ticks": 2040840,
+            "reductions": 4,
+            "restarts": 324,
+            "switches": 1,
+            "rephasings": 2,
+            "eliminations": 3,
+            "vivifications": 2,
+            "model_hash": 2166136261,
+            "maximum_variable": 2282
+          }
+        }
+      ]
+    },
+    {
+      "name": "prime65537.cnf",
+      "variables": 1950,
+      "clauses": 6220,
+      "c": {
+        "repetitions_per_group": 2,
+        "signature": {
+          "status": 20,
+          "conflicts": 1724,
+          "decisions": 5746,
+          "propagations": 417993,
+          "ticks": 2128923,
+          "reductions": 3,
+          "restarts": 203,
+          "switches": 1,
+          "rephasings": 1,
+          "eliminations": 2,
+          "vivifications": 1,
+          "model_hash": 2166136261,
+          "maximum_variable": 1950
+        },
+        "solve_cpu": 0.046910795,
+        "solve_cpu_range": [
+          0.042800664,
+          0.0537491965
+        ],
+        "total_cpu": 0.0474719305,
+        "total_cpu_range": [
+          0.043355927,
+          0.0543811135
+        ],
+        "solve_wall": 0.0469164605,
+        "solve_wall_range": [
+          0.042832712,
+          0.053765375
+        ],
+        "total_wall": 0.0474777395,
+        "total_wall_range": [
+          0.0433879675,
+          0.054397452
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 0.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "before": {
+        "repetitions_per_group": 1,
+        "signature": {
+          "status": 20,
+          "conflicts": 1724,
+          "decisions": 5746,
+          "propagations": 417993,
+          "ticks": 2128923,
+          "reductions": 3,
+          "restarts": 203,
+          "switches": 1,
+          "rephasings": 1,
+          "eliminations": 2,
+          "vivifications": 1,
+          "model_hash": 2166136261,
+          "maximum_variable": 1950
+        },
+        "solve_cpu": 1.767397,
+        "solve_cpu_range": [
+          1.660331,
+          1.833195
+        ],
+        "total_cpu": 1.789933,
+        "total_cpu_range": [
+          1.686398,
+          1.862323
+        ],
+        "solve_wall": 1.76804,
+        "solve_wall_range": [
+          1.660039,
+          1.832042
+        ],
+        "total_wall": 1.792042,
+        "total_wall_range": [
+          1.688039,
+          1.864043
+        ],
+        "solve_cons_bytes": 1454288032.0,
+        "total_cons_bytes": 1472067072.0,
+        "gc_build_solve_cpu": 0.117442,
+        "gc_build_solve_cpu_range": [
+          0.108888,
+          0.120464
+        ]
+      },
+      "after": {
+        "repetitions_per_group": 1,
+        "signature": {
+          "status": 20,
+          "conflicts": 1724,
+          "decisions": 5746,
+          "propagations": 417993,
+          "ticks": 2128923,
+          "reductions": 3,
+          "restarts": 203,
+          "switches": 1,
+          "rephasings": 1,
+          "eliminations": 2,
+          "vivifications": 1,
+          "model_hash": 2166136261,
+          "maximum_variable": 1950
+        },
+        "solve_cpu": 0.420963,
+        "solve_cpu_range": [
+          0.396575,
+          0.446267
+        ],
+        "total_cpu": 0.430697,
+        "total_cpu_range": [
+          0.410491,
+          0.456855
+        ],
+        "solve_wall": 0.42401,
+        "solve_wall_range": [
+          0.396008,
+          0.448011
+        ],
+        "total_wall": 0.432011,
+        "total_wall_range": [
+          0.412008,
+          0.456011
+        ],
+        "solve_cons_bytes": 588032.0,
+        "total_cons_bytes": 750592.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "speedup": 4.198461622517894,
+      "before_over_c": 37.67569916476581,
+      "after_over_c": 8.97369144991041,
+      "full_api_speedup": 4.155898462260011,
+      "exact_audit": true,
+      "c_raw": [
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.107498393,
+          "total_cpu": 0.108762227,
+          "solve_wall": 0.10753075,
+          "total_wall": 0.108794904,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 2821620012150063027,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.09713637,
+          "total_cpu": 0.098390499,
+          "solve_wall": 0.097171306,
+          "total_wall": 0.098426296,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 2821620012150063027,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.09382159,
+          "total_cpu": 0.094943861,
+          "solve_wall": 0.093832921,
+          "total_wall": 0.094955479,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 2821620012150063027,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.085601328,
+          "total_cpu": 0.086711854,
+          "solve_wall": 0.085665424,
+          "total_wall": 0.086775935,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 2821620012150063027,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.087544664,
+          "total_cpu": 0.088530573,
+          "solve_wall": 0.087555126,
+          "total_wall": 0.08854161,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 2821620012150063027,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        }
+      ],
+      "before_raw": [
+        {
+          "repetitions": 1,
+          "solve_cpu": 1.833195,
+          "total_cpu": 1.862323,
+          "solve_wall": 1.832042,
+          "total_wall": 1.864043,
+          "solve_cons_bytes": 1454340864,
+          "total_cons_bytes": 1472067072,
+          "gc_build_solve_cpu": 0.120464,
+          "digest": 15436858358930589449,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 1.665669,
+          "total_cpu": 1.692234,
+          "solve_wall": 1.664039,
+          "total_wall": 1.69604,
+          "solve_cons_bytes": 1454343472,
+          "total_cons_bytes": 1472069920,
+          "gc_build_solve_cpu": 0.111827,
+          "digest": 15436858358930589449,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 1.660331,
+          "total_cpu": 1.686398,
+          "solve_wall": 1.660039,
+          "total_wall": 1.688039,
+          "solve_cons_bytes": 1454278432,
+          "total_cons_bytes": 1472070176,
+          "gc_build_solve_cpu": 0.108888,
+          "digest": 15436858358930589449,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 1.771544,
+          "total_cpu": 1.798634,
+          "solve_wall": 1.77204,
+          "total_wall": 1.796042,
+          "solve_cons_bytes": 1454278432,
+          "total_cons_bytes": 1472037664,
+          "gc_build_solve_cpu": 0.117442,
+          "digest": 15436858358930589449,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 1.767397,
+          "total_cpu": 1.789933,
+          "solve_wall": 1.76804,
+          "total_wall": 1.792042,
+          "solve_cons_bytes": 1454288032,
+          "total_cons_bytes": 1472014496,
+          "gc_build_solve_cpu": 0.118549,
+          "digest": 15436858358930589449,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        }
+      ],
+      "after_raw": [
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.432823,
+          "total_cpu": 0.442695,
+          "solve_wall": 0.43201,
+          "total_wall": 0.44401,
+          "solve_cons_bytes": 620544,
+          "total_cons_bytes": 750592,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15436858358930589449,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.420963,
+          "total_cpu": 0.430697,
+          "solve_wall": 0.42401,
+          "total_wall": 0.432011,
+          "solve_cons_bytes": 588032,
+          "total_cons_bytes": 750592,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15436858358930589449,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.446267,
+          "total_cpu": 0.456855,
+          "solve_wall": 0.448011,
+          "total_wall": 0.456011,
+          "solve_cons_bytes": 620544,
+          "total_cons_bytes": 783104,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15436858358930589449,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.396575,
+          "total_cpu": 0.410491,
+          "solve_wall": 0.396008,
+          "total_wall": 0.412008,
+          "solve_cons_bytes": 587776,
+          "total_cons_bytes": 717824,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15436858358930589449,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.412309,
+          "total_cpu": 0.422027,
+          "solve_wall": 0.412011,
+          "total_wall": 0.424011,
+          "solve_cons_bytes": 588032,
+          "total_cons_bytes": 750592,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 15436858358930589449,
+          "signature": {
+            "status": 20,
+            "conflicts": 1724,
+            "decisions": 5746,
+            "propagations": 417993,
+            "ticks": 2128923,
+            "reductions": 3,
+            "restarts": 203,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 1950
+          }
+        }
+      ]
+    },
+    {
+      "name": "pigeonhole-7-6",
+      "variables": 42,
+      "clauses": 133,
+      "c": {
+        "repetitions_per_group": 24,
+        "signature": {
+          "status": 20,
+          "conflicts": 1049,
+          "decisions": 1537,
+          "propagations": 12580,
+          "ticks": 80040,
+          "reductions": 2,
+          "restarts": 55,
+          "switches": 1,
+          "rephasings": 1,
+          "eliminations": 2,
+          "vivifications": 1,
+          "model_hash": 2166136261,
+          "maximum_variable": 42
+        },
+        "solve_cpu": 0.003497103833333333,
+        "solve_cpu_range": [
+          0.0033666308333333336,
+          0.00399046225
+        ],
+        "total_cpu": 0.003517417791666667,
+        "total_cpu_range": [
+          0.0033873267499999996,
+          0.004012504583333333
+        ],
+        "solve_wall": 0.003497287208333333,
+        "solve_wall_range": [
+          0.003367046875,
+          0.003990825791666667
+        ],
+        "total_wall": 0.0035183687916666667,
+        "total_wall_range": [
+          0.003387769,
+          0.004012896625
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 0.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "before": {
+        "repetitions_per_group": 2,
+        "signature": {
+          "status": 20,
+          "conflicts": 1049,
+          "decisions": 1537,
+          "propagations": 12580,
+          "ticks": 80040,
+          "reductions": 2,
+          "restarts": 55,
+          "switches": 1,
+          "rephasings": 1,
+          "eliminations": 2,
+          "vivifications": 1,
+          "model_hash": 2166136261,
+          "maximum_variable": 42
+        },
+        "solve_cpu": 0.1295895,
+        "solve_cpu_range": [
+          0.123323,
+          0.146886
+        ],
+        "total_cpu": 0.1301685,
+        "total_cpu_range": [
+          0.1237895,
+          0.1473385
+        ],
+        "solve_wall": 0.130003,
+        "solve_wall_range": [
+          0.122002,
+          0.1460035
+        ],
+        "total_wall": 0.130003,
+        "total_wall_range": [
+          0.1240025,
+          0.1480035
+        ],
+        "solve_cons_bytes": 98964208.0,
+        "total_cons_bytes": 99291888.0,
+        "gc_build_solve_cpu": 0.008911,
+        "gc_build_solve_cpu_range": [
+          0.005868,
+          0.0126525
+        ]
+      },
+      "after": {
+        "repetitions_per_group": 5,
+        "signature": {
+          "status": 20,
+          "conflicts": 1049,
+          "decisions": 1537,
+          "propagations": 12580,
+          "ticks": 80040,
+          "reductions": 2,
+          "restarts": 55,
+          "switches": 1,
+          "rephasings": 1,
+          "eliminations": 2,
+          "vivifications": 1,
+          "model_hash": 2166136261,
+          "maximum_variable": 42
+        },
+        "solve_cpu": 0.032658,
+        "solve_cpu_range": [
+          0.0320058,
+          0.0359544
+        ],
+        "total_cpu": 0.0328422,
+        "total_cpu_range": [
+          0.032223,
+          0.0361734
+        ],
+        "solve_wall": 0.032801000000000004,
+        "solve_wall_range": [
+          0.031200600000000002,
+          0.0352008
+        ],
+        "total_wall": 0.032801000000000004,
+        "total_wall_range": [
+          0.032800800000000005,
+          0.0360008
+        ],
+        "solve_cons_bytes": 183040.0,
+        "total_cons_bytes": 183040.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.00023500000000000002
+        ]
+      },
+      "speedup": 3.9680782656623186,
+      "before_over_c": 37.05623458039541,
+      "after_over_c": 9.338584599265785,
+      "full_api_speedup": 3.9634525092716073,
+      "exact_audit": true,
+      "c_raw": [
+        {
+          "repetitions": 24,
+          "solve_cpu": 0.081506098,
+          "total_cpu": 0.082118129,
+          "solve_wall": 0.081522825,
+          "total_wall": 0.082135884,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4697609860037851547,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 24,
+          "solve_cpu": 0.08079914,
+          "total_cpu": 0.081295842,
+          "solve_wall": 0.080809125,
+          "total_wall": 0.081306456,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4697609860037851547,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 24,
+          "solve_cpu": 0.083930492,
+          "total_cpu": 0.084418027,
+          "solve_wall": 0.083934893,
+          "total_wall": 0.084440851,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4697609860037851547,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 24,
+          "solve_cpu": 0.095771094,
+          "total_cpu": 0.09630011,
+          "solve_wall": 0.095779819,
+          "total_wall": 0.096309519,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4697609860037851547,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 24,
+          "solve_cpu": 0.085678975,
+          "total_cpu": 0.086143608,
+          "solve_wall": 0.085989929,
+          "total_wall": 0.086455598,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4697609860037851547,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        }
+      ],
+      "before_raw": [
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.246646,
+          "total_cpu": 0.247579,
+          "solve_wall": 0.244004,
+          "total_wall": 0.248005,
+          "solve_cons_bytes": 197961184,
+          "total_cons_bytes": 198583776,
+          "gc_build_solve_cpu": 0.012036,
+          "digest": 4358798294123414825,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.257775,
+          "total_cpu": 0.258735,
+          "solve_wall": 0.260006,
+          "total_wall": 0.260006,
+          "solve_cons_bytes": 197895904,
+          "total_cons_bytes": 198551264,
+          "gc_build_solve_cpu": 0.017822,
+          "digest": 4358798294123414825,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.293772,
+          "total_cpu": 0.294677,
+          "solve_wall": 0.292007,
+          "total_wall": 0.296007,
+          "solve_cons_bytes": 197928416,
+          "total_cons_bytes": 198583776,
+          "gc_build_solve_cpu": 0.025305,
+          "digest": 4358798294123414825,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.259179,
+          "total_cpu": 0.260337,
+          "solve_wall": 0.260006,
+          "total_wall": 0.260006,
+          "solve_cons_bytes": 197937824,
+          "total_cons_bytes": 198593184,
+          "gc_build_solve_cpu": 0.011736,
+          "digest": 4358798294123414825,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 2,
+          "solve_cpu": 0.270679,
+          "total_cpu": 0.271629,
+          "solve_wall": 0.272007,
+          "total_wall": 0.272007,
+          "solve_cons_bytes": 197830880,
+          "total_cons_bytes": 198486240,
+          "gc_build_solve_cpu": 0.020334,
+          "digest": 4358798294123414825,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        }
+      ],
+      "after_raw": [
+        {
+          "repetitions": 5,
+          "solve_cpu": 0.162966,
+          "total_cpu": 0.163862,
+          "solve_wall": 0.164005,
+          "total_wall": 0.164005,
+          "solve_cons_bytes": 915200,
+          "total_cons_bytes": 947712,
+          "gc_build_solve_cpu": 0.001175,
+          "digest": 9429058984974209716,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 5,
+          "solve_cpu": 0.160029,
+          "total_cpu": 0.161115,
+          "solve_wall": 0.156003,
+          "total_wall": 0.164004,
+          "solve_cons_bytes": 915200,
+          "total_cons_bytes": 915200,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 9429058984974209716,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 5,
+          "solve_cpu": 0.16329,
+          "total_cpu": 0.164211,
+          "solve_wall": 0.164004,
+          "total_wall": 0.164004,
+          "solve_cons_bytes": 882688,
+          "total_cons_bytes": 915200,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 9429058984974209716,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 5,
+          "solve_cpu": 0.166081,
+          "total_cpu": 0.167071,
+          "solve_wall": 0.168004,
+          "total_wall": 0.168004,
+          "solve_cons_bytes": 947712,
+          "total_cons_bytes": 947712,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 9429058984974209716,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        },
+        {
+          "repetitions": 5,
+          "solve_cpu": 0.179772,
+          "total_cpu": 0.180867,
+          "solve_wall": 0.176004,
+          "total_wall": 0.180004,
+          "solve_cons_bytes": 882688,
+          "total_cons_bytes": 915200,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 9429058984974209716,
+          "signature": {
+            "status": 20,
+            "conflicts": 1049,
+            "decisions": 1537,
+            "propagations": 12580,
+            "ticks": 80040,
+            "reductions": 2,
+            "restarts": 55,
+            "switches": 1,
+            "rephasings": 1,
+            "eliminations": 2,
+            "vivifications": 1,
+            "model_hash": 2166136261,
+            "maximum_variable": 42
+          }
+        }
+      ]
+    },
+    {
+      "name": "random-3sat-80",
+      "variables": 80,
+      "clauses": 340,
+      "c": {
+        "repetitions_per_group": 561,
+        "signature": {
+          "status": 10,
+          "conflicts": 33,
+          "decisions": 56,
+          "propagations": 738,
+          "ticks": 6050,
+          "reductions": 0,
+          "restarts": 0,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 3961287231,
+          "maximum_variable": 80
+        },
+        "solve_cpu": 0.00010504569518716578,
+        "solve_cpu_range": [
+          9.989438859180036e-05,
+          0.00011102135294117648
+        ],
+        "total_cpu": 0.00015817449019607844,
+        "total_cpu_range": [
+          0.0001494293137254902,
+          0.00016652699286987522
+        ],
+        "solve_wall": 0.00010506360962566845,
+        "solve_wall_range": [
+          9.989524777183601e-05,
+          0.00011101952584670232
+        ],
+        "total_wall": 0.00015830608912655971,
+        "total_wall_range": [
+          0.00014954339572192512,
+          0.00016660356862745096
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 0.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "before": {
+        "repetitions_per_group": 33,
+        "signature": {
+          "status": 10,
+          "conflicts": 33,
+          "decisions": 56,
+          "propagations": 738,
+          "ticks": 6050,
+          "reductions": 0,
+          "restarts": 0,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 3961287231,
+          "maximum_variable": 80
+        },
+        "solve_cpu": 0.005299757575757576,
+        "solve_cpu_range": [
+          0.004765454545454546,
+          0.0056356363636363635
+        ],
+        "total_cpu": 0.007062151515151515,
+        "total_cpu_range": [
+          0.006332272727272728,
+          0.007381212121212121
+        ],
+        "solve_wall": 0.005091,
+        "solve_wall_range": [
+          0.004848606060606061,
+          0.006424424242424243
+        ],
+        "total_wall": 0.0070304545454545455,
+        "total_wall_range": [
+          0.006303181818181818,
+          0.007394121212121212
+        ],
+        "solve_cons_bytes": 3835438.0606060605,
+        "total_cons_bytes": 4946462.545454546,
+        "gc_build_solve_cpu": 0.000397969696969697,
+        "gc_build_solve_cpu_range": [
+          0.0003705151515151515,
+          0.0006580303030303031
+        ]
+      },
+      "after": {
+        "repetitions_per_group": 106,
+        "signature": {
+          "status": 10,
+          "conflicts": 33,
+          "decisions": 56,
+          "propagations": 738,
+          "ticks": 6050,
+          "reductions": 0,
+          "restarts": 0,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 0,
+          "vivifications": 0,
+          "model_hash": 3961287231,
+          "maximum_variable": 80
+        },
+        "solve_cpu": 0.0012302735849056604,
+        "solve_cpu_range": [
+          0.001191311320754717,
+          0.0014094245283018869
+        ],
+        "total_cpu": 0.0017703962264150944,
+        "total_cpu_range": [
+          0.0017126603773584906,
+          0.002019377358490566
+        ],
+        "solve_wall": 0.0011698396226415095,
+        "solve_wall_range": [
+          0.0010943490566037736,
+          0.0015094622641509433
+        ],
+        "total_wall": 0.0017736415094339623,
+        "total_wall_range": [
+          0.001735877358490566,
+          0.0020000377358490567
+        ],
+        "solve_cons_bytes": 7704.1509433962265,
+        "total_cons_bytes": 22119.849056603773,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "speedup": 4.307787829293247,
+      "before_over_c": 50.45192538651586,
+      "after_over_c": 11.71179440255608,
+      "full_api_speedup": 3.9890231405722023,
+      "exact_audit": true,
+      "c_raw": [
+        {
+          "repetitions": 561,
+          "solve_cpu": 0.05695257,
+          "total_cpu": 0.085013695,
+          "solve_wall": 0.056952779,
+          "total_wall": 0.085041807,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 2365485955026046001,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 561,
+          "solve_cpu": 0.058930635,
+          "total_cpu": 0.088735889,
+          "solve_wall": 0.058940685,
+          "total_wall": 0.088809716,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 2365485955026046001,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 561,
+          "solve_cpu": 0.06202401,
+          "total_cpu": 0.091732016,
+          "solve_wall": 0.062023297,
+          "total_wall": 0.091778384,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 2365485955026046001,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 561,
+          "solve_cpu": 0.062282979,
+          "total_cpu": 0.093421643,
+          "solve_wall": 0.062281954,
+          "total_wall": 0.093464602,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 2365485955026046001,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 561,
+          "solve_cpu": 0.056040752,
+          "total_cpu": 0.083829845,
+          "solve_wall": 0.056041234,
+          "total_wall": 0.083893845,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 2365485955026046001,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        }
+      ],
+      "before_raw": [
+        {
+          "repetitions": 33,
+          "solve_cpu": 0.16741,
+          "total_cpu": 0.220878,
+          "solve_wall": 0.160005,
+          "total_wall": 0.220005,
+          "solve_cons_bytes": 126504432,
+          "total_cons_bytes": 163233232,
+          "gc_build_solve_cpu": 0.012227,
+          "digest": 13819554762101265073,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 33,
+          "solve_cpu": 0.15726,
+          "total_cpu": 0.208965,
+          "solve_wall": 0.160004,
+          "total_wall": 0.208005,
+          "solve_cons_bytes": 126634736,
+          "total_cons_bytes": 163298544,
+          "gc_build_solve_cpu": 0.013133,
+          "digest": 13819554762101265073,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 33,
+          "solve_cpu": 0.184702,
+          "total_cpu": 0.241709,
+          "solve_wall": 0.184006,
+          "total_wall": 0.240006,
+          "solve_cons_bytes": 126569456,
+          "total_cons_bytes": 163233248,
+          "gc_build_solve_cpu": 0.021715,
+          "digest": 13819554762101265073,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 33,
+          "solve_cpu": 0.185976,
+          "total_cpu": 0.24358,
+          "solve_wall": 0.212006,
+          "total_wall": 0.244006,
+          "solve_cons_bytes": 126537184,
+          "total_cons_bytes": 163298528,
+          "gc_build_solve_cpu": 0.012914,
+          "digest": 13819554762101265073,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 33,
+          "solve_cpu": 0.174892,
+          "total_cpu": 0.233051,
+          "solve_wall": 0.168003,
+          "total_wall": 0.232005,
+          "solve_cons_bytes": 126569472,
+          "total_cons_bytes": 163233264,
+          "gc_build_solve_cpu": 0.013177,
+          "digest": 13819554762101265073,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        }
+      ],
+      "after_raw": [
+        {
+          "repetitions": 106,
+          "solve_cpu": 0.126279,
+          "total_cpu": 0.181542,
+          "solve_wall": 0.116001,
+          "total_wall": 0.184003,
+          "solve_cons_bytes": 816640,
+          "total_cons_bytes": 2377216,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16888793174626653363,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 106,
+          "solve_cpu": 0.129439,
+          "total_cpu": 0.187662,
+          "solve_wall": 0.128003,
+          "total_wall": 0.188006,
+          "solve_cons_bytes": 750848,
+          "total_cons_bytes": 2278912,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16888793174626653363,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 106,
+          "solve_cpu": 0.149399,
+          "total_cpu": 0.214054,
+          "solve_wall": 0.160003,
+          "total_wall": 0.212004,
+          "solve_cons_bytes": 784128,
+          "total_cons_bytes": 2344704,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16888793174626653363,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 106,
+          "solve_cpu": 0.1419,
+          "total_cpu": 0.204931,
+          "solve_wall": 0.124003,
+          "total_wall": 0.200006,
+          "solve_cons_bytes": 816640,
+          "total_cons_bytes": 2409728,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16888793174626653363,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        },
+        {
+          "repetitions": 106,
+          "solve_cpu": 0.130409,
+          "total_cpu": 0.187631,
+          "solve_wall": 0.124003,
+          "total_wall": 0.188006,
+          "solve_cons_bytes": 816640,
+          "total_cons_bytes": 2344704,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 16888793174626653363,
+          "signature": {
+            "status": 10,
+            "conflicts": 33,
+            "decisions": 56,
+            "propagations": 738,
+            "ticks": 6050,
+            "reductions": 0,
+            "restarts": 0,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 0,
+            "vivifications": 0,
+            "model_hash": 3961287231,
+            "maximum_variable": 80
+          }
+        }
+      ]
+    },
+    {
+      "name": "random-3sat-125",
+      "variables": 125,
+      "clauses": 532,
+      "c": {
+        "repetitions_per_group": 16,
+        "signature": {
+          "status": 10,
+          "conflicts": 819,
+          "decisions": 1178,
+          "propagations": 21726,
+          "ticks": 226228,
+          "reductions": 2,
+          "restarts": 26,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 1,
+          "vivifications": 0,
+          "model_hash": 1844012718,
+          "maximum_variable": 125
+        },
+        "solve_cpu": 0.0045194249375,
+        "solve_cpu_range": [
+          0.004413416625,
+          0.0049155380625
+        ],
+        "total_cpu": 0.004623485875,
+        "total_cpu_range": [
+          0.004516945125,
+          0.0050502939375
+        ],
+        "solve_wall": 0.0045205651875,
+        "solve_wall_range": [
+          0.004413978875,
+          0.004915883125
+        ],
+        "total_wall": 0.0046247121875,
+        "total_wall_range": [
+          0.0045175901875,
+          0.0050521599375
+        ],
+        "solve_cons_bytes": 0.0,
+        "total_cons_bytes": 0.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "before": {
+        "repetitions_per_group": 1,
+        "signature": {
+          "status": 10,
+          "conflicts": 819,
+          "decisions": 1178,
+          "propagations": 21726,
+          "ticks": 226228,
+          "reductions": 2,
+          "restarts": 26,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 1,
+          "vivifications": 0,
+          "model_hash": 1844012718,
+          "maximum_variable": 125
+        },
+        "solve_cpu": 0.173648,
+        "solve_cpu_range": [
+          0.167418,
+          0.201455
+        ],
+        "total_cpu": 0.176591,
+        "total_cpu_range": [
+          0.170367,
+          0.204327
+        ],
+        "solve_wall": 0.172004,
+        "solve_wall_range": [
+          0.168004,
+          0.204005
+        ],
+        "total_wall": 0.176004,
+        "total_wall_range": [
+          0.168004,
+          0.204005
+        ],
+        "solve_cons_bytes": 142433776.0,
+        "total_cons_bytes": 144268784.0,
+        "gc_build_solve_cpu": 0.01118,
+        "gc_build_solve_cpu_range": [
+          0.007736,
+          0.013068
+        ]
+      },
+      "after": {
+        "repetitions_per_group": 4,
+        "signature": {
+          "status": 10,
+          "conflicts": 819,
+          "decisions": 1178,
+          "propagations": 21726,
+          "ticks": 226228,
+          "reductions": 2,
+          "restarts": 26,
+          "switches": 0,
+          "rephasings": 0,
+          "eliminations": 1,
+          "vivifications": 0,
+          "model_hash": 1844012718,
+          "maximum_variable": 125
+        },
+        "solve_cpu": 0.0424055,
+        "solve_cpu_range": [
+          0.04075975,
+          0.04676375
+        ],
+        "total_cpu": 0.0435405,
+        "total_cpu_range": [
+          0.04182025,
+          0.0478205
+        ],
+        "solve_wall": 0.04300125,
+        "solve_wall_range": [
+          0.040001,
+          0.04800075
+        ],
+        "total_wall": 0.04400125,
+        "total_wall_range": [
+          0.04200075,
+          0.04800075
+        ],
+        "solve_cons_bytes": 130816.0,
+        "total_cons_bytes": 171456.0,
+        "gc_build_solve_cpu": 0.0,
+        "gc_build_solve_cpu_range": [
+          0.0,
+          0.0
+        ]
+      },
+      "speedup": 4.0949405147917135,
+      "before_over_c": 38.42258747548897,
+      "after_over_c": 9.382941543765822,
+      "full_api_speedup": 4.055787140708076,
+      "exact_audit": true,
+      "c_raw": [
+        {
+          "repetitions": 16,
+          "solve_cpu": 0.070614666,
+          "total_cpu": 0.072271122,
+          "solve_wall": 0.070623662,
+          "total_wall": 0.072281443,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4600163227212583123,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 16,
+          "solve_cpu": 0.078648609,
+          "total_cpu": 0.080804703,
+          "solve_wall": 0.07865413,
+          "total_wall": 0.080834559,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4600163227212583123,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 16,
+          "solve_cpu": 0.076508597,
+          "total_cpu": 0.078238448,
+          "solve_wall": 0.076510879,
+          "total_wall": 0.078242516,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4600163227212583123,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 16,
+          "solve_cpu": 0.072310799,
+          "total_cpu": 0.073975774,
+          "solve_wall": 0.072329043,
+          "total_wall": 0.073995395,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4600163227212583123,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 16,
+          "solve_cpu": 0.072103012,
+          "total_cpu": 0.073593434,
+          "solve_wall": 0.072124404,
+          "total_wall": 0.073615714,
+          "solve_cons_bytes": 0,
+          "total_cons_bytes": 0,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 4600163227212583123,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        }
+      ],
+      "before_raw": [
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.167418,
+          "total_cpu": 0.170367,
+          "solve_wall": 0.168004,
+          "total_wall": 0.168004,
+          "solve_cons_bytes": 142401264,
+          "total_cons_bytes": 144301296,
+          "gc_build_solve_cpu": 0.01118,
+          "digest": 14727102516772015328,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.185398,
+          "total_cpu": 0.188919,
+          "solve_wall": 0.184004,
+          "total_wall": 0.188004,
+          "solve_cons_bytes": 142433776,
+          "total_cons_bytes": 144268528,
+          "gc_build_solve_cpu": 0.008122,
+          "digest": 14727102516772015328,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.173648,
+          "total_cpu": 0.176591,
+          "solve_wall": 0.172004,
+          "total_wall": 0.176004,
+          "solve_cons_bytes": 142401248,
+          "total_cons_bytes": 144236000,
+          "gc_build_solve_cpu": 0.011827,
+          "digest": 14727102516772015328,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.201455,
+          "total_cpu": 0.204327,
+          "solve_wall": 0.204005,
+          "total_wall": 0.204005,
+          "solve_cons_bytes": 142433776,
+          "total_cons_bytes": 144301296,
+          "gc_build_solve_cpu": 0.013068,
+          "digest": 14727102516772015328,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 1,
+          "solve_cpu": 0.169761,
+          "total_cpu": 0.172443,
+          "solve_wall": 0.168004,
+          "total_wall": 0.176004,
+          "solve_cons_bytes": 142433776,
+          "total_cons_bytes": 144268784,
+          "gc_build_solve_cpu": 0.007736,
+          "digest": 14727102516772015328,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        }
+      ],
+      "after_raw": [
+        {
+          "repetitions": 4,
+          "solve_cpu": 0.163039,
+          "total_cpu": 0.167281,
+          "solve_wall": 0.160004,
+          "total_wall": 0.168003,
+          "solve_cons_bytes": 555776,
+          "total_cons_bytes": 685824,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 6768539587331630471,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 4,
+          "solve_cpu": 0.172265,
+          "total_cpu": 0.176646,
+          "solve_wall": 0.172005,
+          "total_wall": 0.176005,
+          "solve_cons_bytes": 457728,
+          "total_cons_bytes": 587776,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 6768539587331630471,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 4,
+          "solve_cpu": 0.187055,
+          "total_cpu": 0.191282,
+          "solve_wall": 0.192003,
+          "total_wall": 0.192003,
+          "solve_cons_bytes": 523264,
+          "total_cons_bytes": 685824,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 6768539587331630471,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 4,
+          "solve_cpu": 0.169622,
+          "total_cpu": 0.174162,
+          "solve_wall": 0.176005,
+          "total_wall": 0.176005,
+          "solve_cons_bytes": 555776,
+          "total_cons_bytes": 653312,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 6768539587331630471,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        },
+        {
+          "repetitions": 4,
+          "solve_cpu": 0.167106,
+          "total_cpu": 0.171355,
+          "solve_wall": 0.164003,
+          "total_wall": 0.172003,
+          "solve_cons_bytes": 523264,
+          "total_cons_bytes": 685824,
+          "gc_build_solve_cpu": 0.0,
+          "digest": 6768539587331630471,
+          "signature": {
+            "status": 10,
+            "conflicts": 819,
+            "decisions": 1178,
+            "propagations": 21726,
+            "ticks": 226228,
+            "reductions": 2,
+            "restarts": 26,
+            "switches": 0,
+            "rephasings": 0,
+            "eliminations": 1,
+            "vivifications": 0,
+            "model_hash": 1844012718,
+            "maximum_variable": 125
+          }
+        }
+      ]
+    }
+  ],
+  "source_sha256": {
+    "before": {
+      "src/runtime.lisp": "a1f71dd8c2841667355fd499e04aad52751fbbdd6a984a4f2600870006a71690",
+      "src/translated.lisp": "eb9a792e8b3f2fb7cc72db1b561cfcaa56c3e96a44c0af3f772209739149c04f",
+      "src/api.lisp": "9f38bf00a123ea5a9bb07ebbe9ecb898d1406ea17f9850a39616bccc914d94dd"
+    },
+    "after": {
+      "src/runtime.lisp": "c816fc09f3b21429e99b60af5f701e94f9314a2cdaf0c7e7c0caa1a56ae55652",
+      "src/translated.lisp": "195455a6f843e67aeaadd679b041e17193f51c84742ae3d8d86915ba693039f4",
+      "src/api.lisp": "8e0f31e73916f0d3c6643f6221fbf8fc7d59dbb712af44eed54f094a0f7ad1a7"
+    }
+  }
+}

@@ -16,7 +16,11 @@
   (sb-ext:without-package-locks
     (apply #'augment-environment environment arguments))
   #-sbcl
-  (apply #'augment-environment environment arguments))
+  (apply #'augment-environment
+         ;; CMUCL's macro-binding path copies its input environment directly.
+         #+cmucl (or environment (c::make-null-environment))
+         #-cmucl environment
+         arguments))
 
 (defun expand-once (form environment)
   #+sbcl (macroexpand-1 form environment)

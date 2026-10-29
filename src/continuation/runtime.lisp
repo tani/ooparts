@@ -54,7 +54,10 @@
                (make-instance 'captured-continuation :code code :segment segment)
                (make-instance 'cps-function :code code))))
     (set-funcallable-instance-function
-     f (lambda (&rest args) (run (lambda (k) (apply code k args)))))
+     ;; CMUCL requires INSTANCE-LAMBDA to recover a funcallable object's
+     ;; closure environment; an ordinary closure uses a different convention.
+     f #'(#+cmucl kernel:instance-lambda #-cmucl lambda
+          (&rest args) (run (lambda (k) (apply code k args)))))
     f))
 
 (defun bounce (k thunk) (task thunk k))

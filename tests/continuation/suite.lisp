@@ -308,6 +308,12 @@
         (format t "Condition mismatch: expected ~S, got ~S: ~A~%" type (type-of e) e)))))
 (defun run-tests ()
   (let ((*checks* 0) (*failures* nil))
+    ;; Exercise calls from ordinary host code, outside the CPS INVOKE path.
+    (let ((function (lambda/cps (&rest arguments) (values-list arguments))))
+      (check :native-cps-no-arguments nil (multiple-value-list (funcall function)))
+      (check :native-cps-one-argument '(42) (multiple-value-list (funcall function 42)))
+      (check :native-cps-multiple-arguments '(nil 42 :last)
+             (multiple-value-list (funcall function nil 42 :last))))
     (dolist (case (reverse *cases*))
       (destructuring-bind (name expected form) case
         (dolist (mode '(:selective :full))

@@ -37,6 +37,10 @@ bindings directly. On ABCL and ECL, an adapter updates the virtual binding when 
 otherwise clear only the global value. It preserves that global value and
 installs the unbound dynamic binding at the next trampoline step.
 
+On CMUCL, augmenting an empty macro environment first creates a native empty
+environment object. Callable continuation closures use `kernel:instance-lambda`
+to follow CMUCL's funcallable-instance calling convention.
+
 ## Dependencies
 
 SBCL needs only its bundled ASDF/UIOP, SB-CLTL2, MOP and thread facilities.

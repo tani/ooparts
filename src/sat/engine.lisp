@@ -8671,10 +8671,8 @@ c
            (type (unsigned-byte 64) count)
            (ignorable base scale count))
   (let* ((scaling
-          (funcall
-           (the (function ((unsigned-byte 64)) (values double-float &optional))
-                (function-from-handle scale))
-           count)))
+          (call-function-handle (function ((unsigned-byte 64)) (values double-float &optional))
+                                scale count)))
     (declare (type double-float scaling)
              (ignorable scaling))
     (let* ((res (float (* (integer64-double base nil) scaling) 1.0d0)))
@@ -8906,11 +8904,9 @@ c
                         (setf (statistics-rephased address-9) (c-u64 (+ previous-value-10 1)))
                         (statistics-rephased address-9))))
                     (type
-                     (funcall
-                      (the (function (c-address) (values (signed-byte 8) &optional))
-                           (function-from-handle
-                            (m-ptr (+ functions (* 8 (c-u64 (rem rephased size-functions)))))))
-                      solver))
+                     (call-function-handle
+                      (function (c-address) (values (signed-byte 8) &optional))
+                      (m-ptr (+ functions (* 8 (c-u64 (rem rephased size-functions))))) solver))
                     (interval
                      (locally
                       (declare (optimize (speed 1)))

@@ -344,7 +344,7 @@ class Translator:
     if name not in self.functions:raise ValueError(('undeclared call',name))
     ft=self.functions[name];fun=sym(name) if name in self.defined_funcs else 'c-'+name
    else:
-    fun,pt=self.expr(n.name);ft=pt.base;fun='funcall (the (function ('+' '.join(self.ltype(p) for p in ft.params)+') (values '+self.ltype(ft.base)+' &optional)) (function-from-handle '+fun+'))'
+    fun,pt=self.expr(n.name);ft=pt.base;fun='call-function-handle (function ('+' '.join(self.ltype(p) for p in ft.params)+') (values '+self.ltype(ft.base)+' &optional)) '+fun
    args=[]
    for i,arg in enumerate(n.args.exprs if n.args else []):
     e,t=self.expr(arg);args.append(self.conv(e,ft.params[i],t) if i<len(ft.params) else e)

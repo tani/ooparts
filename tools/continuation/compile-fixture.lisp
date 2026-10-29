@@ -1,4 +1,4 @@
-(require :asdf)
+(require "asdf")
 (asdf:load-asd (merge-pathnames "../../ooparts.asd" *load-truename*))
 (asdf:load-system "ooparts/continuation")
 (let* ((source (merge-pathnames "../../tests/continuation/fixture.lisp" *load-truename*))

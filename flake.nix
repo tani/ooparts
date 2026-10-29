@@ -117,6 +117,7 @@
                   cd ${src}
                   for script in compile-fixture load-fixture; do
                     ${runtime}/bin/${options.program} ${options.args} \
+                      ${options.eval} '(require "asdf")' \
                       ${options.eval} '(load "tools/continuation/'"$script"'.lisp")' \
                       ${options.eval} '(uiop:quit 0)'
                   done

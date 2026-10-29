@@ -59,14 +59,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v30
       - id: matrix
-        name: Discover available implementations on each platform
+        name: Evaluate available checks on each platform
         shell: bash
         run: |
           set -euo pipefail
           include='[]'
           for target in 'x86_64-linux ubuntu-24.04' 'aarch64-linux ubuntu-24.04-arm' 'aarch64-darwin macos-15'; do
             read -r system os <<< "$target"
-            names=$(nix eval --json ".#checks.$system" --apply builtins.attrNames)
+            names=$(nix eval --json ".#checks.$system" --apply 'checks: builtins.deepSeq (builtins.mapAttrs (_: value: value.drvPath) checks) (builtins.attrNames checks)')
             include=$(jq -cn --argjson old "$include" --argjson names "$names" --arg os "$os" \
               '$old + ($names | map({os: $os, check: .}))')
           done

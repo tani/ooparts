@@ -1,4 +1,4 @@
-(require :asdf)
+(require "asdf")
 (let ((root (merge-pathnames "../" (uiop:pathname-directory-pathname *load-truename*))))
   (asdf:load-asd (merge-pathnames "ooparts.asd" root))
   (asdf:load-asd (merge-pathnames "ooparts-tests.asd" root)))

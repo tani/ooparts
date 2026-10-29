@@ -365,10 +365,14 @@
       (check :other-thread 13
              (sb-thread:join-thread (sb-thread:make-thread (lambda () (funcall k 3)))))
       #-sbcl
-      (when bordeaux-threads:*supports-threads-p*
-        (check :other-thread 13
-               (bordeaux-threads:join-thread
-                (bordeaux-threads:make-thread (lambda () (funcall k 3)))))))
+      (if bordeaux-threads:*supports-threads-p*
+          (let ((result nil))
+            ;; JOIN-THREAD's return convention differs across older backends.
+            ;; Test the continuation result, using JOIN only as a barrier.
+            (bordeaux-threads:join-thread
+             (bordeaux-threads:make-thread (lambda () (setf result (funcall k 3)))))
+            (check :other-thread 13 result))
+          (format t "Thread check skipped: this Lisp has no thread support.~%")))
     (expect-condition :pending-expired-block 'inactive-control-target
                       (lambda ()
                         (let ((k (with-cps (block b (reset (unwind-protect (return-from b :escaped)

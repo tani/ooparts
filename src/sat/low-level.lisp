@@ -28,7 +28,14 @@
 (defvar *proof-handles* (make-hash-table :test 'eql))
 (defmacro api-locked (&body body)
   #+(and sbcl sb-thread) `(sb-thread:with-recursive-lock (*api-lock*) ,@body)
-  #-(and sbcl sb-thread) `(bordeaux-threads:with-recursive-lock-held (*api-lock*) ,@body))
+  #-(and sbcl sb-thread)
+  (let ((results (gensym "RESULTS")))
+    ;; Keep the API's multiple values independent of the lock macro's return
+    ;; convention, including older native thread backends.
+    `(let ((,results nil))
+       (bordeaux-threads:with-recursive-lock-held (*api-lock*)
+         (setf ,results (multiple-value-list (progn ,@body))))
+       (values-list ,results))))
 (declaim (ftype (function (t) (values ooparts/sat/runtime:c-address &optional)) require-solver))
 (defun require-solver (solver)
   (unless (gethash solver *live-solvers*) (error "Not a live SATCH solver: ~S" solver))

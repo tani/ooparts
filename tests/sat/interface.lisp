@@ -5,9 +5,10 @@
   (:export #:run-tests))
 (in-package #:ooparts-tests/sat/interface)
 (defparameter *checks* 0)
-(defun check (value)
-  (incf *checks*)
-  (assert value))
+(defmacro check (value)
+  `(progn
+     (incf *checks*)
+     (assert ,value () "SAT API check ~D failed: ~S" *checks* ',value)))
 (defmacro signals (type &body body)
   `(handler-case (progn ,@body nil) (,type () t)))
 (defun live-count () (hash-table-count ooparts/sat/low-level:*live-solvers*))

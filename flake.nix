@@ -173,14 +173,14 @@
                 ++ lib.optionals (impl != "mkcl")
                   [ libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) available
                 ++ [ python pkgs.stdenv.cc ];
-              shellHook = ''export CL_SOURCE_REGISTRY="$PWD//:"'';
+              shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
             };
           } // lib.mapAttrs (impl: _: pkgs.mkShell {
             packages = [ ((lispFor impl).withPackages (libraries:
               [ libraries.bordeaux-threads ]
               ++ lib.optionals (impl != "mkcl")
                 [ libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) python pkgs.stdenv.cc ];
-            shellHook = ''export CL_SOURCE_REGISTRY="$PWD//:"'';
+            shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
           }) available;
           overlayAttrs = lib.mapAttrs (impl: _: (lispFor impl).withOverrides
             (_: _: lib.listToAttrs (lib.concatMap (component:

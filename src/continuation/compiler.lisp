@@ -667,14 +667,27 @@
                (if (null bindings) (emit-direct body)
                    `(let ((,(var-info-native (caar bindings)) ,(emit-direct (cadar bindings))))
                       (declare (ignorable ,(var-info-native (caar bindings))))
-                      ,(init-direct (cdr bindings))))))
+                      ,(init-direct (cdr bindings)))))
+             (argument-parser (form)
+               `(lambda ,raw-list
+                  ;; Host optimization can remove an unused source binding.
+                  ;; All argument-parser variables are compiler-generated.
+                  (declare
+                   (ignorable
+                    ,@(loop for spec in raw-list
+                            unless (member spec lambda-list-keywords)
+                              append (if (consp spec)
+                                         (list (if (consp (car spec)) (cadar spec) (car spec))
+                                               (caddr spec))
+                                         (list spec)))))
+                  ,form)))
       (if (and (eq *transformation-mode* :selective) (not (effect-impure latent)))
-          `(lambda ,raw-list ,(let ((*direct-region* nil)) (init-direct bindings)))
+          (argument-parser (let ((*direct-region* nil)) (init-direct bindings)))
           (let ((k (gensym "K")) (args (gensym "ARGS")))
             `(make-cps-function
               (lambda (,k &rest ,args)
                 (bounce ,k (lambda ()
-                             (apply (lambda ,raw-list ,(init-cps bindings k)) ,args))))))))))
+                             (apply ,(argument-parser (init-cps bindings k)) ,args))))))))))
 )
 
 (defun emit-cps (n k)

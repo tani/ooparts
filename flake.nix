@@ -111,7 +111,6 @@
               '';
               check = pkgs.runCommand "ooparts-test-${component}-${impl}" {} ''
                 export XDG_CACHE_HOME="$TMPDIR/asdf-cache"
-                ${test}/bin/ooparts-test
                 ${lib.optionalString (component == "continuation" || component == "all") ''
                   export OOPARTS_CONT_FIXTURE_FASL="$TMPDIR/fixture.fasl"
                   cd ${src}
@@ -122,6 +121,7 @@
                       ${options.eval} '(uiop:quit 0)'
                   done
                 ''}
+                ${test}/bin/ooparts-test
                 touch "$out"
               '';
             in lib.nameValuePair "${component}-${impl}" {

@@ -66,7 +66,9 @@ to follow CMUCL's funcallable-instance calling convention.
 ## Host adapters
 
 `ooparts/continuation/environment` contains the compiler's small environment
-interface. SBCL, CCL, CMUCL and Clasp use their bundled CLTL2 operations. On ECL,
+interface. SBCL, CCL, CMUCL and Clasp use their bundled CLTL2 operations.
+Clasp's binding queries read categories without forcing optional type metadata.
+On ECL,
 ABCL and CLISP, synthetic LET/FLET/MACROLET/SYMBOL-MACROLET forms extend a native
 interpreter environment. The dummy bindings never evaluate user initializers
 or CPS bodies. Macro definitions are enclosed by the host, preserving macro

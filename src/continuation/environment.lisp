@@ -10,11 +10,51 @@
   (:import-from #:extensions #:augment-environment #:variable-information
                 #:function-information #:parse-macro)
   #+clasp
-  (:import-from #:clasp-cltl2 #:augment-environment #:variable-information
-                #:function-information #:parse-macro #:enclose)
+  (:import-from #:clasp-cltl2 #:augment-environment #:parse-macro #:enclose)
   (:export #:augment-context #:variable-information #:function-information
            #:expand-once #:constant-form-p #:place-expansion))
 (in-package #:ooparts/continuation/environment)
+
+#+clasp
+(defun clasp-binding-information (name environment variablep)
+  (let* ((package (find-package "CMP"))
+         (accessor (and package (find-symbol (if variablep "VAR-INFO" "FUN-INFO") package)))
+         (modern-class (and package (find-symbol "GLOBAL-FUN-INFO" package))))
+    (if (and accessor (fboundp accessor) modern-class (find-class modern-class nil))
+        (funcall accessor name environment)
+        (uiop:symbol-call :cleavir-env (if variablep :variable-info :function-info)
+                          (symbol-value (find-symbol "*CLASP-SYSTEM*" "CLASP-CLEAVIR"))
+                          environment name))))
+
+#+clasp
+(defun clasp-information-p (information modern legacy)
+  (loop for (package-name class-name) in `(("CMP" ,modern) ("CLEAVIR-ENV" ,legacy))
+        for package = (find-package package-name)
+        for symbol = (and package (find-symbol class-name package))
+        thereis (and symbol (find-class symbol nil) (typep information symbol))))
+
+#+clasp
+(defun variable-information (name &optional environment)
+  ;; Clasp 2.6's full CLTL2 query reads optional TYPE slots even when unbound.
+  ;; CPS needs only the category, so leave that unrelated metadata untouched.
+  (let ((information (clasp-binding-information name environment t)))
+    (values (cond ((clasp-information-p information "SPECIAL-VAR-INFO" "SPECIAL-VARIABLE-INFO") :special)
+                  ((clasp-information-p information "CONSTANT-VAR-INFO" "CONSTANT-VARIABLE-INFO") :constant)
+                  ((clasp-information-p information "SYMBOL-MACRO-VAR-INFO" "SYMBOL-MACRO-INFO") :symbol-macro)
+                  ((clasp-information-p information "LEXICAL-VAR-INFO" "LEXICAL-VARIABLE-INFO") :lexical))
+            nil)))
+
+#+clasp
+(defun function-information (name &optional environment)
+  (let* ((information (clasp-binding-information name environment nil))
+         (local-function (clasp-information-p information "LOCAL-FUN-INFO" "LOCAL-FUNCTION-INFO"))
+         (local-macro (clasp-information-p information "LOCAL-MACRO-INFO" "LOCAL-MACRO-INFO")))
+    (values (cond ((or local-function
+                       (clasp-information-p information "GLOBAL-FUN-INFO" "GLOBAL-FUNCTION-INFO")) :function)
+                  ((or local-macro
+                       (clasp-information-p information "GLOBAL-MACRO-INFO" "GLOBAL-MACRO-INFO")) :macro)
+                  ((clasp-information-p information "SPECIAL-OPERATOR-INFO" "SPECIAL-OPERATOR-INFO") :special-form))
+            (or local-function local-macro))))
 
 #+cmucl
 (defun enclose (expression environment)

@@ -132,12 +132,12 @@
             };
           devShells = {
             default = pkgs.mkShell {
-              packages = lib.mapAttrsToList (impl: _: (lispFor impl).withPackages (_: [])) available
+              packages = lib.mapAttrsToList (impl: _: lispFor impl) available
                 ++ [ python pkgs.stdenv.cc ];
               shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
             };
           } // lib.mapAttrs (impl: _: pkgs.mkShell {
-            packages = [ ((lispFor impl).withPackages (_: [])) python pkgs.stdenv.cc ];
+            packages = [ (lispFor impl) python pkgs.stdenv.cc ];
             shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
           }) available;
           overlayAttrs = lib.mapAttrs (impl: _: (lispFor impl).withOverrides

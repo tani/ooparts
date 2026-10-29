@@ -50,7 +50,7 @@
               systems = [ "bordeaux-threads" ];
               lispLibs = [ self.alexandria ];
             } else super.bordeaux-threads;
-            cl-environments = super.cl-environments.override {
+            cl-environments = super.cl-environments.overrideLispAttrs {
               # ASDF reads immutable SRC paths, so patch the source derivation.
               src = pkgs.runCommand "cl-environments-portable-source" {} ''
                 cp -R ${super.cl-environments.src} "$out"

@@ -1,6 +1,8 @@
 (uiop:define-package #:ooparts/continuation/compiler
   (:use #:cl)
-  (:import-from #:sb-cltl2)
+  (:import-from #:ooparts/continuation/environment
+                #:augment-context #:variable-information #:function-information
+                #:parse-macro #:enclose #:expand-once #:constant-form-p #:place-expansion)
   (:import-from #:ooparts/continuation/conditions #:cps-error #:missing-reset #:native-boundary #:unsupported-form #:inactive-control-target #:unsupported-form-form #:unsupported-form-reason)
   (:import-from #:ooparts/continuation/runtime #:*native-call* #:run #:bounce #:deliver #:frame #:perform-shift #:push-specials #:invoke #:control-return #:control-go #:make-cps-function #:shift #:dynamic-wind #:register-cps-adapter #:cps-function-p #:continuation-p)
   (:export #:reset #:with-cps #:lambda/cps #:defun/cps #:transform #:analyze #:*transformation-mode*))
@@ -43,7 +45,7 @@
     array-dimensions array-dimension array-rank array-total-size
     make-array make-string make-list vector coerce
     symbol-name symbol-package symbol-value symbol-function boundp fboundp
-    fdefinition makunbound fmakunbound get getf remprop
+    fdefinition #-abcl makunbound fmakunbound get getf remprop
     gethash remhash clrhash hash-table-count make-hash-table
     rplaca rplacd set char-name name-char
     (setf car) (setf cdr) (setf nth) (setf get) (setf getf)
@@ -82,16 +84,15 @@
 (defun declared-context (c decls &optional names functions)
   (let ((out (copy-ctx c)))
     (setf (context-env out)
-          (sb-ext:without-package-locks
-            (sb-cltl2:augment-environment (context-env c) :variable names
+          (augment-context (context-env c) :variable names
                                        :function functions
                                        :declare (append
                                                  (when (some (lambda (name)
-                                                               (eq :special (sb-cltl2:variable-information name nil))) names)
+                                                               (eq :special (variable-information name nil))) names)
                                                    (list `(special ,@(remove-if-not
                                                                       (lambda (name)
-                                                                        (eq :special (sb-cltl2:variable-information name nil))) names))))
-                                                 (remove-if-not (lambda (d) (eq (car d) 'special)) decls))))
+                                                                        (eq :special (variable-information name nil))) names))))
+                                                 (remove-if-not (lambda (d) (eq (car d) 'special)) decls)))
           (context-specials out)
           (append (loop for d in decls when (eq (car d) 'special) append (cdr d))
                   (context-specials c)))
@@ -100,10 +101,10 @@
   (or (member name (context-specials c))
       ;; AUGMENT-ENVIRONMENT's provisional variable entries are lexical; a
       ;; global SPECIAL proclamation nevertheless applies to every CL binding.
-      (eq :special (sb-cltl2:variable-information name nil))
-      (eq :special (sb-cltl2:variable-information name (context-env c)))))
+      (eq :special (variable-information name nil))
+      (eq :special (variable-information name (context-env c)))))
 (defun bind-variable (name c)
-  (unless (and (symbolp name) (not (constantp name (context-env c))))
+  (unless (and (symbolp name) (not (constant-form-p name (context-env c))))
     (reject name "Illegal binding variable."))
   (let ((v (make-var-info :name name :native (gensym (symbol-name name))
                           :specialp (special-variable-p name c))))
@@ -260,14 +261,43 @@
         (let ((result (declared-node (normalize-seq forms (declared-context inner decls)) inner decls)))
           (node :functions (list infos result op) nil (list (ir-effect result))))))))
 
+#-sbcl
+(defun expand-handler-case (form)
+  ;; Handler bodies run after the protected extent has unwound. A GO performs
+  ;; that transfer before evaluating a clause, preserving virtual cleanups too.
+  (let* ((exit (gensym "HANDLER-CASE")) (normal-exit (gensym "NORMAL"))
+         (condition (gensym "CONDITION"))
+         (clauses (remove :no-error (cddr form) :key #'car))
+         (normal (assoc :no-error (cddr form)))
+         (tags (mapcar (lambda (clause) (declare (ignore clause)) (gensym "HANDLER")) clauses))
+         (protected
+           `(block ,normal-exit
+              (let ((,condition nil))
+                (declare (ignorable ,condition))
+                (tagbody
+                   (return-from ,normal-exit
+                     (handler-bind
+                         ,(loop for (type) in clauses for tag in tags
+                                collect `(,type (lambda (value) (setq ,condition value) (go ,tag))))
+                       ,(cadr form)))
+                   ,@(loop for clause in clauses for variables = (cadr clause)
+                           for body = (cddr clause) for tag in tags
+                           append (list tag `(return-from ,exit
+                                               (let ,(when variables `((,(car variables) ,condition)))
+                                                 ,@body)))))))))
+    `(block ,exit
+       ,(if normal
+            `(multiple-value-call (lambda ,(cadr normal) ,@(cddr normal)) ,protected)
+            protected))))
+
 (defun normalize (form c)
   ;; Recognize operators before macroexpansion: in particular SHIFT, RESET,
   ;; MULTIPLE-VALUE-*, and dynamic constructs are semantic compiler forms.
   (cond
     ((symbolp form)
-     (multiple-value-bind (exp expanded) (macroexpand-1 form (context-env c))
-       (if expanded (normalize exp c)
-           (if (constantp form (context-env c)) (node :literal (list form)) (var-node form c)))))
+     (multiple-value-bind (exp expanded) (expand-once form (context-env c))
+       (if (and expanded (not (assoc form (context-vars c)))) (normalize exp c)
+           (if (constant-form-p form (context-env c)) (node :literal (list form)) (var-node form c)))))
     ((atom form) (node :literal (list form)))
     ((eq (car form) 'quote) (node :quote (list (cadr form))))
     ((eq (car form) 'function)
@@ -299,13 +329,25 @@
        (node :if ns nil (child-effects ns))))
     ((member (car form) '(let let*)) (normalize-let form c (eq (car form) 'let*)))
     ((member (car form) '(flet labels)) (normalize-local-functions form c))
+    #-sbcl
+    ((member (car form) '(incf decf))
+     ;; Some host macros constant-fold the delta during expansion. Keep all
+     ;; user expressions in the transformed program, evaluated exactly once.
+     (multiple-value-bind (variables values stores setter getter)
+         (place-expansion (cadr form) (context-env c))
+       (unless (= (length stores) 1) (reject form "INCF/DECF needs one store variable."))
+       (normalize `(let* (,@(mapcar #'list variables values)
+                          (,(car stores) (,(if (eq (car form) 'incf) '+ '-)
+                                           ,getter ,(if (cddr form) (caddr form) 1))))
+                     ,setter ,(car stores)) c)))
     ((eq (car form) 'setq)
      (when (oddp (length (cdr form))) (reject form "Odd SETQ argument count."))
      (normalize-seq
       ;; Expand assignment to symbol macros as SETF before normalizing RHS.
       (loop for (v value) on (cdr form) by #'cddr
-            collect (multiple-value-bind (exp expanded) (macroexpand-1 v (context-env c))
-                      (if expanded `(setf ,exp ,value) `(%assignment ,v ,value)))) c))
+            collect (multiple-value-bind (exp expanded) (expand-once v (context-env c))
+                      (if (and expanded (not (assoc v (context-vars c))))
+                          `(setf ,exp ,value) `(%assignment ,v ,value)))) c))
     ((eq (car form) '%assignment)
      (let ((v (var-node (cadr form) c)) (value (normalize (caddr form) c)))
        (node :setq (list v value) nil (list (ir-effect value)))))
@@ -364,6 +406,38 @@
      (node :throw (list (normalize (cadr form) c) (normalize (caddr form) c)) t))
     ((eq (car form) 'unwind-protect)
      (node :cleanup (list (normalize (cadr form) c) (normalize-seq (cddr form) c)) t))
+    #-sbcl
+    ((eq (car form) 'handler-bind)
+     (let* ((bindings (cadr form))
+            (functions (mapcar (lambda (binding) (normalize (cadr binding) c)) bindings))
+            (body (normalize-seq (cddr form) c)))
+       (node :handlers (list (mapcar #'car bindings) functions body) t)))
+    #-sbcl
+    ((eq (car form) 'handler-case)
+     (normalize (expand-handler-case form) c))
+    #-sbcl
+    ((eq (car form) 'dotimes)
+     (destructuring-bind ((variable count &optional result) &rest body) (cdr form)
+       (let ((limit (gensym "LIMIT")) (again (gensym "AGAIN")) (end (gensym "END")))
+         (multiple-value-bind (declarations forms) (declarations-and-body body)
+           (normalize `(block nil
+                         (let ((,limit ,count) (,variable 0))
+                           (declare ,@declarations)
+                           (tagbody ,again (when (>= ,variable ,limit) (go ,end))
+                              ,@forms (setq ,variable (1+ ,variable)) (go ,again) ,end)
+                           ,result)) c)))))
+    #-sbcl
+    ((eq (car form) 'dolist)
+     (destructuring-bind ((variable list &optional result) &rest body) (cdr form)
+       (let ((tail (gensym "TAIL")) (again (gensym "AGAIN")) (end (gensym "END")))
+         (multiple-value-bind (declarations forms) (declarations-and-body body)
+           (normalize `(block nil
+                         (let ((,tail ,list) (,variable nil))
+                           (declare ,@declarations)
+                           (tagbody ,again (when (endp ,tail) (go ,end))
+                              (setq ,variable (car ,tail)) ,@forms
+                              (setq ,tail (cdr ,tail)) (go ,again) ,end)
+                           (setq ,variable nil) ,result)) c)))))
     ((eq (car form) 'progv)
      (node :progv (list (normalize (cadr form) c) (normalize (caddr form) c)
                         (normalize-seq (cdddr form) c)) t))
@@ -381,23 +455,29 @@
     ((eq (car form) 'symbol-macrolet)
      (let ((inner (copy-ctx c)))
        (setf (context-env inner)
-             (sb-cltl2:augment-environment (context-env c) :symbol-macro (cadr form)))
+             (augment-context (context-env c) :symbol-macro (cadr form)))
+       (setf (context-vars inner)
+             (remove-if (lambda (entry) (assoc (car entry) (cadr form))) (context-vars inner)))
        (normalize `(locally ,@(cddr form)) inner)))
     ((eq (car form) 'macrolet)
      (let* ((inner (copy-ctx c))
             (macros (mapcar (lambda (def)
                               (list (car def)
-                                    (sb-cltl2:enclose
-                                     (sb-cltl2:parse-macro (car def) (cadr def) (cddr def)
+                                    (enclose
+                                     (parse-macro (car def) (cadr def) (cddr def)
                                                            (context-env c))
                                      (context-env c)))) (cadr form))))
-       (setf (context-env inner) (sb-cltl2:augment-environment (context-env c) :macro macros))
+       (setf (context-env inner) (augment-context (context-env c) :macro macros)
+             (context-funcs inner)
+             (remove-if (lambda (entry) (assoc (car entry) macros)) (context-funcs inner)))
        (normalize `(locally ,@(cddr form)) inner)))
     ((eq (car form) 'eval-when)
      (normalize-seq (when (intersection (cadr form) '(:execute eval)) (cddr form)) c))
     ((eq (car form) 'load-time-value) (node :host (list form)))
     (t
-     (multiple-value-bind (exp expanded) (macroexpand-1 form (context-env c))
+     (multiple-value-bind (exp expanded) (if (assoc (car form) (context-funcs c) :test #'equal)
+           (values form nil)
+           (expand-once form (context-env c)))
        (cond (expanded (normalize exp c))
              ((and (symbolp (car form)) (special-operator-p (car form)))
               (reject form "Unknown compiler special operator; refusing an unsound expansion."))
@@ -405,7 +485,7 @@
               (let* ((operator (car form))
                      (local (cdr (assoc operator (context-funcs c) :test #'equal)))
                      (direct (and (not local) (member operator *direct-functions* :test #'equal)
-                                  (not (nth-value 1 (sb-cltl2:function-information operator (context-env c))))))
+                                  (not (nth-value 1 (function-information operator (context-env c))))))
                      (callee (normalize `(function ,operator) c))
                      (args (mapcar (lambda (x) (normalize x c)) (cdr form))))
                 (node :call (list callee args direct local)
@@ -482,7 +562,9 @@
 
 (defun emit-bind (n k receiver)
   (let ((vs (gensym "VALUES")) (next (gensym "NEXT")) (stack (gensym "BIND")))
-    `(let ((,stack (frame :bind (lambda (,vs ,next) ,(funcall receiver vs next)) ,k)))
+    `(let ((,stack (frame :bind (lambda (,vs ,next)
+                                (declare (ignorable ,vs ,next))
+                                ,(funcall receiver vs next)) ,k)))
        ,(emit-cps n stack))))
 (defun emit-single (n k receiver)
   (if (directp n)
@@ -514,7 +596,9 @@
          (let ((prefix nil) (rest nodes))
            (loop while (and rest (directp (car rest)))
                  do (push (emit-direct (pop rest)) prefix))
-           `(bounce ,k (lambda () (progn ,@(nreverse prefix) ,(emit-sequence rest k))))))
+           (if rest
+               `(bounce ,k (lambda () (progn ,@(nreverse prefix) ,(emit-sequence rest k))))
+               `(bounce ,k (lambda () (deliver (multiple-value-list (progn ,@(nreverse prefix))) ,k))))))
         (t (emit-bind (car nodes) k
                       (lambda (ignored next)
                         `(progn ,ignored ,(emit-sequence (cdr nodes) next)))))))
@@ -646,6 +730,20 @@
            (let ((next (gensym "CLEANUP-K")) (stack (gensym "PROTECTED")))
              `(let ((,stack (frame :cleanup (lambda (,next) ,(emit-cps (cadr a) next)) ,k)))
                 ,(emit-cps (car a) stack))))
+          (:handlers
+           (emit-singles (cadr a) k
+                         (lambda (functions next)
+                           (let ((installer (gensym "INSTALL")) (thunk (gensym "THUNK"))
+                                 (stack (gensym "HANDLERS")))
+                             `(let* ((,installer
+                                       (lambda (,thunk)
+                                         (handler-bind
+                                             ,(loop for type in (car a) for function in functions
+                                                    collect `(,type (lambda (condition)
+                                                                      (funcall ,function condition))))
+                                           (funcall ,thunk))))
+                                     (,stack (frame :handlers ,installer ,next)))
+                                ,(emit-cps (caddr a) stack))))))
           (:progv
            (emit-singles (subseq a 0 2) k
                          (lambda (vs next)

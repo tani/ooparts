@@ -13,7 +13,11 @@ The Lisp suite checks resource/state ownership, atomic input validation, DIMACS,
 models and signed literals. Its 475 public-interface checks include 96 formulas
 checked by independent exhaustive search. Low-level API and representation tests
 add 40 checks; numeric tests cover full-width conversions, rounding, wrapping
-generalized-place updates, and invalid pointer/arena-size rejection.
+generalized-place updates, and invalid pointer/arena-size rejection. Arena
+storage adds 60 to 66 checks for cross-width byte access, signed boundaries,
+known float encodings, overlap copying, filling and arena growth.
+See [portability](../portability.md) to repeat these checks on other runtimes
+or force the portable backend on SBCL.
 
 The compiler audit forces all five SAT library modules and the CLI to compile with normal
 SBCL diagnostics. It fails on any NOTE, WARNING or STYLE-WARNING, without

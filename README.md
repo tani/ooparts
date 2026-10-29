@@ -8,9 +8,9 @@ matches its path; public packages have no nicknames.
 
 | Library | Loadable system and public package | Platform |
 |---|---|---|
-| [Continuation](docs/continuation/README.md) | `ooparts/continuation` | SBCL |
+| [Continuation](docs/continuation/README.md) | `ooparts/continuation` | Portable Common Lisp |
 | [Prolog](docs/prolog/README.md) | `ooparts/prolog` | Portable Common Lisp |
-| [SAT](docs/sat/README.md) | `ooparts/sat` | SBCL, Linux x86-64 |
+| [SAT](docs/sat/README.md) | `ooparts/sat` | Portable Common Lisp; native SBCL x86-64 fast path |
 
 ## Load and test
 
@@ -26,7 +26,9 @@ Register the checkout with ASDF, or put it in an existing source registry:
 ```
 
 Load an individual inferred system to use a library on its supported platform.
-For example, `ooparts/prolog` does not load the SBCL-only libraries.
+For example, `ooparts/prolog` does not load the other libraries or their dependencies.
+See [portability](docs/portability.md) for reader-selected backends, dependencies
+and cross-implementation validation commands.
 
 ```lisp
 (asdf:load-system "ooparts/continuation")
@@ -92,10 +94,10 @@ nix run .#sat -- vendor/satch/test/true.cnf
 ```
 
 `lib-<component>-<implementation>`, `test-...` and `repl-...` follow the same
-scheme. Components are `prolog`, `continuation`, `sat` and `all`. Prolog variants
-are exposed for implementations available on the selected platform;
-continuation requires SBCL, while SAT and the aggregate require Linux x86-64
-and SBCL. The default package selects the aggregate where supported.
+scheme. Components are `prolog`, `continuation`, `sat` and `all`. Variants
+are exposed for implementations and portability dependencies available on the
+selected platform. MKCL currently exposes Prolog only. The default package
+selects the SBCL aggregate where available.
 
 The default overlay adds each supported library and test system to the corresponding
 Lisp package set and exports `ooparts-<component>-<implementation>` REPL wrappers.
@@ -105,5 +107,5 @@ Lisp package set and exports `ooparts-<component>-<implementation>` REPL wrapper
 Original OOPArts code is [MIT licensed](LICENSE). This does not replace the
 licenses of vendored sources.
 [THIRD_PARTY.md](THIRD_PARTY.md) and [third-party.json](third-party.json) record
-imports, ports, design references and external benchmark
+imports, ports, external ASDF dependencies, design references and benchmark
 dependencies separately, with preserved notices and pinned-source checksums.

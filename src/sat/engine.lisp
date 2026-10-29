@@ -109,6 +109,7 @@
                               #:watch-saved-redundant-binaries #:worse-candidate))
 
 (in-package #:ooparts/sat/engine)
+#+sbcl
 
 (declaim (sb-ext:unmuffle-conditions sb-ext:compiler-note))
 

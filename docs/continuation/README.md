@@ -1,9 +1,10 @@
 # ooparts/continuation
 
-Single-prompt Danvy–Filinski `shift`/`reset` for SBCL, implemented by source
+Single-prompt Danvy–Filinski `shift`/`reset` for Common Lisp, implemented by source
 transformation and heap continuations. Continuations are composable, support
-multiple invocations, and can outlive the `reset` that captured them. The SBCL
-VM is unmodified; native stacks and C helpers are not used.
+multiple invocations, and can outlive the `reset` that captured them. Native stacks and C helpers are not used. Reader conditionals select bundled
+SBCL facilities or external environment/MOP portability libraries; see
+[portability](../portability.md) for dependencies and validation.
 
 The compiler conservatively adapts the direct-versus-CPS idea of Asai and Uehara
 (PEPM 2018). It does not implement their polymorphic answer-type inference.
@@ -54,6 +55,7 @@ after changing the compiler or transformation mode.
 ## Source and package ownership
 
 - [conditions.lisp](../../src/continuation/conditions.lisp) owns the error classes.
+- [environment.lisp](../../src/continuation/environment.lisp) selects the environment API.
 - [runtime.lisp](../../src/continuation/runtime.lisp) owns frames, drivers,
   dynamic environments, continuation objects and native-call adapters.
 - [compiler.lisp](../../src/continuation/compiler.lisp) owns normalization,
@@ -112,7 +114,7 @@ sbcl --script tools/test.lisp continuation
 SBCL=sbcl bash tools/continuation/test.sh
 ```
 
-The regression suite has 3073 checks, including 1328 independently reduced core
+The regression suite has 3105 checks, including 1328 independently reduced core
 terms in both transformation modes. The shell driver also checks fresh-process
 FASL and saved-core reloads. Tests include multiple values, mutations, depth-2000
 captures, 100000 tail calls, GC and sequential invocation from another thread.

@@ -1,5 +1,7 @@
 (uiop:define-package #:ooparts-tests/continuation/suite
   (:use #:cl #:ooparts/continuation #:ooparts-tests/continuation/reference)
+  #-sbcl (:import-from #:bordeaux-threads)
+  #-sbcl (:import-from #:trivial-garbage)
   (:export #:run-tests))
 (in-package #:ooparts-tests/continuation/suite)
 (defvar *cases* nil)
@@ -72,6 +74,35 @@
   (reset (let ((x (list 1))) (symbol-macrolet ((a (car x))) (setf a (shift k (funcall k 4))) a))))
 (case= macrolet 8 (reset (macrolet ((twice (x) `(+ ,x ,x))) (twice (shift k (funcall k 4))))))
 (case= macro-shadow 5 (reset (macrolet ((m () 100)) (flet ((m () 5)) (m)))))
+(case= macro-over-function 9
+  (reset (flet ((m () 5)) (macrolet ((m () 9)) (m)))))
+(case= lexical-over-symbol-macro 5
+  (reset (symbol-macrolet ((x 100)) (let ((x 5)) x))))
+(case= symbol-macro-over-lexical 9
+  (reset (let ((x 5)) (declare (ignorable x)) (symbol-macrolet ((x 9)) x))))
+(case= incf-place-once '(4 1)
+  (let ((items (vector 1)) (evaluations 0))
+    (reset (incf (aref items (progn (incf evaluations) 0)) (shift k (funcall k 3))))
+    (list (aref items 0) evaluations)))
+(case= final-direct-values '(1 2)
+  (multiple-value-list (reset (shift k (funcall k 0)) (+ 2 3) (values 1 2))))
+(case= dolist-capture '(6 nil)
+  (reset (let ((sum 0))
+           (dolist (x '(1 2 3) (list sum x))
+             (incf sum (shift k (funcall k x)))))))
+(case= handler-cluster-disabled '(:inner :outer)
+  (let ((log nil))
+    (reset (handler-bind ((warning (lambda (condition) (declare (ignore condition)) (push :outer log))))
+             (handler-bind ((warning (lambda (condition) (declare (ignore condition))
+                                       (push :inner log) (signal 'warning))))
+               (shift k (funcall k 0)) (signal 'warning))))
+    (subseq (reverse log) 0 2)))
+(case= unbound-binding-preserves-global '(:outside nil :outside)
+  (list *test-special*
+        (reset (progv '(*test-special*) '(1)
+                 (shift k (funcall k 0)) (makunbound '*test-special*) (boundp '*test-special*)))
+        *test-special*))
+
 (case= special-binding '(9 :outside)
   (list (reset (let ((*test-special* 9)) (shift k (funcall k 0)) *test-special*)) *test-special*))
 (case= special-capture '(9 10 :outside)
@@ -311,10 +342,17 @@
                                           (if (zerop n) (shift k (list (funcall k 1) (funcall k 2)))
                                               (+ 1 (walk (1- n)))))) (walk 2000))) mode t)))
     (let ((k (reset (+ 10 (shift k k)))))
-      (sb-ext:gc :full t)
+      #+sbcl (sb-ext:gc :full t)
+      #-sbcl (trivial-garbage:gc :full t)
       (check :after-full-gc 12 (funcall k 2))
+      #+sb-thread
       (check :other-thread 13
-             (sb-thread:join-thread (sb-thread:make-thread (lambda () (funcall k 3))))))
+             (sb-thread:join-thread (sb-thread:make-thread (lambda () (funcall k 3)))))
+      #-sbcl
+      (when bordeaux-threads:*supports-threads-p*
+        (check :other-thread 13
+               (bordeaux-threads:join-thread
+                (bordeaux-threads:make-thread (lambda () (funcall k 3)))))))
     (expect-condition :pending-expired-block 'inactive-control-target
                       (lambda ()
                         (let ((k (with-cps (block b (reset (unwind-protect (return-from b :escaped)

@@ -32,6 +32,12 @@
                  (let ((form (read input nil :end)))
                    (when (eq form :end) (return))
                    (when (member (car form) '(uiop:define-package in-package)) (eval form))
+                   ;; READ selects the generator's SBCL-only declaration on
+                   ;; this formatting host. Restore its reader guard on output.
+                   (when (and (eq (car form) 'declaim)
+                              (consp (cadr form))
+                              (eq (caadr form) 'sb-ext:unmuffle-conditions))
+                     (write-line "#+sbcl" output))
                    (pprint (simplify-sequences form) output)
                    (terpri output)))))
            (uiop:rename-file-overwriting-target temporary path))

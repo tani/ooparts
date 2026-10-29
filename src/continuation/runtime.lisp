@@ -1,5 +1,13 @@
 (uiop:define-package #:ooparts/continuation/runtime
   (:use #:cl)
+  (:import-from
+   #+sbcl #:sb-mop
+   #+mkcl #:clos
+   #-(or sbcl mkcl) #:closer-mop
+   #:funcallable-standard-object #:funcallable-standard-class
+   #:set-funcallable-instance-function)
+  #-(or sbcl mkcl)
+  (:shadowing-import-from #:closer-mop #:defclass)
   (:import-from #:ooparts/continuation/conditions #:cps-error #:missing-reset #:native-boundary #:unsupported-form #:inactive-control-target #:unsupported-form-form #:unsupported-form-reason)
   (:export #:*native-call* #:run #:bounce #:deliver #:frame #:perform-shift #:push-specials #:invoke #:control-return #:control-go #:make-cps-function #:shift #:dynamic-wind #:register-cps-adapter #:cps-function-p #:continuation-p))
 (in-package #:ooparts/continuation/runtime)
@@ -7,12 +15,17 @@
 ;; Each frame is immutable. Capturing retains a segment; invocation copies its
 ;; spine and attaches a fresh prompt and the caller's continuation. The closures
 ;; in frames take NEXT explicitly: none closes over the old continuation tail.
-(defstruct (frame (:constructor %frame (kind data next bindings))) kind data next bindings)
+(defstruct (frame (:constructor %frame (kind data next bindings #-sbcl handlers)))
+  kind data next bindings #-sbcl handlers)
 (defun frame (kind data next)
   (%frame kind data next
           (if (eq kind :special)
               (append (reverse data) (when next (frame-bindings next)))
-              (when next (frame-bindings next)))))
+              (when next (frame-bindings next)))
+          #-sbcl
+          (if (eq kind :handlers)
+              (cons data (when next (frame-handlers next)))
+              (when next (frame-handlers next)))))
 (defstruct (task (:constructor task (thunk stack))) thunk stack)
 (defstruct (done (:constructor done (values))) values)
 (defstruct (transfer-goal (:constructor transfer-goal (target action anchor))) target action anchor)
@@ -27,19 +40,19 @@
 (defvar *drivers* nil)
 (defvar *native-unwinding-prompts* nil)
 
-(defclass cps-function (sb-mop:funcallable-standard-object)
+(defclass cps-function (funcallable-standard-object)
   ((code :initarg :code :reader cps-code))
-  (:metaclass sb-mop:funcallable-standard-class))
+  (:metaclass funcallable-standard-class))
 (defclass captured-continuation (cps-function)
   ((segment :initarg :segment :reader captured-segment))
-  (:metaclass sb-mop:funcallable-standard-class))
+  (:metaclass funcallable-standard-class))
 (defun cps-function-p (x) (typep x 'cps-function))
 (defun continuation-p (x) (typep x 'captured-continuation))
 (defun make-cps-function (code &optional segment capturedp)
   (let ((f (if capturedp
                (make-instance 'captured-continuation :code code :segment segment)
                (make-instance 'cps-function :code code))))
-    (sb-mop:set-funcallable-instance-function
+    (set-funcallable-instance-function
      f (lambda (&rest args) (run (lambda (k) (apply code k args)))))
     f))
 
@@ -222,15 +235,37 @@
   (unless (and stack (frame-bindings stack))
     (return-from call-with-bindings (funcall thunk)))
   (let ((cells (visible-bindings stack)))
-    (progv (mapcar #'binding-cell-symbol cells)
-           (mapcar #'binding-cell-value cells)
-      (dolist (cell cells)
-        (unless (binding-cell-boundp cell) (makunbound (binding-cell-symbol cell))))
-      (unwind-protect (funcall thunk)
-        (dolist (cell cells)
-          (let ((sym (binding-cell-symbol cell)))
-            (setf (binding-cell-boundp cell) (boundp sym))
-            (when (boundp sym) (setf (binding-cell-value cell) (symbol-value sym)))))))))
+    (labels ((execute ()
+               (unwind-protect (funcall thunk)
+                 (dolist (cell cells)
+                   (let ((symbol (binding-cell-symbol cell)))
+                     (setf (binding-cell-boundp cell) (boundp symbol))
+                     (when (boundp symbol)
+                       (setf (binding-cell-value cell) (symbol-value symbol)))))))
+             #-sbcl
+             (bind-cells (remaining)
+               (if (null remaining) (execute)
+                   (let ((cell (car remaining)))
+                     ;; A missing PROGV value establishes an unbound binding.
+                     (progv (list (binding-cell-symbol cell))
+                            (when (binding-cell-boundp cell) (list (binding-cell-value cell)))
+                       (bind-cells (cdr remaining)))))))
+      (if (null cells) (funcall thunk)
+          #+sbcl
+          (progv (mapcar #'binding-cell-symbol cells) (mapcar #'binding-cell-value cells)
+            (dolist (cell cells)
+              (unless (binding-cell-boundp cell) (makunbound (binding-cell-symbol cell))))
+            (execute))
+          #-sbcl (bind-cells cells)))))
+
+#-sbcl
+(defun call-with-handlers (stack thunk)
+  (let ((installers (when stack (frame-handlers stack))))
+    (labels ((install (remaining)
+               (if (null remaining) (funcall thunk)
+                   (funcall (car remaining) (lambda () (install (cdr remaining)))))))
+      (install (reverse installers)))))
+
 (defun push-specials (symbols values k body)
   (let ((cells (loop for sym in symbols for tail = values then (cdr tail)
                      collect (binding-cell sym (car tail) (not (null tail))))))
@@ -255,7 +290,8 @@
                        (setf result
                              (catch *driver-tag*
                                (call-with-bindings
-                                current (task-thunk result))))))
+                                current #+sbcl (task-thunk result)
+                                        #-sbcl (lambda () (call-with-handlers current (task-thunk result))))))))
                     (t (error "CPS code did not return a trampoline task: ~S" result))))
       (unless finished
         ;; Native errors/nonlocal exits still leave virtual UNWIND-PROTECTs.
@@ -288,6 +324,19 @@ REPLACEMENT has the original argument list, usually made by LAMBDA/CPS."
   (check-type replacement function)
   (install-adapter name (lambda (k args) (invoke replacement k args)))
   name)
+#+abcl
+(install-adapter 'makunbound
+  (lambda (k arguments)
+    (destructuring-bind (symbol) arguments
+      (check-type symbol symbol)
+      ;; ABCL's MAKUNBOUND primitive clears the global value even when a
+      ;; dynamic binding is active. Clear the current thread's binding instead.
+      (let* ((thread (java:jstatic "currentThread" "org.armedbear.lisp.LispThread"))
+             (binding (java:jcall "getSpecialBinding" thread symbol)))
+        (if (java:jnull-ref-p binding) (makunbound symbol)
+            (java:jcall "setSpecialVariable" thread symbol java:+null+)))
+      (deliver (list symbol) k))))
+
 (install-adapter 'funcall (lambda (k args) (invoke (car args) k (cdr args))))
 (install-adapter 'apply
                  (lambda (k args)

@@ -1,11 +1,14 @@
 # ooparts/sat
 
-The default production SATCH 0.5.6rc solver translated to SBCL Common Lisp,
-with a resource-managed Lisp API. Runtime dependencies are SBCL and its bundled
-ASDF/UIOP. A C solver, CFFI, GCC and Python are not needed to use the library.
+The default production SATCH 0.5.6rc solver translated to Common Lisp,
+with a resource-managed Lisp API. SBCL uses its bundled ASDF/UIOP and native
+facilities; other implementations use Bordeaux Threads for API locking. A C solver, CFFI, GCC and Python are not needed to use the library.
 
 The system and public package are `ooparts/sat`; no package nickname is defined.
-The supported backend is SBCL on Linux x86-64, LP64, little endian.
+Reader conditionals select native SBCL x86-64 storage or portable octet-vector
+storage. Both use the same checked LP64 layout. See
+[portability](../portability.md) for dependencies, host float requirements and
+backend selection.
 
 ## Solve a formula
 
@@ -53,7 +56,7 @@ positive or negative literals and returns a Boolean.
 
 `with-solver` releases solver allocations on normal return, error and nonlocal
 exit, preserving the body's multiple values. For manual ownership use
-`make-solver` and `close-solver`. Closing is idempotent. Native arenas remain in
+`make-solver` and `close-solver`. Closing is idempotent. Storage arenas remain in
 the process and recycle released allocations.
 
 | API | Meaning |

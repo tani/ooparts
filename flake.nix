@@ -36,9 +36,10 @@
             sat = { library = "ooparts/sat"; tests = "ooparts-tests/sat"; };
             all = { library = "ooparts"; tests = "ooparts-tests"; };
           };
+          # MKCL remains available for Prolog. The continuation environment/MOP
+          # dependency stack does not advertise MKCL support.
           supported = component: impl:
-            component == "prolog" || (impl == "sbcl"
-              && (component == "continuation" || system == "x86_64-linux"));
+            component == "prolog" || impl != "mkcl";
           recipes = lib.listToAttrs (lib.concatMap (component:
             lib.mapAttrsToList (impl: options: let
               settings = components.${component};
@@ -50,12 +51,16 @@
                 systems = [ settings.library settings.tests ]
                   ++ lib.optionals (component == "prolog" || component == "all") [ "ooparts/prolog/text/cli" ]
                   ++ lib.optionals (component == "sat" || component == "all") [ "ooparts/sat/cli" ];
-                lispLibs = [];
+                lispLibs = lib.optionals (impl != "sbcl" && component != "prolog") (
+                  [ lisp.pkgs.bordeaux-threads ]
+                  ++ lib.optionals (component == "continuation" || component == "all")
+                    [ lisp.pkgs.cl-environments lisp.pkgs.closer-mop lisp.pkgs.trivial-garbage ]
+                );
                 nativeLibs = [];
                 preBuild = ''export XDG_CACHE_HOME="$TMPDIR/asdf-cache"'';
                 # Nixpkgs filters ASD filenames against the compiled system names.
                 # Inferred children need both primary definitions at runtime, while
-                # compiling those primaries would load unsupported sibling libraries.
+                # compiling those primaries would load unrelated sibling libraries.
                 postInstall = ''cp ooparts.asd ooparts-tests.asd "$out/"'';
               };
               runtime = lisp.withPackages (_: [ library ]);
@@ -74,6 +79,15 @@
               check = pkgs.runCommand "ooparts-test-${component}-${impl}" {} ''
                 export XDG_CACHE_HOME="$TMPDIR/asdf-cache"
                 ${test}/bin/ooparts-test
+                ${lib.optionalString (component == "continuation" || component == "all") ''
+                  export OOPARTS_CONT_FIXTURE_FASL="$TMPDIR/fixture.fasl"
+                  cd ${src}
+                  for script in compile-fixture load-fixture; do
+                    ${runtime}/bin/${options.program} ${options.args} \
+                      ${options.eval} '(load "tools/continuation/'"$script"'.lisp")' \
+                      ${options.eval} '(uiop:quit 0)'
+                  done
+                ''}
                 touch "$out"
               '';
             in lib.nameValuePair "${component}-${impl}" {
@@ -108,7 +122,7 @@
             } // lib.optionalAttrs (recipes ? sat-sbcl) {
               sat = cliApp "sat" "ooparts/sat/cli";
             };
-          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) recipes
+          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || name == "prolog-mkcl") recipes)
             // {
               layout = pkgs.runCommand "ooparts-layout-and-licenses" {
                 nativeBuildInputs = [ pkgs.python3 ];
@@ -120,12 +134,16 @@
             };
           devShells = {
             default = pkgs.mkShell {
-              packages = lib.mapAttrsToList (impl: _: pkgs.${impl}) available
+              packages = lib.mapAttrsToList (impl: _: pkgs.${impl}.withPackages (libraries:
+                lib.optionals (impl != "sbcl" && impl != "mkcl")
+                  [ libraries.bordeaux-threads libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) available
                 ++ [ python pkgs.stdenv.cc ];
               shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
             };
           } // lib.mapAttrs (impl: _: pkgs.mkShell {
-            packages = [ pkgs.${impl} python pkgs.stdenv.cc ];
+            packages = [ (pkgs.${impl}.withPackages (libraries:
+              lib.optionals (impl != "sbcl" && impl != "mkcl")
+                [ libraries.bordeaux-threads libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) python pkgs.stdenv.cc ];
             shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
           }) available;
           overlayAttrs = lib.mapAttrs (impl: _: pkgs.${impl}.withOverrides

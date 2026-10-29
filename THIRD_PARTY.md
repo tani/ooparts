@@ -3,7 +3,7 @@
 OOPArts' original code is MIT licensed; see [LICENSE](LICENSE). Imported source,
 ports and their notices retain their own licenses. The machine-readable
 [ledger](third-party.json) distinguishes distributed material
-from design references and optional external tools. A reference does not imply
+from external ASDF dependencies, design references and optional external tools. A reference does not imply
 that its implementation was copied or that its license applies to OOPArts.
 
 | Distributed material | Source/version | License and retained notices |
@@ -29,6 +29,23 @@ The original cons-prolog import did not record a separate upstream commit ID.
 Its version and OOPArts import commit are recorded in the ledger; a current
 upstream HEAD must not be represented as the revision used for that import.
 
+## External portability dependencies
+
+SBCL uses its bundled environment/MOP/thread APIs. Other implementations load
+[cl-environments](https://github.com/alex-gutev/cl-environments) (MIT),
+[closer-mop](https://github.com/pcostanza/closer-mop) (MIT) and
+[bordeaux-threads](https://github.com/sionescu/bordeaux-threads) (MIT) as needed.
+GC tests use [trivial-garbage](https://github.com/trivial-garbage/trivial-garbage)
+(public domain). Dependencies are installed separately; their source is not
+copied into this repository. Nix pins them through the root flake lock.
+
+The ledger also records the inspected transitive environment dependencies:
+Alexandria (public domain with an MIT-0 fallback), Anaphora (public domain),
+Optima (LLGPL), Collectors (BSD-3-Clause), symbol-munger (MIT), and Iterate
+(MIT-CMU). Package managers retain each dependency's own notices; OOPArts' MIT
+license does not relicense these dependencies. The installed dependency graph
+can vary by version and implementation, including Bordeaux Threads' helpers.
+
 ## References and optional dependencies
 
 - [PAIP Lisp](https://github.com/norvig/paip-lisp) is an MIT-licensed design/API
@@ -43,8 +60,7 @@ upstream HEAD must not be represented as the revision used for that import.
   `benchmarks/continuation/fetch-vendor.py`, pinned by archive hash or commit,
   and kept under ignored `build/continuation/vendor/` with their upstream
   notices. These include cl-cont, Alexandria and closer-mop. SWI-Prolog is an
-  optional external comparison/conversion executable. None is a Lisp runtime
-  dependency of this repository.
+  optional external comparison/conversion executable. Their use in a benchmark alone does not make them runtime dependencies.
 
 ## Inventory verification
 

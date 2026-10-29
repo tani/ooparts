@@ -19,7 +19,7 @@
         "src/sat/layout.lisp",
         "vendor/satch/**"
       ],
-      "modifications": "Default NDEBUG configuration; Lisp names, lexical bindings, structured control and generalized places; packed LP64 backend retained."
+      "modifications": "Default NDEBUG configuration; Lisp names, lexical bindings, structured control and generalized places; native SBCL and portable octet-vector backends share the packed LP64 layout."
     },
     {
       "name": "cons-prolog",
@@ -87,7 +87,7 @@
         "Alexandria",
         "closer-mop"
       ],
-      "relationship": "explicit development-only download; not distributed or required at runtime",
+      "relationship": "explicit development-only download; not distributed; Alexandria and closer-mop are also portability dependencies when selected by the runtime",
       "license_policy": "Retain each downloaded upstream license; archive hashes and commit are pinned in the downloader.",
       "download_directory": "build/continuation/vendor/"
     },
@@ -100,6 +100,88 @@
       "name": "pycparser and GCC",
       "source": "tools/sat/translate.py",
       "relationship": "development-only translator and C reference compiler; not Lisp runtime dependencies"
+    }
+  ],
+  "external_dependencies": [
+    {
+      "name": "cl-environments",
+      "source": "https://github.com/alex-gutev/cl-environments",
+      "license": "MIT",
+      "relationship": "continuation compiler environment API on non-SBCL implementations",
+      "license_evidence": "cl-environments.asd and source headers",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "closer-mop",
+      "source": "https://github.com/pcostanza/closer-mop",
+      "license": "MIT",
+      "relationship": "continuation funcallable objects on non-SBCL implementations; also a cl-environments dependency",
+      "license_evidence": "LICENSE.md",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "bordeaux-threads",
+      "source": "https://github.com/sionescu/bordeaux-threads",
+      "license": "MIT",
+      "relationship": "SAT recursive locks on non-SBCL implementations; continuation thread tests",
+      "license_evidence": "LICENSE",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "trivial-garbage",
+      "source": "https://github.com/trivial-garbage/trivial-garbage",
+      "license": "LicenseRef-Public-Domain",
+      "relationship": "non-SBCL continuation GC tests",
+      "license_evidence": "trivial-garbage.asd and source headers",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "Alexandria",
+      "source": "https://gitlab.common-lisp.net/alexandria/alexandria",
+      "license": "LicenseRef-Public-Domain-OR-MIT-0",
+      "relationship": "transitive cl-environments and bordeaux-threads dependency",
+      "license_evidence": "LICENCE",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "Anaphora",
+      "source": "https://github.com/tokenrove/anaphora",
+      "license": "LicenseRef-Public-Domain",
+      "relationship": "transitive cl-environments dependency",
+      "license_evidence": "anaphora.asd",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "Optima",
+      "source": "https://github.com/m2ym/optima",
+      "license": "LicenseRef-LLGPL",
+      "relationship": "transitive cl-environments dependency",
+      "license_evidence": "optima.asd",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "Collectors",
+      "source": "https://github.com/AccelerationNet/collectors",
+      "license": "BSD-3-Clause",
+      "relationship": "transitive cl-environments dependency",
+      "license_evidence": "collectors.asd",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "symbol-munger",
+      "source": "https://github.com/AccelerationNet/symbol-munger",
+      "license": "MIT",
+      "relationship": "transitive Collectors dependency",
+      "license_evidence": "symbol-munger.asd",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "Iterate",
+      "source": "https://gitlab.common-lisp.net/iterate/iterate",
+      "license": "MIT-CMU",
+      "relationship": "transitive symbol-munger dependency",
+      "license_evidence": "iterate.lisp copyright and permission notice",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
     }
   ]
 }

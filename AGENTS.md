@@ -18,5 +18,6 @@
 - Run `python3 tools/check-layout.py` and the relevant inferred regression
   suites. SAT changes also require the compiler audit, differential cases and
   proof comparison. Continuation changes require FASL/core reload checks.
-- The aggregate requires SBCL on Linux x86-64; Prolog-only loading and tests
-  must remain independent of the SBCL-only libraries.
+- Keep all libraries portable. Use reader conditionals for native fast paths
+  and retain the portable SAT backend as an independently tested implementation.
+  Declare portability dependencies in packages and the unified Nix flake.

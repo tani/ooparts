@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Differential tests against pinned C, plus independent exhaustive models.
-Requires GCC, Python, and SBCL. Does not call external Python packages.
+Requires GCC, Python, and a supported Common Lisp implementation. Does not call external Python packages.
 """
 import argparse,subprocess,random,itertools,json,time,os,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT/'tools'))
+from lisp import add_lisp_arguments,lisp_command,options
 def read_cnf(p):
  n=0;nums=[]
  for line in p.read_text().splitlines():
@@ -26,8 +28,8 @@ def brute(n,clauses):
  return any(all(any(bool(bits & (1<<(abs(x)-1)))==(x>0) for x in c) for c in clauses) for bits in range(1<<n))
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('--sbcl',default=os.environ.get('SBCL','sbcl'));parser.add_argument('--random',type=int,default=1000);args=parser.parse_args()
- build=ROOT/'build/sat';build.mkdir(parents=True,exist_ok=True)
+ parser=argparse.ArgumentParser();add_lisp_arguments(parser);parser.add_argument('--random',type=int,default=1000);parser.add_argument('--build-dir',type=Path,default=ROOT/'build/sat');parser.add_argument('--report',type=Path,default=ROOT/'tests/sat/reports/results.json');parser.add_argument('--timeout',type=int,default=300);args=parser.parse_args()
+ build=args.build_dir.resolve();build.mkdir(parents=True,exist_ok=True)
  subprocess.run(['gcc','-w','-O3',str(ROOT/'tests/sat/reference.c'),'-lm','-o',str(build/'reference')],check=True)
  subprocess.run(['gcc','-w','-O3','-DMATCH_ALLOCATOR',str(ROOT/'tests/sat/reference.c'),'-lm','-o',str(build/'reference-arena')],check=True)
  cases=[];rng=random.Random(20261029)
@@ -54,7 +56,10 @@ def main():
  (build/'c-results.txt').write_text(c_run.stdout)
  arena_run=subprocess.run([str(build/'reference-arena')],input=text,text=True,capture_output=True,check=True,timeout=180)
  (build/'arena-results.txt').write_text(arena_run.stdout)
- start=time.monotonic();l_run=subprocess.run([args.sbcl,'--noinform','--script',str(ROOT/'tools/sat/batch.lisp'),str(build/'cases.txt')],text=True,capture_output=True,timeout=300);l_time=time.monotonic()-start
+ start=time.monotonic()
+ with lisp_command(ROOT/'tools/sat/batch.lisp',[build/'cases.txt'],**options(args)) as command:
+  l_run=subprocess.run(command,text=True,capture_output=True,timeout=args.timeout)
+ l_time=time.monotonic()-start
  (build/'lisp-results.txt').write_text(l_run.stdout);(build/'lisp-stderr.txt').write_text(l_run.stderr)
  if l_run.returncode:
   print(l_run.stderr[-6000:]);print(l_run.stdout[-2000:]);raise RuntimeError('Lisp failed')
@@ -74,6 +79,7 @@ def main():
    model=set(a[12:]);assert all(any(lit in model for lit in clause) for clause in case['clauses']),case['name']
   if case['n']<=12 and case['limit']<0:
    assert a[1]==(10 if brute(case['n'],case['clauses']) else 20),case['name'];checked+=1
- report=dict(stock_allocator_trace_differences=stock_differences,matched_allocator_exact=True,cases=len(cases),exhaustive_checks=checked,identical=['status','conflicts','decisions','propagations','ticks','reductions','restarts','mode switches','rephasings','eliminations','vivifications','model'],max_counters=dict(zip(['decisions','propagations','ticks','reductions','restarts','switches','rephasings','eliminations','vivifications'],maxstats)),c_batch_seconds=c_time,lisp_batch_seconds=l_time,timing_note='Lisp includes process startup/ASDF loading; not an isolated speed benchmark')
- (ROOT/'tests/sat/reports/results.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))
+ report=dict(implementation=args.implementation,portable_sat=args.portable_sat,stock_allocator_trace_differences=stock_differences,matched_allocator_exact=True,cases=len(cases),exhaustive_checks=checked,identical=['status','conflicts','decisions','propagations','ticks','reductions','restarts','mode switches','rephasings','eliminations','vivifications','model'],max_counters=dict(zip(['decisions','propagations','ticks','reductions','restarts','switches','rephasings','eliminations','vivifications'],maxstats)),c_batch_seconds=c_time,lisp_batch_seconds=l_time,timing_note='Lisp includes process startup/ASDF loading; not an isolated speed benchmark')
+ args.report.parent.mkdir(parents=True,exist_ok=True)
+ args.report.write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))
 if __name__=='__main__':main()

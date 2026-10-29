@@ -713,7 +713,7 @@ class Translator:
     name,t=self.globals[n.name]; globals_.append('(declaim (type '+self.ltype(t)+' '+name+'))\n(defparameter '+name+' '+self.conv(self.expr(n.init)[0],t,self.expr(n.init)[1])+')')
   strings=globals_+['(defparameter '+s+' (c-string '+ls(v)+'))' for v,s in self.strings.items()]
   package='(uiop:define-package #:ooparts/sat/engine\n (:use #:cl #:ooparts/sat/runtime #:ooparts/sat/layout)\n (:export '+' '.join('#:'+sym(name) for name in sorted(self.defined_funcs))+'))\n(in-package #:ooparts/sat/engine)\n'
-  return package+'(declaim (sb-ext:unmuffle-conditions sb-ext:compiler-note))\n(declaim (optimize (speed 2) (safety 1) (debug 0) (compilation-speed 1)))\n'+ '\n'.join(ftypes+strings)+'\n\n'+'\n'.join(code)
+  return package+'#+sbcl\n(declaim (sb-ext:unmuffle-conditions sb-ext:compiler-note))\n(declaim (optimize (speed 2) (safety 1) (debug 0) (compilation-speed 1)))\n'+ '\n'.join(ftypes+strings)+'\n\n'+'\n'.join(code)
  def layout_source(self):
   exports=[];definitions=[]
   for name,(t,offset,bit,width) in sorted(self.field_accessors.items()):

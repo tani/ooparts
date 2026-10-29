@@ -2,7 +2,7 @@ name: OOPArts validation
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/portable]
   pull_request:
   workflow_dispatch:
 
@@ -32,6 +32,11 @@ jobs:
         run: python3 tools/sat/differential.py --random 1000
       - name: Compare proof bytes and independently check RUP
         run: python3 tools/sat/proofs.py
+      - name: Run portable SAT backend and independent comparisons
+        run: |
+          python3 tools/lisp.py --portable-sat tools/test.lisp sat
+          python3 tools/sat/differential.py --portable-sat --random 1000 --build-dir build/sat-portable --report build/sat-portable/results.json
+          python3 tools/sat/proofs.py --portable-sat --build-dir build/sat-portable --report build/sat-portable/proofs.json
       - name: Test ISO driver isolation and classification
         run: ISO_SBCL=sbcl python3 -m unittest discover -s tests/prolog/iso -p 'test_*.py' -v
       - name: Validate native-model ISO observations
@@ -44,6 +49,7 @@ jobs:
           name: validation-reports
           path: |
             tests/sat/reports/
+            build/sat-portable/
             build/prolog/iso*/
   matrix:
     runs-on: ubuntu-24.04

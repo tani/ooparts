@@ -186,6 +186,33 @@
       "relationship": "transitive symbol-munger dependency",
       "license_evidence": "iterate.lisp copyright and permission notice",
       "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "global-vars",
+      "source": "https://beta.quicklisp.org/archive/global-vars/2014-11-06/global-vars-20141106-git.tgz",
+      "license": "MIT",
+      "relationship": "transitive Bordeaux Threads 0.9 dependency",
+      "license_evidence": "global-vars.asd copyright and MIT permission notice",
+      "nix_version": "20141106-git",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "trivial-features",
+      "source": "https://beta.quicklisp.org/archive/trivial-features/2023-06-18/trivial-features-20230618-git.tgz",
+      "license": "MIT",
+      "relationship": "transitive Bordeaux Threads 0.9 dependency",
+      "license_evidence": "trivial-features.asd copyright and MIT permission notice",
+      "nix_version": "20230618-git",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+    },
+    {
+      "name": "parse-declarations-1.0",
+      "source": "https://beta.quicklisp.org/archive/parse-declarations/2010-10-06/parse-declarations-20101006-darcs.tgz",
+      "license": "MIT",
+      "relationship": "cl-environments dependency included by the pinned Nix package metadata",
+      "license_evidence": "LICENSE and parse-declarations-1.0.asd",
+      "nix_version": "20101006-darcs",
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
     }
   ]
 }

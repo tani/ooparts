@@ -17,7 +17,7 @@ matches its path; public packages have no nicknames.
 Register the checkout with ASDF, or put it in an existing source registry:
 
 ```lisp
-(require :asdf)
+(require "asdf")
 (pushnew (truename "/path/to/ooparts/") asdf:*central-registry* :test #'equal)
 (asdf:load-system "ooparts")
 (asdf:test-system "ooparts")

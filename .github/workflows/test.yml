@@ -86,4 +86,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v30
       - name: Build library and run complete test suite
-        run: nix build -L .#checks.$(nix eval --impure --raw --expr builtins.currentSystem).${{ matrix.check }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=".#checks.$(nix eval --impure --raw --expr builtins.currentSystem).${{ matrix.check }}"
+          if nix build -L "$target" > ci-check.log 2>&1; then
+            tail -n 80 ci-check.log
+          else
+            tail -n 240 ci-check.log
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nix-log-${{ matrix.os }}-${{ matrix.check }}
+          path: ci-check.log
+          retention-days: 7

@@ -43,8 +43,9 @@ The ledger also records the inspected transitive environment dependencies:
 Alexandria (public domain with an MIT-0 fallback), Anaphora (public domain),
 Optima (LLGPL), Collectors (BSD-3-Clause), symbol-munger (MIT), and Iterate
 (MIT-CMU). Package managers retain each dependency's own notices; OOPArts' MIT
-license does not relicense these dependencies. The installed dependency graph
-can vary by version and implementation, including Bordeaux Threads' helpers.
+license does not relicense these dependencies. The ledger also includes global-vars, trivial-features and parse-declarations
+(all MIT), as selected by the pinned Nix dependency graph. The installed graph
+can vary by version and implementation.
 
 ## References and optional dependencies
 

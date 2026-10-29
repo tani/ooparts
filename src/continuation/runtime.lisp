@@ -15,14 +15,13 @@
 ;; Each frame is immutable. Capturing retains a segment; invocation copies its
 ;; spine and attaches a fresh prompt and the caller's continuation. The closures
 ;; in frames take NEXT explicitly: none closes over the old continuation tail.
-(defstruct (frame (:constructor %frame (kind data next bindings #-sbcl handlers)))
-  kind data next bindings #-sbcl handlers)
+(defstruct (frame (:constructor %frame (kind data next bindings handlers)))
+  kind data next bindings handlers)
 (defun frame (kind data next)
   (%frame kind data next
           (if (eq kind :special)
               (append (reverse data) (when next (frame-bindings next)))
               (when next (frame-bindings next)))
-          #-sbcl
           (if (eq kind :handlers)
               (cons data (when next (frame-handlers next)))
               (when next (frame-handlers next)))))
@@ -266,7 +265,6 @@
             (execute))
           #-sbcl (bind-cells cells)))))
 
-#-sbcl
 (defun call-with-handlers (stack thunk)
   (let ((installers (when stack (frame-handlers stack))))
     (labels ((install (remaining)
@@ -301,9 +299,10 @@
                      (let ((*stack* current))
                        (setf result
                              (catch *driver-tag*
-                               (call-with-bindings
-                                current #+sbcl (task-thunk result)
-                                        #-sbcl (lambda () (call-with-handlers current (task-thunk result))))))))
+                               (if (and current (frame-handlers current))
+                                   (call-with-bindings
+                                    current (lambda () (call-with-handlers current (task-thunk result))))
+                                   (call-with-bindings current (task-thunk result)))))))
                     (t (error "CPS code did not return a trampoline task: ~S" result))))
       (unwind-protect
        (unless finished

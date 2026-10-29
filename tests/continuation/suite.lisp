@@ -90,6 +90,31 @@
   (reset (let ((sum 0))
            (dolist (x '(1 2 3) (list sum x))
              (incf sum (shift k (funcall k x)))))))
+(case= dotimes-count-once '(6 1 4)
+  (let ((evaluations 0) (sum 0))
+    (reset
+      (dotimes (i (progn (incf evaluations) 4) (list sum evaluations i))
+        (incf sum (shift k (funcall k i)))))))
+(case= dolist-list-once '(6 1 nil)
+  (let ((evaluations 0) (sum 0))
+    (reset
+      (dolist (item (progn (incf evaluations) '(1 2 3)) (list sum evaluations item))
+        (incf sum (shift k (funcall k item)))))))
+(case= decf-place-and-delta-order '(7 1 1)
+  (let ((items (vector 10)) (places 0) (deltas 0))
+    (reset
+      (decf (aref items (progn (incf places) 0))
+            (progn (incf deltas) (setf (aref items 0) 100)
+                   (shift k (funcall k 3)))))
+    (list (aref items 0) places deltas)))
+(case= handler-compound-type '(1 2)
+  (let ((calls 0))
+    (let ((continuation
+            (reset
+              (handler-bind (((or warning simple-error)
+                              (lambda (condition) (declare (ignore condition)) (incf calls))))
+                (shift k k) (signal 'simple-warning) calls))))
+      (list (funcall continuation 0) (funcall continuation 0)))))
 (case= handler-cluster-disabled '(:inner :outer)
   (let ((log nil))
     (reset (handler-bind ((warning (lambda (condition) (declare (ignore condition)) (push :outer log))))

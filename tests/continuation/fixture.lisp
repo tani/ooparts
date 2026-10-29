@@ -18,6 +18,12 @@
   (declare (ignore rest key keyp))
   (shift k (funcall k :discarded)))
 (defparameter *saved* (reset (+ 10 (shift k k))))
+(defparameter *handler-calls* 0)
+(defparameter *saved-handler*
+  (reset
+    (handler-bind ((warning (lambda (condition)
+                             (declare (ignore condition)) (incf *handler-calls*))))
+      (let ((value (shift k k))) (signal 'simple-warning) value))))
 (defparameter *special* :outside)
 (defparameter *saved-special*
   (reset (let ((*special* 10)) (shift k k) (incf *special*))))
@@ -31,6 +37,8 @@
     (reset (add (shift k (funcall k 3))))))
 (defun checks ()
   (assert (not (cps-function-p #'pure-double)))
+  (assert (eq :direct (getf (analyze '(funcall #'1+ 3)) :effect)))
+  (assert (= 4 (reset (funcall #'1+ 3))))
   (assert (cps-function-p #'factorial))
   (assert (= 105 (reset (opaque-native-caller (lambda (x) (+ x (shift k (funcall k 3)))) 2))))
   (assert (eq :direct (getf (analyze '(labels ((f (n) (if (zerop n) 0 (f (1- n))))) (f 8))) :effect)))
@@ -49,6 +57,9 @@
   (assert (= 12 (outer-macro-environment)))
   (assert (= 103 (outer-function-environment)))
   (assert (equal '(11 12) (list (funcall *saved* 1) (funcall *saved* 2))))
+  (let ((calls *handler-calls*))
+    (assert (equal '(17 23) (list (funcall *saved-handler* 17) (funcall *saved-handler* 23))))
+    (assert (= (+ calls 2) *handler-calls*)))
   (assert (equal '(11 12 :outside)
                  (list (funcall *saved-special* 0) (funcall *saved-special* 0) *special*)))
   (format t "Fresh FASL/core checks passed.~%"))

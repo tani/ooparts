@@ -1,0 +1,34 @@
+{
+  "lisp": "SBCL 2.2.9.debian",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "cpu_affinity": 0,
+  "processes_per_revision": 5,
+  "rounds": 9,
+  "target_seconds": 0.03,
+  "policy": {
+    "speed": 3,
+    "safety": 1,
+    "debug": 0
+  },
+  "order": "before/after and after/before alternate between process pairs",
+  "sources": {
+    "before": {
+      "src/continuation/compiler.lisp": "99e5abb8ca84405556babeed2b30eea2fbf73165c92bf84e37274066c6d78fd5",
+      "src/continuation/conditions.lisp": "cac0bbb55ffaa367becdce20ee65cf64541ba048dc03be098eadc10f9ab507a0",
+      "src/continuation/environment.lisp": "83cfa89e65b8be64edac9d8b1efe9c18bdfcde70efa5a9e2158228cafc3783b1",
+      "src/continuation/runtime.lisp": "44b4ea77eaa04da1f28481d7496dc1c45d0d0d86f109337f3e745d717eb7ad2f"
+    },
+    "after": {
+      "src/continuation/compiler.lisp": "1f61835192acfbdf4649c373fafee0ad8f0ecdc6353106d2c70e7358f6de11ec",
+      "src/continuation/conditions.lisp": "cac0bbb55ffaa367becdce20ee65cf64541ba048dc03be098eadc10f9ab507a0",
+      "src/continuation/environment.lisp": "83cfa89e65b8be64edac9d8b1efe9c18bdfcde70efa5a9e2158228cafc3783b1",
+      "src/continuation/runtime.lisp": "2f50f3e34b3f5ce086a1570894ac1be77fd0adfd1041b81bdad3dcce5983d3df"
+    }
+  },
+  "harness": {
+    "benchmarks.lisp": "1d362824668787d3c75fb9249dbc933aed78ecba600333f1478a31b8e72440b4",
+    "bootstrap.lisp": "fef876fa529ab4a148eed36321ba1798f0892739db8588d529d3b51e5677701c",
+    "normalization.lisp": "09b1c6bb912356e550fa6b5a741df0fa6bb486645be9af48564fa5069ce40653",
+    "compare-normalization.py": "ac337d137660dd3acd211c8ce7a8c4bf85771923d426295449f1c74785b5e9a3"
+  }
+}

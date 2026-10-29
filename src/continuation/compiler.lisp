@@ -261,7 +261,6 @@
         (let ((result (declared-node (normalize-seq forms (declared-context inner decls)) inner decls)))
           (node :functions (list infos result op) nil (list (ir-effect result))))))))
 
-#-sbcl
 (defun expand-handler-case (form)
   ;; Handler bodies run after the protected extent has unwound. A GO performs
   ;; that transfer before evaluating a clause, preserving virtual cleanups too.
@@ -361,7 +360,6 @@
        (node :if ns nil (child-effects ns))))
     ((member (car form) '(let let*)) (normalize-let form c (eq (car form) 'let*)))
     ((member (car form) '(flet labels)) (normalize-local-functions form c))
-    #-sbcl
     ((member (car form) '(incf decf))
      ;; Some host macros constant-fold the delta during expansion. Keep all
      ;; user expressions in the transformed program, evaluated exactly once.
@@ -441,27 +439,23 @@
     #+clozure
     ((eq (car form) 'restart-case)
      (normalize (expand-restart-case form) c))
-    #-sbcl
     ((eq (car form) 'handler-bind)
      (let* ((bindings (cadr form))
             (functions (mapcar (lambda (binding) (normalize (cadr binding) c)) bindings))
             (body (normalize-seq (cddr form) c)))
        (node :handlers (list (mapcar #'car bindings) functions body) t)))
-    #-sbcl
     ((eq (car form) 'handler-case)
      (normalize (expand-handler-case form) c))
-    #-sbcl
     ((eq (car form) 'dotimes)
      (destructuring-bind ((variable count &optional result) &rest body) (cdr form)
        (let ((limit (gensym "LIMIT")) (again (gensym "AGAIN")) (end (gensym "END")))
          (multiple-value-bind (declarations forms) (declarations-and-body body)
            (normalize `(block nil
-                         (let ((,limit ,count) (,variable 0))
+                         (let ((,limit (the integer ,count)) (,variable 0))
                            (declare ,@declarations)
                            (tagbody ,again (when (>= ,variable ,limit) (go ,end))
                               ,@forms (setq ,variable (1+ ,variable)) (go ,again) ,end)
                            ,result)) c)))))
-    #-sbcl
     ((eq (car form) 'dolist)
      (destructuring-bind ((variable list &optional result) &rest body) (cdr form)
        (let ((tail (gensym "TAIL")) (again (gensym "AGAIN")) (end (gensym "END")))
@@ -517,12 +511,19 @@
              ((and (symbolp (car form)) (special-operator-p (car form)))
               (reject form "Unknown compiler special operator; refusing an unsound expansion."))
              (t
-              (let* ((operator (car form))
+              (let* ((literal (when (and (eq (car form) 'funcall)
+                                         (consp (cadr form)) (eq (caadr form) 'function)
+                                         (member (cadadr form) *direct-functions* :test #'equal))
+                                (cadadr form)))
+                     ;; SETF expansions can call known setters through FUNCALL.
+                     ;; Retain their ordinary direct-call effect and evaluation order.
+                     (operator (or literal (car form)))
                      (local (cdr (assoc operator (context-funcs c) :test #'equal)))
                      (direct (and (not local) (member operator *direct-functions* :test #'equal)
                                   (not (nth-value 1 (function-information operator (context-env c))))))
                      (callee (normalize `(function ,operator) c))
-                     (args (mapcar (lambda (x) (normalize x c)) (cdr form))))
+                     (args (mapcar (lambda (x) (normalize x c))
+                                   (if literal (cddr form) (cdr form)))))
                 (node :call (list callee args direct local)
                       (not (or direct local))
                       (append (child-effects args) (list (ir-effect callee))

@@ -257,4 +257,4 @@ for a nested delimiter. Nested WITH-CALL/CC alone merges regions."
                           round iterations cpu wall bytes gc)))))
           (finish-output out))))
     (format t "BENCHMARK COMPLETED ~A process ~D~%" baseline process)))
-(main)
+(unless (uiop:getenv "OOPARTS_CONT_BENCH_DEFINITIONS_ONLY") (main))

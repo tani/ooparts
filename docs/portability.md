@@ -29,9 +29,12 @@ SBCL/Linux retains native resource accounting. Other platforms use
 memory counters. A missing native process ID is reported as zero; it is only
 used for optional process information, not solving.
 
-The continuation compiler recognizes portable handler and iteration syntax
-before non-SBCL macro expanders introduce private operators. Dynamic handler
-frames are reinstated on continuation invocation. Handler-case transfers leave
+The continuation compiler normalizes `incf`, `decf`, `dotimes`, `dolist`,
+`handler-bind` and `handler-case` on every implementation before host macro
+expanders introduce private operators. Dynamic handler frames use the same
+representation and reinstatement path on SBCL and other implementations.
+The driver skips handler installation when a frame has no handlers.
+Handler-case transfers leave
 protected extents before running a clause. Missing PROGV values create unbound
 bindings directly. On ABCL and ECL, an adapter updates the virtual binding when MAKUNBOUND would
 otherwise clear only the global value. It preserves that global value and

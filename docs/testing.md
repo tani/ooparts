@@ -31,7 +31,7 @@ accepted as a pass.
 SBCL=sbcl bash tools/continuation/test.sh
 ```
 
-This runs the 3110 checks and fresh-process FASL/saved-core reload tests. The
+This runs the 3126 checks and fresh-process FASL/saved-core reload tests. The
 independent substitution reducer checks 1328 terms in selective and full modes.
 The suite also exercises mutation, multiple values, dynamic control, native
 boundaries, deep captures, GC and another thread. It does not mechanically prove

@@ -34,6 +34,10 @@ def main():
         if not condition:
             errors.append(message)
 
+    for library in ('continuation', 'prolog', 'sat'):
+        check(not (ROOT / library).exists(),
+              f'Legacy root directory: {library}/; use the shared src/tests/docs layout')
+
     owned = [p for prefix in ('src', 'tests', 'docs', 'examples', 'benchmarks', 'tools', '.github')
              for p in (ROOT / prefix).rglob('*') if p.is_file()
              and '__pycache__' not in p.parts and 'generated' not in p.parts]

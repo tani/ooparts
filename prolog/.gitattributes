@@ -1,2 +1,0 @@
-# Preserve the upstream Markdown hard breaks in this byte-pinned source notice.
-tests/iso/vendor/logtalk/tests/prolog/NOTES.md whitespace=-blank-at-eol

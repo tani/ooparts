@@ -1,6 +1,11 @@
 *.fasl
+*.fas
+*.abcl
+*.o
 *.core
 **/__pycache__/
+.direnv/
+coverage/
 /build/
 /result
 /result-*

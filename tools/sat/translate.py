@@ -36,7 +36,6 @@ def lisp_name(n):
  return n.lower().replace('_','-').replace('/','-')
 def sym(n):
  if n.startswith('global/'):return '*'+lisp_name(n.split('/',1)[1])+'*'
- if n.startswith('string/'):return '*text-'+n.split('/')[1]+'*'
  return FUNCTION_NAMES.get(n,lisp_name(n))
 def ls(s):return '"'+s.replace('\\','\\\\').replace('"','\\"')+'"'
 def align(n,a):return (n+a-1)//a*a
@@ -51,7 +50,7 @@ class Place:
  def __iter__(self):return iter((self.local,self.address,self.type,self.bit,self.width))
 class Translator:
  def __init__(self,tree):
-  self.tree=tree; self.typedefs={'size_t':UL,'uint64_t':UL,'uintptr_t':UL,'ptrdiff_t':L,'bool':B,'FILE':VOID,'va_list':UL,'uint32_t':U,'uint8_t':UC}; self.structs={}; self.node_types={}; self.functions={}; self.globals={}; self.enums={}; self.strings={}; self.mapping=[]; self.layouts=[]; self.serial=0
+  self.tree=tree; self.typedefs={'size_t':UL,'uint64_t':UL,'uintptr_t':UL,'ptrdiff_t':L,'bool':B,'FILE':VOID,'va_list':UL,'uint32_t':U,'uint8_t':UC}; self.structs={}; self.node_types={}; self.functions={}; self.globals={}; self.enums={}; self.mapping=[]; self.layouts=[]; self.serial=0
   self.scope=[{}]; self.locals=[]; self.addr_taken=set(); self.allocs=[]; self.static=[]; self.constants={}; self.has_frame=False
   self.field_accessors={}
   for n in tree.ext:
@@ -60,7 +59,9 @@ class Translator:
    elif isinstance(n,C.Decl):
     t=self.typ(n.type)
     if n.name and t.kind=='func':self.functions[n.name]=t
-    elif n.name:self.globals[n.name]=(sym('global/'+n.name),t)
+    elif n.name:
+     constant='const' in n.quals and t.kind in ('int','float','bool')
+     self.globals[n.name]=('+'+lisp_name(n.name)+'+' if constant else sym('global/'+n.name),t)
   # Anonymous C aggregates take the name of their owning field, rather than
   # leaking parser allocation order into the generated Lisp interface.
   def name_fields(t):
@@ -216,8 +217,7 @@ class Translator:
   if val>2147483647 and not s:t=L
   return t,val
  def string(self,s):
-  if s not in self.strings:self.strings[s]=sym('string/'+str(len(self.strings)))
-  return self.strings[s]
+  return '(c-string-literal '+ls(s)+')'
  def load(self,addr,t,bit=None,width=None):
   if t.kind in ('struct','union','array'):return addr
   if bit is not None:return f'(ldb (byte {width} {bit}) (m-u{8 if bit+width<=8 else 16} {addr}))'
@@ -710,10 +710,12 @@ class Translator:
   globals_=[]
   for n in self.tree.ext:
    if isinstance(n,C.Decl) and n.name in self.globals:
-    name,t=self.globals[n.name]; globals_.append('(declaim (type '+self.ltype(t)+' '+name+'))\n(defparameter '+name+' '+self.conv(self.expr(n.init)[0],t,self.expr(n.init)[1])+')')
-  strings=globals_+['(defparameter '+s+' (c-string '+ls(v)+'))' for v,s in self.strings.items()]
+    name,t=self.globals[n.name]
+    value=self.conv(self.expr(n.init)[0],t,self.expr(n.init)[1])
+    if name.startswith('+'):globals_.append('(defconstant '+name+' '+value+')')
+    else:globals_.append('(declaim (type '+self.ltype(t)+' '+name+'))\n(defvar '+name+' '+value+')')
   package='(uiop:define-package #:ooparts/sat/engine\n (:use #:cl #:ooparts/sat/runtime #:ooparts/sat/layout)\n (:export '+' '.join('#:'+sym(name) for name in sorted(self.defined_funcs))+'))\n(in-package #:ooparts/sat/engine)\n'
-  return package+'#+sbcl\n(declaim (sb-ext:unmuffle-conditions sb-ext:compiler-note))\n(declaim (optimize (speed 2) (safety 1) (debug 0) (compilation-speed 1)))\n'+ '\n'.join(ftypes+strings)+'\n\n'+'\n'.join(code)
+  return package+'#+sbcl\n(declaim (sb-ext:unmuffle-conditions sb-ext:compiler-note))\n(declaim (optimize (speed 2) (safety 1) (debug 0) (compilation-speed 1)))\n'+ '\n'.join(ftypes+globals_)+'\n\n'+'\n'.join(code)
  def layout_source(self):
   exports=[];definitions=[]
   for name,(t,offset,bit,width) in sorted(self.field_accessors.items()):

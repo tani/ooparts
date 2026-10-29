@@ -14,8 +14,9 @@ models and signed literals. Its 475 public-interface checks include 96 formulas
 checked by independent exhaustive search. Low-level API and representation tests
 add 40 checks; numeric tests cover full-width conversions, rounding, wrapping
 generalized-place updates, and invalid pointer/arena-size rejection. Arena
-storage adds 60 to 66 checks for cross-width byte access, signed boundaries,
-known float encodings, overlap copying, filling and arena growth.
+storage adds 63 to 69 checks for cross-width byte access, signed boundaries,
+known float encodings, overlap copying, filling, arena growth and stable
+load-time string addresses that allocate no storage on repeated evaluation.
 See [portability](../portability.md) to repeat these checks on other runtimes
 or force the portable backend on SBCL.
 
@@ -41,3 +42,7 @@ independent reference programs; the Lisp solver never loads their object code.
 Correctness-report elapsed time includes startup/loading and is not a controlled
 speed comparison. [Historical benchmarks](../../benchmarks/sat/README.md)
 identify the measured source versions and timing boundaries.
+
+The `literals-native-*` and `literals-portable-*` reports repeat the 1,105-case
+differential and six-proof checks after replacing the engine's 212 parameter
+bindings with two numeric constants and load-time string literals.

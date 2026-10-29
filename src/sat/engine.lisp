@@ -1026,493 +1026,9 @@
  (ftype (function (c-address c-address c-address) (values (integer 0 1) &optional))
   worse-candidate))
 
-(declaim (type double-float *slow-beta*))
+(defconstant +slow-beta+ (float (- 1.0d0 1.0d-5) 1.0d0))
 
-(defparameter *slow-beta* (float (- 1.0d0 1.0d-5) 1.0d0))
-
-(declaim (type double-float *fast-beta*))
-
-(defparameter *fast-beta* (float (- 1.0d0 0.03d0) 1.0d0))
-
-(defparameter *text-0* (c-string "%slibsatch: %sfatal error: %s"))
-
-(defparameter *text-1* (c-string "[1m"))
-
-(defparameter *text-2* (c-string ""))
-
-(defparameter *text-3* (c-string "[31m"))
-
-(defparameter *text-4* (c-string "[0m"))
-
-(defparameter *text-5* (c-string "out-of-memory allocating %zu bytes"))
-
-(defparameter *text-6* (c-string "c "))
-
-(defparameter *text-7* (c-string "[%s-%lu] "))
-
-(defparameter *text-8*
-  (c-string "c
-"))
-
-(defparameter *text-9* (c-string "[34m"))
-
-(defparameter *text-10* (c-string "---- [ "))
-
-(defparameter *text-11* (c-string " ] "))
-
-(defparameter *text-12*
-  (c-string "
-c
-"))
-
-(defparameter *text-13* (c-string "/proc/%lu/statm"))
-
-(defparameter *text-14* (c-string "r"))
-
-(defparameter *text-15* (c-string "%lu %lu"))
-
-(defparameter *text-16* (c-string "focused"))
-
-(defparameter *text-17* (c-string "eliminate"))
-
-(defparameter *text-18* (c-string "parse"))
-
-(defparameter *text-19* (c-string "reduce"))
-
-(defparameter *text-20* (c-string "solve"))
-
-(defparameter *text-21* (c-string "stable"))
-
-(defparameter *text-22* (c-string "subsume"))
-
-(defparameter *text-23* (c-string "decide"))
-
-(defparameter *text-24* (c-string "minishrink"))
-
-(defparameter *text-25* (c-string "vivify"))
-
-(defparameter *text-26* (c-string "total"))
-
-(defparameter *text-27* (c-string "profiling"))
-
-(defparameter *text-28*
-  (c-string "c %14.2f  %6.2f %%  %s
-"))
-
-(defparameter *text-29*
-  (c-string "c =============================================
-"))
-
-(defparameter *text-30*
-  (c-string "c %14.2f  %6.2f %%  total
-"))
-
-(defparameter *text-31* (c-string "statistics"))
-
-(defparameter *text-32*
-  (c-string "c %-24s %17lu %17s clauses
-"))
-
-(defparameter *text-33* (c-string "added:"))
-
-(defparameter *text-34*
-  (c-string "c %-24s %17lu %17.2f interval
-"))
-
-(defparameter *text-35* (c-string "bests:"))
-
-(defparameter *text-36*
-  (c-string "c %-24s %17lu %17.2f literals
-"))
-
-(defparameter *text-37* (c-string "bumped:"))
-
-(defparameter *text-38*
-  (c-string "c %-24s %17lu %17.2f per learned
-"))
-
-(defparameter *text-39* (c-string "chronological backtracking:"))
-
-(defparameter *text-40*
-  (c-string "c %-24s %17lu %17.2f per jump
-"))
-
-(defparameter *text-41* (c-string "reused level:"))
-
-(defparameter *text-42*
-  (c-string "c %-24s %17lu %17.2f MB
-"))
-
-(defparameter *text-43* (c-string "collected:"))
-
-(defparameter *text-44*
-  (c-string "c %-24s %17lu %17.2f per second
-"))
-
-(defparameter *text-45* (c-string "conflicts:"))
-
-(defparameter *text-46*
-  (c-string "c %-24s %17lu %17.2f per conflict
-"))
-
-(defparameter *text-47* (c-string "decisions:"))
-
-(defparameter *text-48* (c-string "deduced:"))
-
-(defparameter *text-49*
-  (c-string "c %-24s %17lu %14.0f %%  added
-"))
-
-(defparameter *text-50* (c-string "deleted:"))
-
-(defparameter *text-51*
-  (c-string "c %-24s %17lu %14.0f %%  variables
-"))
-
-(defparameter *text-52* (c-string "eliminated:"))
-
-(defparameter *text-53* (c-string "eliminations:"))
-
-(defparameter *text-54* (c-string "fixed:"))
-
-(defparameter *text-55* (c-string "learned:"))
-
-(defparameter *text-56*
-  (c-string "c %-24s %17lu %14.0f %%  bumped
-"))
-
-(defparameter *text-57* (c-string "incremented:"))
-
-(defparameter *text-58*
-  (c-string "c %-24s %17lu %14.0f %%  deduced
-"))
-
-(defparameter *text-59* (c-string "minimized:"))
-
-(defparameter *text-60* (c-string "moved:"))
-
-(defparameter *text-61* (c-string "propagations:"))
-
-(defparameter *text-62* (c-string "reasons:"))
-
-(defparameter *text-63*
-  (c-string "c %-24s %17lu %17.2f per reduction
-"))
-
-(defparameter *text-64* (c-string "reduced:"))
-
-(defparameter *text-65* (c-string "reductions:"))
-
-(defparameter *text-66* (c-string "rephased:"))
-
-(defparameter *text-67* (c-string "rescored:"))
-
-(defparameter *text-68* (c-string "restamped:"))
-
-(defparameter *text-69*
-  (c-string "c %-24s %17lu %17.2f per variable
-"))
-
-(defparameter *text-70* (c-string "resolutions:"))
-
-(defparameter *text-71* (c-string "restarts:"))
-
-(defparameter *text-72*
-  (c-string "c %-24s %17lu %14.0f %%  restarts
-"))
-
-(defparameter *text-73* (c-string "reused:"))
-
-(defparameter *text-74* (c-string "shrunken:"))
-
-(defparameter *text-75* (c-string "strengthened:"))
-
-(defparameter *text-76* (c-string "subsumed:"))
-
-(defparameter *text-77* (c-string "subsumptions:"))
-
-(defparameter *text-78* (c-string "switched:"))
-
-(defparameter *text-79* (c-string "targets:"))
-
-(defparameter *text-80*
-  (c-string "c %-24s %17lu %14.0f per round
-"))
-
-(defparameter *text-81* (c-string "vivified:"))
-
-(defparameter *text-82* (c-string "     propagations:"))
-
-(defparameter *text-83*
-  (c-string "c %-24s %17lu %14.0f per propagation
-"))
-
-(defparameter *text-84* (c-string "     ticks:"))
-
-(defparameter *text-85* (c-string "     subsume:"))
-
-(defparameter *text-86* (c-string "     strengthen:"))
-
-(defparameter *text-87*
-  (c-string "c %-24s %17lu %14.2f per vivification
-"))
-
-(defparameter *text-88* (c-string "     reused:"))
-
-(defparameter *text-89*
-  (c-string "c %-24s %17lu %17.2f per propagation
-"))
-
-(defparameter *text-90* (c-string "ticks:"))
-
-(defparameter *text-91* (c-string "resources"))
-
-(defparameter *text-92*
-  (c-string "c %-24s %17lu bytes %11.2f MB
-"))
-
-(defparameter *text-93* (c-string "memory:"))
-
-(defparameter *text-94*
-  (c-string "c %-24s %17s %17.2f seconds
-"))
-
-(defparameter *text-95* (c-string "time:"))
-
-(defparameter *text-96* (c-string "%d "))
-
-(defparameter *text-97*
-  (c-string "0
-"))
-
-(defparameter *text-98* (c-string "out-of-memory reallocating '%zu' bytes"))
-
-(defparameter *text-99* (c-string "rescore"))
-
-(defparameter *text-100* (c-string "rescoring heap with maximum score %g"))
-
-(defparameter *text-101* (c-string "new score increment %g"))
-
-(defparameter *text-102* (c-string "root-level forcing"))
-
-(defparameter *text-103* (c-string "restamp"))
-
-(defparameter *text-104* (c-string "restamping indices in decision queue"))
-
-(defparameter *text-105* (c-string "target"))
-
-(defparameter *text-106* (c-string "targeting %u assigned variables %.0f%% after %lu conflicts"))
-
-(defparameter *text-107* (c-string "best"))
-
-(defparameter *text-108* (c-string "best trail %u assigned variables %.0f%% after %lu conflicts"))
-
-(defparameter *text-109* (c-string "%.2f"))
-
-(defparameter *text-110* (c-string "%.0f"))
-
-(defparameter *text-111* (c-string "%lu"))
-
-(defparameter *text-112* (c-string "%.0f%%"))
-
-(defparameter *text-113* (c-string "seconds"))
-
-(defparameter *text-114* (c-string "MB"))
-
-(defparameter *text-115* (c-string "level"))
-
-(defparameter *text-116* (c-string "switched"))
-
-(defparameter *text-117* (c-string "reductions"))
-
-(defparameter *text-118* (c-string "restarts"))
-
-(defparameter *text-119* (c-string "rate"))
-
-(defparameter *text-120* (c-string "conflicts"))
-
-(defparameter *text-121* (c-string "redundant"))
-
-(defparameter *text-122* (c-string "trail"))
-
-(defparameter *text-123* (c-string "glue"))
-
-(defparameter *text-124* (c-string "irredundant"))
-
-(defparameter *text-125* (c-string "variables"))
-
-(defparameter *text-126* (c-string "remaining"))
-
-(defparameter *text-127* (c-string "[33m"))
-
-(defparameter *text-128* (c-string "[32m"))
-
-(defparameter *text-129* (c-string "[1;32m"))
-
-(defparameter *text-130* (c-string "[35m"))
-
-(defparameter *text-131* (c-string "restart"))
-
-(defparameter *text-132* (c-string "reusing trail up-to level %u out of %u levels %.0f%%"))
-
-(defparameter *text-133* (c-string "restarting after %lu conflicts (limit %lu)"))
-
-(defparameter *text-134* (c-string "new %s restart limit %lu after %lu conflicts"))
-
-(defparameter *text-135* (c-string "rephase"))
-
-(defparameter *text-136* (c-string "new rephase limit %lu conflicts after %lu"))
-
-(defparameter *text-137* (c-string "root-level satisfied"))
-
-(defparameter *text-138* (c-string "gathered %zu reduce candidate clauses %.0f%%"))
-
-(defparameter *text-139* (c-string "target is to reduce %zu out of %zu clauses %.0f%%"))
-
-(defparameter *text-140* (c-string "reducing"))
-
-(defparameter *text-141* (c-string "reducing %zu out of %zu clauses %.0f%%"))
-
-(defparameter *text-142* (c-string "collected %zu clauses (%zu bytes, %.0f MB)"))
-
-(defparameter *text-143* (c-string "next limit at %lu after %lu conflicts"))
-
-(defparameter *text-144* (c-string "switch"))
-
-(defparameter *text-145* (c-string "new %s mode limit of %lu ticks after %lu ticks"))
-
-(defparameter *text-146* (c-string "limit of %lu ticks hit at %lu ticks"))
-
-(defparameter *text-147* (c-string "limit of %lu conflicts hit at %lu conflicts and %lu ticks"))
-
-(defparameter *text-148* (c-string "eliminated"))
-
-(defparameter *text-149* (c-string "elimination"))
-
-(defparameter *text-150* (c-string "subsumed"))
-
-(defparameter *text-151*
-  (c-string "%s:%ld: %s: Coverage goal `%s' reached.
-"))
-
-(defparameter *text-152*
-  (c-string "/workspace/scratch/ffe3804f3dbf/ooparts/vendor/satch/source/satch.c"))
-
-(defparameter *text-153* (c-string "backward_subsume_with_clause"))
-
-(defparameter *text-154* (c-string "min_pos_lit == INVALID"))
-
-(defparameter *text-155* (c-string "min_neg_lit == INVALID"))
-
-(defparameter *text-156* (c-string "subsumption"))
-
-(defparameter *text-157* (c-string "subsumption ticks limit hit"))
-
-(defparameter *text-158* (c-string "tried %u variables %.0f%% of %u scheduled %.0f%% in round %u"))
-
-(defparameter *text-159* (c-string "subsumed %lu and strengthened %lu clauses in round %u"))
-
-(defparameter *text-160* (c-string "keeping %u variables scheduled %.0f%%"))
-
-(defparameter *text-161* (c-string "subsumed %lu and strengthened %lu clauses in %u rounds"))
-
-(defparameter *text-162* (c-string "elimination limit of %lu ticks = %g * search ticks %lu"))
-
-(defparameter *text-163* (c-string "subsumption limit of %lu ticks = %g * search ticks %lu"))
-
-(defparameter *text-164* (c-string "elimination ticks limit hit"))
-
-(defparameter *text-165* (c-string "eliminated %u variables %.0f%% of remaining %u in round %u"))
-
-(defparameter *text-166* (c-string "eliminated %u variables %.0f%% in total in %u rounds"))
-
-(defparameter *text-167* (c-string "subsumed by unit"))
-
-(defparameter *text-168* (c-string "vivified clause"))
-
-(defparameter *text-169* (c-string "vivify shortened to binary clause"))
-
-(defparameter *text-170* (c-string "vivify subsumed (learn)"))
-
-(defparameter *text-171* (c-string "vivify implied"))
-
-(defparameter *text-172* (c-string "vivify subsumed"))
-
-(defparameter *text-173* (c-string "vivification satisfied candidate"))
-
-(defparameter *text-174* (c-string "vivification shrunken candidate"))
-
-(defparameter *text-175* (c-string "could not allocate counts for vivification"))
-
-(defparameter *text-176* (c-string "vivification"))
-
-(defparameter *text-177* (c-string "%lu vivified, next limit at %lu after %lu conflicts"))
-
-(defparameter *text-178*
-  (c-string "%slibsatch: %sfatal error: %sinvalid API usage in '%s': %s
-"))
-
-(defparameter *text-179* (c-string "could not allocate solver"))
-
-(defparameter *text-180* (c-string "zero solver argument"))
-
-(defparameter *text-181* (c-string "satch_release"))
-
-(defparameter *text-182* (c-string "satch_add"))
-
-(defparameter *text-183* (c-string "incremental usage not implemented yet"))
-
-(defparameter *text-184* (c-string "'INT_MIN' literal argument"))
-
-(defparameter *text-185* (c-string "satch_add_empty"))
-
-(defparameter *text-186* (c-string "satch_add_unit"))
-
-(defparameter *text-187* (c-string "zero literal argument"))
-
-(defparameter *text-188* (c-string "satch_add_binary_clause"))
-
-(defparameter *text-189* (c-string "satch_add_ternary_clause"))
-
-(defparameter *text-190* (c-string "satch_add_quaternary_clause"))
-
-(defparameter *text-191* (c-string "satch_reserve"))
-
-(defparameter *text-192* (c-string "satch_maximum_variable"))
-
-(defparameter *text-193* (c-string "satch_val"))
-
-(defparameter *text-194* (c-string "expected status to be '10' and not '20'"))
-
-(defparameter *text-195* (c-string "expected status to be '10' and not '0'"))
-
-(defparameter *text-196* (c-string "expected status to be '10'"))
-
-(defparameter *text-197* (c-string "satch_solve"))
-
-(defparameter *text-198* (c-string "incomplete clause (zero literal missing)"))
-
-(defparameter *text-199* (c-string "no incremental solving yet"))
-
-(defparameter *text-200* (c-string "solving"))
-
-(defparameter *text-201* (c-string "satch_set_verbose_level"))
-
-(defparameter *text-202* (c-string "satch_enable_logging_messages"))
-
-(defparameter *text-203* (c-string "satch_ascii_proof"))
-
-(defparameter *text-204* (c-string "satch_trace_proof"))
-
-(defparameter *text-205* (c-string "satch_start_profiling_parsing"))
-
-(defparameter *text-206* (c-string "satch_stop_profiling_parsing"))
-
-(defparameter *text-207* (c-string "satch_section"))
-
-(defparameter *text-208* (c-string "satch_statistics"))
-
-(defparameter *text-209* (c-string "satch_conflicts"))
+(defconstant +fast-beta+ (float (- 1.0d0 0.03d0) 1.0d0))
 ;;; vendor/satch/source/satch.c:971:1
 
 (defun variable-literal (idx)
@@ -1578,16 +1094,16 @@ c
              (ignorable colors terminal-file))
     (let* ((ap 0))
       (declare (ignorable ap))
-      (c-fprintf 2 *text-0*
+      (c-fprintf 2 (c-string-literal "%slibsatch: %sfatal error: %s")
                  (if (not (zerop colors))
-                     *text-1*
-                     *text-2*)
+                     (c-string-literal "[1m")
+                     (c-string-literal ""))
                  (if (not (zerop colors))
-                     *text-3*
-                     *text-2*)
+                     (c-string-literal "[31m")
+                     (c-string-literal ""))
                  (if (not (zerop colors))
-                     *text-4*
-                     *text-2*))
+                     (c-string-literal "[0m")
+                     (c-string-literal "")))
       (setf ap varargs)
       (c-vfprintf 2 fmt ap)
       (c-fputc 10 2)
@@ -1600,7 +1116,7 @@ c
   (declare (optimize (speed 1) (safety 1))
            (type c-size bytes)
            (ignorable bytes))
-  (fatal-error *text-5* bytes)
+  (fatal-error (c-string-literal "out-of-memory allocating %zu bytes") bytes)
   0)
 ;;; vendor/satch/source/satch.c:1309:1
 
@@ -1613,8 +1129,8 @@ c
            (type c-address fmt)
            (ignorable solver level name count fmt varargs))
   (when (< (options-verbose (solver-options solver)) level) (return-from message 0))
-  (c-fputs *text-6* 1)
-  (c-printf *text-7* name count)
+  (c-fputs (c-string-literal "c ") 1)
+  (c-printf (c-string-literal "[%s-%lu] ") name count)
   (let* ((ap 0))
     (declare (ignorable ap))
     (setf ap varargs)
@@ -1629,7 +1145,11 @@ c
            (type c-address solver)
            (type c-address name)
            (ignorable solver name))
-  (when (not (zerop (statistics-sections (solver-statistics solver)))) (c-fputs *text-8* 1))
+  (when (not (zerop (statistics-sections (solver-statistics solver))))
+    (c-fputs
+     (c-string-literal "c
+")
+     1))
   (u64-incf (statistics-sections (solver-statistics solver)))
   (let* ((colors (c-bool (c-isatty 1)))
          (terminal-file
@@ -1639,21 +1159,25 @@ c
     (declare (type (integer 0 1) colors)
              (type c-address terminal-file)
              (ignorable colors terminal-file))
-    (c-fputs *text-6* 1)
-    (when (not (zerop colors)) (c-fputs *text-9* terminal-file))
-    (c-fputs *text-10* 1)
-    (when (not (zerop colors)) (c-fputs *text-1* terminal-file))
+    (c-fputs (c-string-literal "c ") 1)
+    (when (not (zerop colors)) (c-fputs (c-string-literal "[34m") terminal-file))
+    (c-fputs (c-string-literal "---- [ ") 1)
+    (when (not (zerop colors)) (c-fputs (c-string-literal "[1m") terminal-file))
     (c-fputs name 1)
-    (when (not (zerop colors)) (c-fputs *text-4* terminal-file))
-    (when (not (zerop colors)) (c-fputs *text-9* terminal-file))
-    (c-fputs *text-11* 1)
+    (when (not (zerop colors)) (c-fputs (c-string-literal "[0m") terminal-file))
+    (when (not (zerop colors)) (c-fputs (c-string-literal "[34m") terminal-file))
+    (c-fputs (c-string-literal " ] ") 1)
     (let* ((i (c-strlen name)))
       (declare (type c-size i)
                (ignorable i))
       (loop while (< i 66)
             do (c-putc 45 1) (u64-incf i)))
-    (when (not (zerop colors)) (c-fputs *text-4* terminal-file))
-    (c-fputs *text-12* 1)
+    (when (not (zerop colors)) (c-fputs (c-string-literal "[0m") terminal-file))
+    (c-fputs
+     (c-string-literal "
+c
+")
+     1)
     (c-fflush 1))
   0)
 ;;; vendor/satch/source/satch.c:1357:1
@@ -1722,12 +1246,12 @@ c
                    (type c-address dummy)
                    (type c-address rss)
                    (ignorable path dummy rss))
-          (c-sprintf path *text-13* (c-u64 (c-getpid)))
-          (let* ((file (c-fopen path *text-14*)))
+          (c-sprintf path (c-string-literal "/proc/%lu/statm") (c-u64 (c-getpid)))
+          (let* ((file (c-fopen path (c-string-literal "r"))))
             (declare (type c-address file)
                      (ignorable file))
             (when (zerop file) (return-from current-resident-set-size 0))
-            (let* ((scanned (c-fscanf file *text-15* dummy rss)))
+            (let* ((scanned (c-fscanf file (c-string-literal "%lu %lu") dummy rss)))
               (declare (type (signed-byte 32) scanned)
                        (ignorable scanned))
               (c-fclose file)
@@ -1764,17 +1288,17 @@ c
     (declare (type c-address profiles)
              (ignorable profiles))
     (setf (profiles-end profiles) (profiles-begin profiles))
-    (setf (profile-name (profiles-focused profiles)) *text-16*)
-    (setf (profile-name (profiles-eliminate profiles)) *text-17*)
-    (setf (profile-name (profiles-parse profiles)) *text-18*)
-    (setf (profile-name (profiles-reduce profiles)) *text-19*)
-    (setf (profile-name (profiles-solve profiles)) *text-20*)
-    (setf (profile-name (profiles-stable profiles)) *text-21*)
-    (setf (profile-name (profiles-subsume profiles)) *text-22*)
-    (setf (profile-name (profiles-decide profiles)) *text-23*)
-    (setf (profile-name (profiles-minishrink profiles)) *text-24*)
-    (setf (profile-name (profiles-vivify profiles)) *text-25*)
-    (setf (profile-name (profiles-total profiles)) *text-26*))
+    (setf (profile-name (profiles-focused profiles)) (c-string-literal "focused"))
+    (setf (profile-name (profiles-eliminate profiles)) (c-string-literal "eliminate"))
+    (setf (profile-name (profiles-parse profiles)) (c-string-literal "parse"))
+    (setf (profile-name (profiles-reduce profiles)) (c-string-literal "reduce"))
+    (setf (profile-name (profiles-solve profiles)) (c-string-literal "solve"))
+    (setf (profile-name (profiles-stable profiles)) (c-string-literal "stable"))
+    (setf (profile-name (profiles-subsume profiles)) (c-string-literal "subsume"))
+    (setf (profile-name (profiles-decide profiles)) (c-string-literal "decide"))
+    (setf (profile-name (profiles-minishrink profiles)) (c-string-literal "minishrink"))
+    (setf (profile-name (profiles-vivify profiles)) (c-string-literal "vivify"))
+    (setf (profile-name (profiles-total profiles)) (c-string-literal "total")))
   0)
 ;;; vendor/satch/source/satch.c:1685:1
 
@@ -1841,7 +1365,7 @@ c
   (let* ((stop (flush-profiles solver)))
     (declare (type double-float stop)
              (ignorable stop))
-    (internal-section solver *text-27*)
+    (internal-section solver (c-string-literal "profiling"))
     (let* ((profiles (solver-profiles-address solver))
            (verbose
             (if (> (options-verbose (solver-options solver)) 1)
@@ -2015,10 +1539,19 @@ c
                   do (let* ((p-2 (m-ptr (+ (profiles-begin profiles) (* 8 i-2)))))
                        (declare (type c-address p-2)
                                 (ignorable p-2))
-                       (c-printf *text-28* (profile-time p-2) (percent (profile-time p-2) total)
-                                 (profile-name p-2))) (u64-incf i-2)))
-          (c-fputs *text-29* 1)
-          (c-printf *text-30* total 100.0d0)
+                       (c-printf
+                        (c-string-literal "c %14.2f  %6.2f %%  %s
+")
+                        (profile-time p-2) (percent (profile-time p-2) total)
+                        (profile-name p-2))) (u64-incf i-2)))
+          (c-fputs
+           (c-string-literal "c =============================================
+")
+           1)
+          (c-printf
+           (c-string-literal "c %14.2f  %6.2f %%  total
+")
+           total 100.0d0)
           stop)))))
 ;;; vendor/satch/source/satch.c:1816:1
 
@@ -2032,7 +1565,7 @@ c
         (let* ((s (stack-alloc 456)))
           (declare (type c-address s)
                    (ignorable s))
-          (internal-section solver *text-31*)
+          (internal-section solver (c-string-literal "statistics"))
           (copy-bytes s (solver-statistics solver) 456)
           (let* ((verbose
                   (if (> (options-verbose (solver-options solver)) 1)
@@ -2041,142 +1574,261 @@ c
             (declare (type (integer 0 1) verbose)
                      (ignorable verbose))
             (when (not (zerop verbose))
-              (c-printf *text-32* *text-33* (statistics-added s) *text-2*))
-            (c-printf *text-34* *text-35* (statistics-bests s)
-                      (relative (integer64-double (statistics-conflicts s) nil)
-                       (integer64-double (statistics-bests s) nil)))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %17s clauses
+")
+               (c-string-literal "added:") (statistics-added s) (c-string-literal "")))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f interval
+")
+             (c-string-literal "bests:") (statistics-bests s)
+             (relative (integer64-double (statistics-conflicts s) nil)
+              (integer64-double (statistics-bests s) nil)))
             (when (not (zerop verbose))
-              (c-printf *text-36* *text-37* (statistics-bumped s)
-                        (relative (integer64-double (statistics-bumped s) nil)
-                         (integer64-double (statistics-conflicts s) nil))))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %17.2f literals
+")
+               (c-string-literal "bumped:") (statistics-bumped s)
+               (relative (integer64-double (statistics-bumped s) nil)
+                (integer64-double (statistics-conflicts s) nil))))
             (when (not (zerop verbose))
-              (c-printf *text-38* *text-39* (statistics-chrono s)
-                        (percent (integer64-double (statistics-chrono s) nil)
-                         (integer64-double (statistics-learned s) nil))))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %17.2f per learned
+")
+               (c-string-literal "chronological backtracking:") (statistics-chrono s)
+               (percent (integer64-double (statistics-chrono s) nil)
+                (integer64-double (statistics-learned s) nil))))
             (when (not (zerop verbose))
-              (c-printf *text-40* *text-41* (statistics-chronosaved s)
-                        (relative (integer64-double (statistics-chronosaved s) nil)
-                         (integer64-double (statistics-chrono s) nil))))
-            (c-printf *text-42* *text-43* (statistics-collected s)
-                      (float
-                       (/ (integer64-double (statistics-collected s) nil)
-                          (float (c-u32 (ash 1 20)) 1.0d0))
-                       1.0d0))
-            (c-printf *text-44* *text-45* (statistics-conflicts s)
-                      (relative (integer64-double (statistics-conflicts s) nil) seconds))
-            (c-printf *text-46* *text-47* (statistics-decisions s)
-                      (relative (integer64-double (statistics-decisions s) nil)
-                       (integer64-double (statistics-conflicts s) nil)))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %17.2f per jump
+")
+               (c-string-literal "reused level:") (statistics-chronosaved s)
+               (relative (integer64-double (statistics-chronosaved s) nil)
+                (integer64-double (statistics-chrono s) nil))))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f MB
+")
+             (c-string-literal "collected:") (statistics-collected s)
+             (float
+              (/ (integer64-double (statistics-collected s) nil) (float (c-u32 (ash 1 20)) 1.0d0))
+              1.0d0))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f per second
+")
+             (c-string-literal "conflicts:") (statistics-conflicts s)
+             (relative (integer64-double (statistics-conflicts s) nil) seconds))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f per conflict
+")
+             (c-string-literal "decisions:") (statistics-decisions s)
+             (relative (integer64-double (statistics-decisions s) nil)
+              (integer64-double (statistics-conflicts s) nil)))
             (when (not (zerop verbose))
-              (c-printf *text-36* *text-48* (statistics-deduced s)
-                        (relative (integer64-double (statistics-deduced s) nil)
-                         (integer64-double (statistics-conflicts s) nil))))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %17.2f literals
+")
+               (c-string-literal "deduced:") (statistics-deduced s)
+               (relative (integer64-double (statistics-deduced s) nil)
+                (integer64-double (statistics-conflicts s) nil))))
             (when (not (zerop verbose))
-              (c-printf *text-49* *text-50* (statistics-deleted s)
-                        (percent (integer64-double (statistics-deleted s) nil)
-                         (integer64-double (statistics-added s) nil))))
-            (c-printf *text-51* *text-52* (statistics-eliminated s)
-                      (percent (integer64-double (statistics-eliminated s) nil)
-                       (integer64-double (statistics-variables s) nil)))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %14.0f %%  added
+")
+               (c-string-literal "deleted:") (statistics-deleted s)
+               (percent (integer64-double (statistics-deleted s) nil)
+                (integer64-double (statistics-added s) nil))))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %14.0f %%  variables
+")
+             (c-string-literal "eliminated:") (statistics-eliminated s)
+             (percent (integer64-double (statistics-eliminated s) nil)
+              (integer64-double (statistics-variables s) nil)))
             (when (not (zerop verbose))
-              (c-printf *text-34* *text-53* (statistics-eliminations s)
-                        (relative (integer64-double (statistics-conflicts s) nil)
-                         (integer64-double (statistics-eliminations s) nil))))
-            (c-printf *text-51* *text-54* (statistics-fixed s)
-                      (percent (integer64-double (statistics-fixed s) nil)
-                       (integer64-double (statistics-variables s) nil)))
-            (c-printf *text-36* *text-55* (statistics-learned s)
-                      (relative (integer64-double (statistics-learned s) nil)
-                       (integer64-double (statistics-conflicts s) nil)))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %17.2f interval
+")
+               (c-string-literal "eliminations:") (statistics-eliminations s)
+               (relative (integer64-double (statistics-conflicts s) nil)
+                (integer64-double (statistics-eliminations s) nil))))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %14.0f %%  variables
+")
+             (c-string-literal "fixed:") (statistics-fixed s)
+             (percent (integer64-double (statistics-fixed s) nil)
+              (integer64-double (statistics-variables s) nil)))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f literals
+")
+             (c-string-literal "learned:") (statistics-learned s)
+             (relative (integer64-double (statistics-learned s) nil)
+              (integer64-double (statistics-conflicts s) nil)))
             (when (not (zerop verbose))
-              (c-printf *text-56* *text-57* (statistics-incremented s)
-                        (percent (integer64-double (statistics-incremented s) nil)
-                         (integer64-double (statistics-bumped s) nil))))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %14.0f %%  bumped
+")
+               (c-string-literal "incremented:") (statistics-incremented s)
+               (percent (integer64-double (statistics-incremented s) nil)
+                (integer64-double (statistics-bumped s) nil))))
             (when (not (zerop verbose))
-              (c-printf *text-58* *text-59* (statistics-minimized s)
-                        (percent (integer64-double (statistics-minimized s) nil)
-                         (integer64-double (statistics-deduced s) nil))))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %14.0f %%  deduced
+")
+               (c-string-literal "minimized:") (statistics-minimized s)
+               (percent (integer64-double (statistics-minimized s) nil)
+                (integer64-double (statistics-deduced s) nil))))
             (when (not (zerop verbose))
-              (c-printf *text-56* *text-60* (statistics-moved s)
-                        (percent (integer64-double (statistics-moved s) nil)
-                         (integer64-double (statistics-bumped s) nil))))
-            (c-printf *text-44* *text-61* (statistics-propagations s)
-                      (relative (integer64-double (statistics-propagations s) nil) seconds))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %14.0f %%  bumped
+")
+               (c-string-literal "moved:") (statistics-moved s)
+               (percent (integer64-double (statistics-moved s) nil)
+                (integer64-double (statistics-bumped s) nil))))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f per second
+")
+             (c-string-literal "propagations:") (statistics-propagations s)
+             (relative (integer64-double (statistics-propagations s) nil) seconds))
             (when (not (zerop verbose))
-              (c-printf *text-56* *text-62* (statistics-reasons s)
-                        (percent (integer64-double (statistics-reasons s) nil)
-                         (integer64-double (statistics-bumped s) nil))))
-            (c-printf *text-63* *text-64* (statistics-reduced s)
-                      (relative (integer64-double (statistics-reduced s) nil)
-                       (integer64-double (statistics-reductions s) nil)))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %14.0f %%  bumped
+")
+               (c-string-literal "reasons:") (statistics-reasons s)
+               (percent (integer64-double (statistics-reasons s) nil)
+                (integer64-double (statistics-bumped s) nil))))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f per reduction
+")
+             (c-string-literal "reduced:") (statistics-reduced s)
+             (relative (integer64-double (statistics-reduced s) nil)
+              (integer64-double (statistics-reductions s) nil)))
             (when (not (zerop verbose))
-              (c-printf *text-34* *text-65* (statistics-reductions s)
-                        (relative (integer64-double (statistics-conflicts s) nil)
-                         (integer64-double (statistics-reductions s) nil))))
-            (c-printf *text-34* *text-66* (statistics-rephased s)
-                      (relative (integer64-double (statistics-conflicts s) nil)
-                       (integer64-double (statistics-rephased s) nil)))
-            (c-printf *text-34* *text-67* (statistics-rescored s)
-                      (relative (integer64-double (statistics-conflicts s) nil)
-                       (integer64-double (statistics-rescored s) nil)))
-            (c-printf *text-34* *text-68* (statistics-restamped s)
-                      (relative (integer64-double (statistics-conflicts s) nil)
-                       (integer64-double (statistics-restamped s) nil)))
-            (c-printf *text-69* *text-70* (statistics-resolutions s)
-                      (relative (integer64-double (statistics-resolutions s) nil)
-                       (integer64-double (statistics-variables s) nil)))
-            (c-printf *text-34* *text-71* (statistics-restarts s)
-                      (relative (integer64-double (statistics-conflicts s) nil)
-                       (integer64-double (statistics-restarts s) nil)))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %17.2f interval
+")
+               (c-string-literal "reductions:") (statistics-reductions s)
+               (relative (integer64-double (statistics-conflicts s) nil)
+                (integer64-double (statistics-reductions s) nil))))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f interval
+")
+             (c-string-literal "rephased:") (statistics-rephased s)
+             (relative (integer64-double (statistics-conflicts s) nil)
+              (integer64-double (statistics-rephased s) nil)))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f interval
+")
+             (c-string-literal "rescored:") (statistics-rescored s)
+             (relative (integer64-double (statistics-conflicts s) nil)
+              (integer64-double (statistics-rescored s) nil)))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f interval
+")
+             (c-string-literal "restamped:") (statistics-restamped s)
+             (relative (integer64-double (statistics-conflicts s) nil)
+              (integer64-double (statistics-restamped s) nil)))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f per variable
+")
+             (c-string-literal "resolutions:") (statistics-resolutions s)
+             (relative (integer64-double (statistics-resolutions s) nil)
+              (integer64-double (statistics-variables s) nil)))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %17.2f interval
+")
+             (c-string-literal "restarts:") (statistics-restarts s)
+             (relative (integer64-double (statistics-conflicts s) nil)
+              (integer64-double (statistics-restarts s) nil)))
             (when (not (zerop verbose))
-              (c-printf *text-72* *text-73* (statistics-reused s)
-                        (percent (integer64-double (statistics-reused s) nil)
-                         (integer64-double (statistics-restarts s) nil))))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %14.0f %%  restarts
+")
+               (c-string-literal "reused:") (statistics-reused s)
+               (percent (integer64-double (statistics-reused s) nil)
+                (integer64-double (statistics-restarts s) nil))))
             (when (not (zerop verbose))
-              (c-printf *text-58* *text-74* (statistics-shrunken s)
-                        (percent (integer64-double (statistics-shrunken s) nil)
-                         (integer64-double (statistics-deduced s) nil))))
-            (c-printf *text-49* *text-75* (statistics-strengthened s)
-                      (percent (integer64-double (statistics-strengthened s) nil)
-                       (integer64-double (statistics-added s) nil)))
-            (c-printf *text-49* *text-76* (statistics-subsumed s)
-                      (percent (integer64-double (statistics-subsumed s) nil)
-                       (integer64-double (statistics-added s) nil)))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %14.0f %%  deduced
+")
+               (c-string-literal "shrunken:") (statistics-shrunken s)
+               (percent (integer64-double (statistics-shrunken s) nil)
+                (integer64-double (statistics-deduced s) nil))))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %14.0f %%  added
+")
+             (c-string-literal "strengthened:") (statistics-strengthened s)
+             (percent (integer64-double (statistics-strengthened s) nil)
+              (integer64-double (statistics-added s) nil)))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %14.0f %%  added
+")
+             (c-string-literal "subsumed:") (statistics-subsumed s)
+             (percent (integer64-double (statistics-subsumed s) nil)
+              (integer64-double (statistics-added s) nil)))
             (when (not (zerop verbose))
-              (c-printf *text-34* *text-77* (statistics-subsumptions s)
-                        (relative (integer64-double (statistics-conflicts s) nil)
-                         (integer64-double (statistics-subsumptions s) nil))))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %17.2f interval
+")
+               (c-string-literal "subsumptions:") (statistics-subsumptions s)
+               (relative (integer64-double (statistics-conflicts s) nil)
+                (integer64-double (statistics-subsumptions s) nil))))
             (when (not (zerop verbose))
-              (c-printf *text-34* *text-78* (statistics-switched s)
-                        (relative (integer64-double (statistics-conflicts s) nil)
-                         (integer64-double (statistics-switched s) nil))))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %17.2f interval
+")
+               (c-string-literal "switched:") (statistics-switched s)
+               (relative (integer64-double (statistics-conflicts s) nil)
+                (integer64-double (statistics-switched s) nil))))
             (when (not (zerop verbose))
-              (c-printf *text-34* *text-79* (statistics-targets s)
-                        (relative (integer64-double (statistics-conflicts s) nil)
-                         (integer64-double (statistics-targets s) nil))))
-            (c-printf *text-80* *text-81* (statistics-vivified s)
-                      (relative (integer64-double (statistics-vivified s) nil)
-                       (integer64-double (statistics-vivifications s) nil)))
-            (c-printf *text-80* *text-82* (statistics-vivify-propagations s)
-                      (relative (integer64-double (statistics-vivify-propagations s) nil)
-                       (integer64-double (statistics-vivifications s) nil)))
-            (c-printf *text-83* *text-84* (statistics-probing-ticks s)
-                      (relative (integer64-double (statistics-probing-ticks s) nil)
-                       (integer64-double (statistics-vivify-propagations s) nil)))
-            (c-printf *text-80* *text-85* (statistics-vivify-subsume s)
-                      (relative (integer64-double (statistics-vivify-subsume s) nil)
-                       (integer64-double (statistics-vivifications s) nil)))
-            (c-printf *text-80* *text-86* (statistics-vivify-strengthened s)
-                      (relative (integer64-double (statistics-vivify-strengthened s) nil)
-                       (integer64-double (statistics-vivifications s) nil)))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %17.2f interval
+")
+               (c-string-literal "targets:") (statistics-targets s)
+               (relative (integer64-double (statistics-conflicts s) nil)
+                (integer64-double (statistics-targets s) nil))))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %14.0f per round
+")
+             (c-string-literal "vivified:") (statistics-vivified s)
+             (relative (integer64-double (statistics-vivified s) nil)
+              (integer64-double (statistics-vivifications s) nil)))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %14.0f per round
+")
+             (c-string-literal "     propagations:") (statistics-vivify-propagations s)
+             (relative (integer64-double (statistics-vivify-propagations s) nil)
+              (integer64-double (statistics-vivifications s) nil)))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %14.0f per propagation
+")
+             (c-string-literal "     ticks:") (statistics-probing-ticks s)
+             (relative (integer64-double (statistics-probing-ticks s) nil)
+              (integer64-double (statistics-vivify-propagations s) nil)))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %14.0f per round
+")
+             (c-string-literal "     subsume:") (statistics-vivify-subsume s)
+             (relative (integer64-double (statistics-vivify-subsume s) nil)
+              (integer64-double (statistics-vivifications s) nil)))
+            (c-printf
+             (c-string-literal "c %-24s %17lu %14.0f per round
+")
+             (c-string-literal "     strengthen:") (statistics-vivify-strengthened s)
+             (relative (integer64-double (statistics-vivify-strengthened s) nil)
+              (integer64-double (statistics-vivifications s) nil)))
             (when (not (zerop verbose))
-              (c-printf *text-87* *text-88* (statistics-vivify-reused s)
-                        (relative (integer64-double (statistics-vivify-reused s) nil)
-                         (integer64-double (statistics-vivified s) nil))))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %14.2f per vivification
+")
+               (c-string-literal "     reused:") (statistics-vivify-reused s)
+               (relative (integer64-double (statistics-vivify-reused s) nil)
+                (integer64-double (statistics-vivified s) nil))))
             (when (not (zerop verbose))
-              (c-printf *text-89* *text-90* (statistics-ticks s)
-                        (relative (integer64-double (statistics-ticks s) nil)
-                         (integer64-double (statistics-propagations s) nil)))))
+              (c-printf
+               (c-string-literal "c %-24s %17lu %17.2f per propagation
+")
+               (c-string-literal "ticks:") (statistics-ticks s)
+               (relative (integer64-double (statistics-ticks s) nil)
+                (integer64-double (statistics-propagations s) nil)))))
           0)
       (setf *stack-top* stack-mark))))
 ;;; vendor/satch/source/satch.c:1977:1
@@ -2186,7 +1838,7 @@ c
            (type c-address solver)
            (type double-float seconds)
            (ignorable solver seconds))
-  (internal-section solver *text-91*)
+  (internal-section solver (c-string-literal "resources"))
   (locally
    (declare (optimize (speed 1)))
    (let* ((memory (locally (declare (optimize (speed 1))) (maximum-resident-set-size))))
@@ -2194,9 +1846,15 @@ c
               (ignorable memory))
      (locally
       (declare (optimize (speed 1)))
-      (c-printf *text-92* *text-93* memory
-                (float (/ (integer64-double memory nil) (float (c-s32 (ash 1 20)) 1.0d0)) 1.0d0))
-      (c-printf *text-94* *text-95* *text-2* seconds))))
+      (c-printf
+       (c-string-literal "c %-24s %17lu bytes %11.2f MB
+")
+       (c-string-literal "memory:") memory
+       (float (/ (integer64-double memory nil) (float (c-s32 (ash 1 20)) 1.0d0)) 1.0d0))
+      (c-printf
+       (c-string-literal "c %-24s %17s %17.2f seconds
+")
+       (c-string-literal "time:") (c-string-literal "") seconds))))
   0)
 ;;; vendor/satch/source/satch.c:2002:1
 
@@ -2220,7 +1878,7 @@ c
            (type (signed-byte 32) elit)
            (ignorable solver elit))
   (if (not (zerop (options-ascii (solver-options solver))))
-      (c-fprintf (solver-proof solver) *text-96* elit)
+      (c-fprintf (solver-proof solver) (c-string-literal "%d ") elit)
       (let* ((plit
               (c-u32
                (+ (c-u32 (* 2 (c-u32 (c-abs elit))))
@@ -2257,7 +1915,10 @@ c
   (declare (type c-address solver)
            (ignorable solver))
   (if (not (zerop (options-ascii (solver-options solver))))
-      (c-fputs *text-97* (solver-proof solver))
+      (c-fputs
+       (c-string-literal "0
+")
+       (solver-proof solver))
       (c-fputc 0 (solver-proof solver)))
   (c-fflush (solver-proof solver))
   0)
@@ -2471,7 +2132,7 @@ c
         (setf (clauses-begin (solver-irredundant solver))
                 (c-realloc (clauses-begin (solver-irredundant solver)) new-bytes))
         (when (zerop (clauses-begin (solver-irredundant solver)))
-          (fatal-error *text-98* new-bytes))
+          (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes") new-bytes))
         (setf (clauses-end (solver-irredundant solver))
                 (+ (clauses-begin (solver-irredundant solver)) (* 8 old-size)))
         (setf (clauses-allocated (solver-irredundant solver))
@@ -2518,7 +2179,8 @@ c
                  (ignorable old-size old-capacity new-capacity new-bytes))
         (setf (clauses-begin (solver-redundant solver))
                 (c-realloc (clauses-begin (solver-redundant solver)) new-bytes))
-        (when (zerop (clauses-begin (solver-redundant solver))) (fatal-error *text-98* new-bytes))
+        (when (zerop (clauses-begin (solver-redundant solver)))
+          (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes") new-bytes))
         (setf (clauses-end (solver-redundant solver))
                 (+ (clauses-begin (solver-redundant solver)) (* 8 old-size)))
         (setf (clauses-allocated (solver-redundant solver))
@@ -2583,7 +2245,9 @@ c
                          (type c-size new-bytes)
                          (ignorable old-size old-capacity new-capacity new-bytes))
                 (setf (watches-begin watches) (c-realloc (watches-begin watches) new-bytes))
-                (when (zerop (watches-begin watches)) (fatal-error *text-98* new-bytes))
+                (when (zerop (watches-begin watches))
+                  (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                   new-bytes))
                 (setf (watches-end watches) (+ (watches-begin watches) (* 8 old-size)))
                 (setf (watches-allocated watches) (+ (watches-begin watches) (* 8 new-capacity)))))
             (copy-bytes
@@ -2609,7 +2273,9 @@ c
                          (type c-size new-bytes-2)
                          (ignorable old-size-2 old-capacity-2 new-capacity-2 new-bytes-2))
                 (setf (watches-begin watches) (c-realloc (watches-begin watches) new-bytes-2))
-                (when (zerop (watches-begin watches)) (fatal-error *text-98* new-bytes-2))
+                (when (zerop (watches-begin watches))
+                  (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                   new-bytes-2))
                 (setf (watches-end watches) (+ (watches-begin watches) (* 8 old-size-2)))
                 (setf (watches-allocated watches)
                         (+ (watches-begin watches) (* 8 new-capacity-2)))))
@@ -2986,7 +2652,8 @@ c
         (when (>= (m-u32 (+ solver 884)) 2)
           (locally
            (declare (optimize (speed 1) (safety 1)))
-           (message solver 2 *text-99* rescored *text-100* max-score)))
+           (message solver 2 (c-string-literal "rescore") rescored
+            (c-string-literal "rescoring heap with maximum score %g") max-score)))
         (let* ((idx-2 0))
           (declare (type (unsigned-byte 32) idx-2)
                    (ignorable idx-2))
@@ -3001,7 +2668,8 @@ c
         (when (>= (m-u32 (+ solver 884)) 3)
           (locally
            (declare (optimize (speed 1) (safety 1)))
-           (message solver 3 *text-99* rescored *text-101* (heap-increment scores))))))))
+           (message solver 3 (c-string-literal "rescore") rescored
+            (c-string-literal "new score increment %g") (heap-increment scores))))))))
   0)
 ;;; vendor/satch/source/satch.c:2881:1
 
@@ -3251,7 +2919,8 @@ c
               (setf (watches-begin (+ (solver-watches solver) (* 24 lit)))
                       (c-realloc (watches-begin (+ (solver-watches solver) (* 24 lit))) new-bytes))
               (when (zerop (watches-begin (+ (solver-watches solver) (* 24 lit))))
-                (fatal-error *text-98* new-bytes))
+                (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                 new-bytes))
               (setf (watches-end (+ (solver-watches solver) (* 24 lit)))
                       (+ (watches-begin (+ (solver-watches solver) (* 24 lit))) (* 8 old-size)))
               (setf (watches-allocated (+ (solver-watches solver) (* 24 lit)))
@@ -3364,7 +3033,8 @@ c
               (setf (watches-begin (+ (solver-watches solver) (* 24 lit)))
                       (c-realloc (watches-begin (+ (solver-watches solver) (* 24 lit))) new-bytes))
               (when (zerop (watches-begin (+ (solver-watches solver) (* 24 lit))))
-                (fatal-error *text-98* new-bytes))
+                (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                 new-bytes))
               (setf (watches-end (+ (solver-watches solver) (* 24 lit)))
                       (+ (watches-begin (+ (solver-watches solver) (* 24 lit))) (* 8 old-size)))
               (setf (watches-allocated (+ (solver-watches solver) (* 24 lit)))
@@ -3497,7 +3167,8 @@ c
                 (setf (flags-fixed f) 1)
                 (trace-and-check-unit-addition solver lit)
                 (when (not (zerop reason))
-                  (when (zerop (is-tagged-clause reason)) (mark-garbage solver reason *text-102*))
+                  (when (zerop (is-tagged-clause reason))
+                    (mark-garbage solver reason (c-string-literal "root-level forcing")))
                   (setf reason 0))))
             (let* ((not-lit (negate-literal lit)))
               (declare (type (unsigned-byte 32) not-lit)
@@ -3556,7 +3227,8 @@ c
                     (setf (control-begin (solver-control solver))
                             (c-realloc (control-begin (solver-control solver)) new-bytes))
                     (when (zerop (control-begin (solver-control solver)))
-                      (fatal-error *text-98* new-bytes))
+                      (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                       new-bytes))
                     (setf (control-end (solver-control solver))
                             (+ (control-begin (solver-control solver)) (* 24 old-size)))
                     (setf (control-allocated (solver-control solver))
@@ -3626,7 +3298,8 @@ c
                                (c-realloc (unsigned-stack-begin (+ (solver-put solver) (* 24 0)))
                                           new-bytes))
                        (when (zerop (unsigned-stack-begin (+ (solver-put solver) (* 24 0))))
-                         (fatal-error *text-98* new-bytes))
+                         (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                          new-bytes))
                        (setf (unsigned-stack-end (+ (solver-put solver) (* 24 0)))
                                (+ (unsigned-stack-begin (+ (solver-put solver) (* 24 0)))
                                   (* 4 old-size)))
@@ -3668,7 +3341,8 @@ c
                                (c-realloc (unsigned-stack-begin (+ (solver-put solver) (* 24 1)))
                                           new-bytes-2))
                        (when (zerop (unsigned-stack-begin (+ (solver-put solver) (* 24 1))))
-                         (fatal-error *text-98* new-bytes-2))
+                         (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                          new-bytes-2))
                        (setf (unsigned-stack-end (+ (solver-put solver) (* 24 1)))
                                (+ (unsigned-stack-begin (+ (solver-put solver) (* 24 1)))
                                   (* 4 old-size-2)))
@@ -3707,7 +3381,8 @@ c
       (when (>= (m-u32 (+ solver 884)) 2)
         (locally
          (declare (optimize (speed 1) (safety 1)))
-         (message solver 2 *text-103* restamped *text-104*)))
+         (message solver 2 (c-string-literal "restamp") restamped
+          (c-string-literal "restamping indices in decision queue"))))
       (let* ((links (queue-links queue)) (link 0) (stamp 0))
         (declare (type c-address links)
                  (type c-address link)
@@ -4529,7 +4204,8 @@ c
       (when (>= (m-u32 (+ solver 884)) 3)
         (locally
          (declare (optimize (speed 1) (safety 1)))
-         (message solver 3 *text-105* targets *text-106* assigned
+         (message solver 3 (c-string-literal "target") targets
+          (c-string-literal "targeting %u assigned variables %.0f%% after %lu conflicts") assigned
           (percent (float assigned 1.0d0) (float (solver-size solver) 1.0d0))
           (statistics-conflicts (solver-statistics solver))))))))
   0)
@@ -4557,7 +4233,8 @@ c
       (when (>= (m-u32 (+ solver 884)) 3)
         (locally
          (declare (optimize (speed 1) (safety 1)))
-         (message solver 3 *text-107* bests *text-108* assigned
+         (message solver 3 (c-string-literal "best") bests
+          (c-string-literal "best trail %u assigned variables %.0f%% after %lu conflicts") assigned
           (percent (float assigned 1.0d0) (float (solver-size solver) 1.0d0))
           (statistics-conflicts (solver-statistics solver))))))))
   0)
@@ -4762,11 +4439,11 @@ c
     (when (not (zerop (averages-fast-exp a)))
       (let ((address-1 a))
         (setf (averages-fast-exp address-1)
-                (float (float (* (averages-fast-exp address-1) *fast-beta*) 1.0d0) 1.0d0))))
+                (float (float (* (averages-fast-exp address-1) +fast-beta+) 1.0d0) 1.0d0))))
     (when (not (zerop (averages-slow-exp a)))
       (let ((address-2 a))
         (setf (averages-slow-exp address-2)
-                (float (float (* (averages-slow-exp address-2) *slow-beta*) 1.0d0) 1.0d0)))))
+                (float (float (* (averages-slow-exp address-2) +slow-beta+) 1.0d0) 1.0d0)))))
   0)
 ;;; vendor/satch/source/satch.c:5069:1
 
@@ -5015,7 +4692,7 @@ c
       (setf (unsigned-stack-begin (solver-removable solver))
               (c-realloc (unsigned-stack-begin (solver-removable solver)) new-bytes))
       (when (zerop (unsigned-stack-begin (solver-removable solver)))
-        (fatal-error *text-98* new-bytes))
+        (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes") new-bytes))
       (setf (unsigned-stack-end (solver-removable solver))
               (+ (unsigned-stack-begin (solver-removable solver)) (* 4 old-size)))
       (setf (unsigned-stack-allocated (solver-removable solver))
@@ -5063,7 +4740,7 @@ c
       (setf (unsigned-stack-begin (solver-poisoned solver))
               (c-realloc (unsigned-stack-begin (solver-poisoned solver)) new-bytes))
       (when (zerop (unsigned-stack-begin (solver-poisoned solver)))
-        (fatal-error *text-98* new-bytes))
+        (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes") new-bytes))
       (setf (unsigned-stack-end (solver-poisoned solver))
               (+ (unsigned-stack-begin (solver-poisoned solver)) (* 4 old-size)))
       (setf (unsigned-stack-allocated (solver-poisoned solver))
@@ -5216,7 +4893,8 @@ c
               (setf (analyzed-stack-begin (solver-analyzed solver))
                       (c-realloc (analyzed-stack-begin (solver-analyzed solver)) new-bytes))
               (when (zerop (analyzed-stack-begin (solver-analyzed solver)))
-                (fatal-error *text-98* new-bytes))
+                (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                 new-bytes))
               (setf (analyzed-stack-end (solver-analyzed solver))
                       (+ (analyzed-stack-begin (solver-analyzed solver)) (* 8 old-size)))
               (setf (analyzed-stack-allocated (solver-analyzed solver))
@@ -5280,7 +4958,7 @@ c
       (setf (unsigned-stack-begin (solver-shrunken solver))
               (c-realloc (unsigned-stack-begin (solver-shrunken solver)) new-bytes))
       (when (zerop (unsigned-stack-begin (solver-shrunken solver)))
-        (fatal-error *text-98* new-bytes))
+        (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes") new-bytes))
       (setf (unsigned-stack-end (solver-shrunken solver))
               (+ (unsigned-stack-begin (solver-shrunken solver)) (* 4 old-size)))
       (setf (unsigned-stack-allocated (solver-shrunken solver))
@@ -6129,7 +5807,8 @@ c
                 (setf (unsigned-stack-begin (solver-clause solver))
                         (c-realloc (unsigned-stack-begin (solver-clause solver)) new-bytes))
                 (when (zerop (unsigned-stack-begin (solver-clause solver)))
-                  (fatal-error *text-98* new-bytes))
+                  (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                   new-bytes))
                 (setf (unsigned-stack-end (solver-clause solver))
                         (+ (unsigned-stack-begin (solver-clause solver)) (* 4 old-size)))
                 (setf (unsigned-stack-allocated (solver-clause solver))
@@ -6256,7 +5935,10 @@ c
                                                       (zerop
                                                        (unsigned-stack-begin
                                                         (solver-blocks solver)))
-                                                    (fatal-error *text-98* new-bytes-2))
+                                                    (fatal-error
+                                                     (c-string-literal
+                                                      "out-of-memory reallocating '%zu' bytes")
+                                                     new-bytes-2))
                                                   (setf (unsigned-stack-end (solver-blocks solver))
                                                           (+
                                                            (unsigned-stack-begin
@@ -6318,7 +6000,10 @@ c
                                                 (when
                                                     (zerop
                                                      (unsigned-stack-begin (solver-clause solver)))
-                                                  (fatal-error *text-98* new-bytes-3))
+                                                  (fatal-error
+                                                   (c-string-literal
+                                                    "out-of-memory reallocating '%zu' bytes")
+                                                   new-bytes-3))
                                                 (setf (unsigned-stack-end (solver-clause solver))
                                                         (+
                                                          (unsigned-stack-begin
@@ -7060,7 +6745,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-12 1)))
                              previous-value-12))))
                       end-line)
-              (c-sprintf buffer *text-109* seconds)
+              (c-sprintf buffer (c-string-literal "%.2f") seconds)
               (setf p buffer)
              loop-start-13
               (unless (c-true (m-s8 p)) (go loop-end-14))
@@ -7088,7 +6773,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-23 1)))
                              previous-value-23))))
                       end-line)
-              (c-sprintf buffer-2 *text-110* mb)
+              (c-sprintf buffer-2 (c-string-literal "%.0f") mb)
               (setf p-2 buffer-2)
              loop-start-24
               (unless (c-true (m-s8 p-2)) (go loop-end-25))
@@ -7116,7 +6801,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-34 1)))
                              previous-value-34))))
                       end-line)
-              (c-sprintf buffer-3 *text-110* level)
+              (c-sprintf buffer-3 (c-string-literal "%.0f") level)
               (setf p-3 buffer-3)
              loop-start-35
               (unless (c-true (m-s8 p-3)) (go loop-end-36))
@@ -7144,7 +6829,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-45 1)))
                              previous-value-45))))
                       end-line)
-              (c-sprintf buffer-4 *text-111* switched)
+              (c-sprintf buffer-4 (c-string-literal "%lu") switched)
               (setf p-4 buffer-4)
              loop-start-46
               (unless (c-true (m-s8 p-4)) (go loop-end-47))
@@ -7172,7 +6857,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-56 1)))
                              previous-value-56))))
                       end-line)
-              (c-sprintf buffer-5 *text-111* reductions)
+              (c-sprintf buffer-5 (c-string-literal "%lu") reductions)
               (setf p-5 buffer-5)
              loop-start-57
               (unless (c-true (m-s8 p-5)) (go loop-end-58))
@@ -7200,7 +6885,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-67 1)))
                              previous-value-67))))
                       end-line)
-              (c-sprintf buffer-6 *text-111* restarts)
+              (c-sprintf buffer-6 (c-string-literal "%lu") restarts)
               (setf p-6 buffer-6)
              loop-start-68
               (unless (c-true (m-s8 p-6)) (go loop-end-69))
@@ -7228,7 +6913,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-78 1)))
                              previous-value-78))))
                       end-line)
-              (c-sprintf buffer-7 *text-110* rate)
+              (c-sprintf buffer-7 (c-string-literal "%.0f") rate)
               (setf p-7 buffer-7)
              loop-start-79
               (unless (c-true (m-s8 p-7)) (go loop-end-80))
@@ -7256,7 +6941,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-89 1)))
                              previous-value-89))))
                       end-line)
-              (c-sprintf buffer-8 *text-111* conflicts)
+              (c-sprintf buffer-8 (c-string-literal "%lu") conflicts)
               (setf p-8 buffer-8)
              loop-start-90
               (unless (c-true (m-s8 p-8)) (go loop-end-91))
@@ -7284,7 +6969,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-100 1)))
                              previous-value-100))))
                       end-line)
-              (c-sprintf buffer-9 *text-111* redundant)
+              (c-sprintf buffer-9 (c-string-literal "%lu") redundant)
               (setf p-9 buffer-9)
              loop-start-101
               (unless (c-true (m-s8 p-9)) (go loop-end-102))
@@ -7312,7 +6997,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-111 1)))
                              previous-value-111))))
                       end-line)
-              (c-sprintf buffer-10 *text-112* trail)
+              (c-sprintf buffer-10 (c-string-literal "%.0f%%") trail)
               (setf p-10 buffer-10)
              loop-start-112
               (unless (c-true (m-s8 p-10)) (go loop-end-113))
@@ -7340,7 +7025,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-122 1)))
                              previous-value-122))))
                       end-line)
-              (c-sprintf buffer-11 *text-110* glue)
+              (c-sprintf buffer-11 (c-string-literal "%.0f") glue)
               (setf p-11 buffer-11)
              loop-start-123
               (unless (c-true (m-s8 p-11)) (go loop-end-124))
@@ -7368,7 +7053,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-133 1)))
                              previous-value-133))))
                       end-line)
-              (c-sprintf buffer-12 *text-111* irredundant)
+              (c-sprintf buffer-12 (c-string-literal "%lu") irredundant)
               (setf p-12 buffer-12)
              loop-start-134
               (unless (c-true (m-s8 p-12)) (go loop-end-135))
@@ -7396,7 +7081,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-144 1)))
                              previous-value-144))))
                       end-line)
-              (c-sprintf buffer-13 *text-111* variables)
+              (c-sprintf buffer-13 (c-string-literal "%lu") variables)
               (setf p-13 buffer-13)
              loop-start-145
               (unless (c-true (m-s8 p-13)) (go loop-end-146))
@@ -7424,7 +7109,7 @@ c
                              (setf num-reported (c-s32 (+ previous-value-155 1)))
                              previous-value-155))))
                       end-line)
-              (c-sprintf buffer-14 *text-112* remaining)
+              (c-sprintf buffer-14 (c-string-literal "%.0f%%") remaining)
               (setf p-14 buffer-14)
              loop-start-156
               (unless (c-true (m-s8 p-14)) (go loop-end-157))
@@ -7486,7 +7171,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width (c-s32 (- (c-s32 (- end start)) 1)))
-              (setf name-width (c-s32 (c-strlen *text-113*)))
+              (setf name-width (c-s32 (c-strlen (c-string-literal "seconds"))))
               (unless
                   (c-true
                    (if (> name-width value-width)
@@ -7520,7 +7205,7 @@ c
                       32)
               (go loop-start-176)
              loop-end-177
-              (setf p-15 *text-113*)
+              (setf p-15 (c-string-literal "seconds"))
              loop-start-181
               (unless (c-true (m-s8 p-15)) (go loop-end-182))
               (setf (m-s8
@@ -7555,7 +7240,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-2 (c-s32 (- (c-s32 (- end-2 start-2)) 1)))
-              (setf name-width-2 (c-s32 (c-strlen *text-114*)))
+              (setf name-width-2 (c-s32 (c-strlen (c-string-literal "MB"))))
               (unless
                   (c-true
                    (if (> name-width-2 value-width-2)
@@ -7591,7 +7276,7 @@ c
                       32)
               (go loop-start-194)
              loop-end-195
-              (setf p-16 *text-114*)
+              (setf p-16 (c-string-literal "MB"))
              loop-start-199
               (unless (c-true (m-s8 p-16)) (go loop-end-200))
               (setf (m-s8
@@ -7626,7 +7311,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-3 (c-s32 (- (c-s32 (- end-3 start-3)) 1)))
-              (setf name-width-3 (c-s32 (c-strlen *text-115*)))
+              (setf name-width-3 (c-s32 (c-strlen (c-string-literal "level"))))
               (unless
                   (c-true
                    (if (> name-width-3 value-width-3)
@@ -7662,7 +7347,7 @@ c
                       32)
               (go loop-start-212)
              loop-end-213
-              (setf p-17 *text-115*)
+              (setf p-17 (c-string-literal "level"))
              loop-start-217
               (unless (c-true (m-s8 p-17)) (go loop-end-218))
               (setf (m-s8
@@ -7697,7 +7382,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-4 (c-s32 (- (c-s32 (- end-4 start-4)) 1)))
-              (setf name-width-4 (c-s32 (c-strlen *text-116*)))
+              (setf name-width-4 (c-s32 (c-strlen (c-string-literal "switched"))))
               (unless
                   (c-true
                    (if (> name-width-4 value-width-4)
@@ -7733,7 +7418,7 @@ c
                       32)
               (go loop-start-230)
              loop-end-231
-              (setf p-18 *text-116*)
+              (setf p-18 (c-string-literal "switched"))
              loop-start-235
               (unless (c-true (m-s8 p-18)) (go loop-end-236))
               (setf (m-s8
@@ -7768,7 +7453,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-5 (c-s32 (- (c-s32 (- end-5 start-5)) 1)))
-              (setf name-width-5 (c-s32 (c-strlen *text-117*)))
+              (setf name-width-5 (c-s32 (c-strlen (c-string-literal "reductions"))))
               (unless
                   (c-true
                    (if (> name-width-5 value-width-5)
@@ -7804,7 +7489,7 @@ c
                       32)
               (go loop-start-248)
              loop-end-249
-              (setf p-19 *text-117*)
+              (setf p-19 (c-string-literal "reductions"))
              loop-start-253
               (unless (c-true (m-s8 p-19)) (go loop-end-254))
               (setf (m-s8
@@ -7839,7 +7524,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-6 (c-s32 (- (c-s32 (- end-6 start-6)) 1)))
-              (setf name-width-6 (c-s32 (c-strlen *text-118*)))
+              (setf name-width-6 (c-s32 (c-strlen (c-string-literal "restarts"))))
               (unless
                   (c-true
                    (if (> name-width-6 value-width-6)
@@ -7875,7 +7560,7 @@ c
                       32)
               (go loop-start-266)
              loop-end-267
-              (setf p-20 *text-118*)
+              (setf p-20 (c-string-literal "restarts"))
              loop-start-271
               (unless (c-true (m-s8 p-20)) (go loop-end-272))
               (setf (m-s8
@@ -7910,7 +7595,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-7 (c-s32 (- (c-s32 (- end-7 start-7)) 1)))
-              (setf name-width-7 (c-s32 (c-strlen *text-119*)))
+              (setf name-width-7 (c-s32 (c-strlen (c-string-literal "rate"))))
               (unless
                   (c-true
                    (if (> name-width-7 value-width-7)
@@ -7946,7 +7631,7 @@ c
                       32)
               (go loop-start-284)
              loop-end-285
-              (setf p-21 *text-119*)
+              (setf p-21 (c-string-literal "rate"))
              loop-start-289
               (unless (c-true (m-s8 p-21)) (go loop-end-290))
               (setf (m-s8
@@ -7981,7 +7666,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-8 (c-s32 (- (c-s32 (- end-8 start-8)) 1)))
-              (setf name-width-8 (c-s32 (c-strlen *text-120*)))
+              (setf name-width-8 (c-s32 (c-strlen (c-string-literal "conflicts"))))
               (unless
                   (c-true
                    (if (> name-width-8 value-width-8)
@@ -8017,7 +7702,7 @@ c
                       32)
               (go loop-start-302)
              loop-end-303
-              (setf p-22 *text-120*)
+              (setf p-22 (c-string-literal "conflicts"))
              loop-start-307
               (unless (c-true (m-s8 p-22)) (go loop-end-308))
               (setf (m-s8
@@ -8052,7 +7737,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-9 (c-s32 (- (c-s32 (- end-9 start-9)) 1)))
-              (setf name-width-9 (c-s32 (c-strlen *text-121*)))
+              (setf name-width-9 (c-s32 (c-strlen (c-string-literal "redundant"))))
               (unless
                   (c-true
                    (if (> name-width-9 value-width-9)
@@ -8088,7 +7773,7 @@ c
                       32)
               (go loop-start-320)
              loop-end-321
-              (setf p-23 *text-121*)
+              (setf p-23 (c-string-literal "redundant"))
              loop-start-325
               (unless (c-true (m-s8 p-23)) (go loop-end-326))
               (setf (m-s8
@@ -8123,7 +7808,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-10 (c-s32 (- (c-s32 (- end-10 start-10)) 1)))
-              (setf name-width-10 (c-s32 (c-strlen *text-122*)))
+              (setf name-width-10 (c-s32 (c-strlen (c-string-literal "trail"))))
               (unless
                   (c-true
                    (if (> name-width-10 value-width-10)
@@ -8159,7 +7844,7 @@ c
                       32)
               (go loop-start-338)
              loop-end-339
-              (setf p-24 *text-122*)
+              (setf p-24 (c-string-literal "trail"))
              loop-start-343
               (unless (c-true (m-s8 p-24)) (go loop-end-344))
               (setf (m-s8
@@ -8194,7 +7879,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-11 (c-s32 (- (c-s32 (- end-11 start-11)) 1)))
-              (setf name-width-11 (c-s32 (c-strlen *text-123*)))
+              (setf name-width-11 (c-s32 (c-strlen (c-string-literal "glue"))))
               (unless
                   (c-true
                    (if (> name-width-11 value-width-11)
@@ -8230,7 +7915,7 @@ c
                       32)
               (go loop-start-356)
              loop-end-357
-              (setf p-25 *text-123*)
+              (setf p-25 (c-string-literal "glue"))
              loop-start-361
               (unless (c-true (m-s8 p-25)) (go loop-end-362))
               (setf (m-s8
@@ -8265,7 +7950,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-12 (c-s32 (- (c-s32 (- end-12 start-12)) 1)))
-              (setf name-width-12 (c-s32 (c-strlen *text-124*)))
+              (setf name-width-12 (c-s32 (c-strlen (c-string-literal "irredundant"))))
               (unless
                   (c-true
                    (if (> name-width-12 value-width-12)
@@ -8301,7 +7986,7 @@ c
                       32)
               (go loop-start-374)
              loop-end-375
-              (setf p-26 *text-124*)
+              (setf p-26 (c-string-literal "irredundant"))
              loop-start-379
               (unless (c-true (m-s8 p-26)) (go loop-end-380))
               (setf (m-s8
@@ -8336,7 +8021,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-13 (c-s32 (- (c-s32 (- end-13 start-13)) 1)))
-              (setf name-width-13 (c-s32 (c-strlen *text-125*)))
+              (setf name-width-13 (c-s32 (c-strlen (c-string-literal "variables"))))
               (unless
                   (c-true
                    (if (> name-width-13 value-width-13)
@@ -8372,7 +8057,7 @@ c
                       32)
               (go loop-start-392)
              loop-end-393
-              (setf p-27 *text-125*)
+              (setf p-27 (c-string-literal "variables"))
              loop-start-397
               (unless (c-true (m-s8 p-27)) (go loop-end-398))
               (setf (m-s8
@@ -8407,7 +8092,7 @@ c
                           end-line
                           (m-s32 (+ column (* 4 reported)))))
               (setf value-width-14 (c-s32 (- (c-s32 (- end-14 start-14)) 1)))
-              (setf name-width-14 (c-s32 (c-strlen *text-126*)))
+              (setf name-width-14 (c-s32 (c-strlen (c-string-literal "remaining"))))
               (unless
                   (c-true
                    (if (> name-width-14 value-width-14)
@@ -8443,7 +8128,7 @@ c
                       32)
               (go loop-start-410)
              loop-end-411
-              (setf p-28 *text-126*)
+              (setf p-28 (c-string-literal "remaining"))
              loop-start-415
               (unless (c-true (m-s8 p-28)) (go loop-end-416))
               (setf (m-s8
@@ -8458,7 +8143,10 @@ c
                 previous-value-421)
               (go loop-start-415)
              loop-end-416
-              (c-fputs *text-8* 1)
+              (c-fputs
+               (c-string-literal "c
+")
+               1)
               (setf i-2 0)
              loop-start-422
               (unless
@@ -8469,7 +8157,7 @@ c
                 (go loop-end-423))
               (c-fputc 99 1)
               (unless (c-true colors) (go else-428))
-              (c-fputs *text-127* terminal-file)
+              (c-fputs (c-string-literal "[33m") terminal-file)
               (go end-if-429)
              else-428
              end-if-429
@@ -8488,7 +8176,7 @@ c
               (go loop-start-430)
              loop-end-431
               (unless (c-true colors) (go else-438))
-              (c-fputs *text-4* terminal-file)
+              (c-fputs (c-string-literal "[0m") terminal-file)
               (go end-if-439)
              else-438
              end-if-439
@@ -8498,11 +8186,14 @@ c
                 previous-value-441)
               (go loop-start-422)
              loop-end-423
-              (c-fputs *text-8* 1)
+              (c-fputs
+               (c-string-literal "c
+")
+               1)
               (go end-if-164)
              else-163
              end-if-164
-              (c-fputs *text-6* 1)
+              (c-fputs (c-string-literal "c ") 1)
               (setf reset 0)
               (unless (c-true colors) (go else-442))
               (setf magenta 0)
@@ -8520,25 +8211,25 @@ c
              case-447
              case-448
              case-449
-              (c-fputs *text-1* 1)
+              (c-fputs (c-string-literal "[1m") 1)
               (setf reset 1)
               (go switch-end-444)
              case-450
-              (c-fputs *text-128* 1)
+              (c-fputs (c-string-literal "[32m") 1)
               (setf reset 1)
               (go switch-end-444)
              case-451
-              (c-fputs *text-129* 1)
+              (c-fputs (c-string-literal "[1;32m") 1)
               (setf reset 1)
               (go switch-end-444)
              case-452
              case-453
-              (c-fputs *text-130* 1)
+              (c-fputs (c-string-literal "[35m") 1)
               (setf magenta 1)
              switch-end-444
               (c-fputc (m-s8 (+ line 2)) 1)
               (unless (c-true reset) (go else-454))
-              (c-fputs *text-4* 1)
+              (c-fputs (c-string-literal "[0m") 1)
               (go end-if-455)
              else-454
              end-if-455
@@ -8547,7 +8238,7 @@ c
               (go end-if-457)
              else-456
               (unless (c-true (solver-stable solver)) (go else-458))
-              (c-fputs *text-130* 1)
+              (c-fputs (c-string-literal "[35m") 1)
               (setf reset 1)
               (go end-if-459)
              else-458
@@ -8572,7 +8263,7 @@ c
               (go loop-start-460)
              loop-end-461
               (unless (c-true reset) (go else-465))
-              (c-fputs *text-4* 1)
+              (c-fputs (c-string-literal "[0m") 1)
               (go end-if-466)
              else-465
              end-if-466
@@ -8706,9 +8397,10 @@ c
       (when (>= (m-u32 (+ solver 884)) 4)
         (locally
          (declare (optimize (speed 1) (safety 1)))
-         (message solver 4 *text-131* (statistics-restarts (solver-statistics solver)) *text-132*
-          res (solver-level solver)
-          (percent (float res 1.0d0) (float (solver-level solver) 1.0d0)))))
+         (message solver 4 (c-string-literal "restart")
+          (statistics-restarts (solver-statistics solver))
+          (c-string-literal "reusing trail up-to level %u out of %u levels %.0f%%") res
+          (solver-level solver) (percent (float res 1.0d0) (float (solver-level solver) 1.0d0)))))
       (u64-incf (statistics-reused (solver-statistics solver))))
     res))
 ;;; vendor/satch/source/satch.c:7176:1
@@ -8755,7 +8447,8 @@ c
       (when (>= (m-u32 (+ solver 884)) 4)
         (locally
          (declare (optimize (speed 1) (safety 1)))
-         (message solver 4 *text-131* restarts *text-133*
+         (message solver 4 (c-string-literal "restart") restarts
+          (c-string-literal "restarting after %lu conflicts (limit %lu)")
           (statistics-conflicts (solver-statistics solver))
           (limits-restart (solver-limits solver)))))
       (report solver 3 114)
@@ -8794,10 +8487,11 @@ c
           (when (>= (m-u32 (+ solver 884)) 4)
             (locally
              (declare (optimize (speed 1) (safety 1)))
-             (message solver 4 *text-131* restarts *text-134*
+             (message solver 4 (c-string-literal "restart") restarts
+              (c-string-literal "new %s restart limit %lu after %lu conflicts")
               (if (not (zerop (solver-stable solver)))
-                  *text-21*
-                  *text-16*)
+                  (c-string-literal "stable")
+                  (c-string-literal "focused"))
               (limits-restart (solver-limits solver)) interval)))))))))
   0)
 ;;; vendor/satch/source/satch.c:7295:1
@@ -8926,7 +8620,8 @@ c
                 (when (>= (m-u32 (+ solver 884)) 4)
                   (locally
                    (declare (optimize (speed 1) (safety 1)))
-                   (message solver 4 *text-135* rephased *text-136*
+                   (message solver 4 (c-string-literal "rephase") rephased
+                    (c-string-literal "new rephase limit %lu conflicts after %lu")
                     (limits-rephase (solver-limits solver)) interval)))
                 (when (not (zerop (solver-stable solver)))
                   (c-memcpy (solver-targets solver) (solver-saved solver) (solver-size solver))
@@ -9047,7 +8742,8 @@ c
                      (setf (unsigned-stack-begin (solver-clause solver))
                              (c-realloc (unsigned-stack-begin (solver-clause solver)) new-bytes))
                      (when (zerop (unsigned-stack-begin (solver-clause solver)))
-                       (fatal-error *text-98* new-bytes))
+                       (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                        new-bytes))
                      (setf (unsigned-stack-end (solver-clause solver))
                              (+ (unsigned-stack-begin (solver-clause solver)) (* 4 old-size)))
                      (setf (unsigned-stack-allocated (solver-clause solver))
@@ -9120,7 +8816,7 @@ c
            (ignorable solver c))
   (when (not (zerop (clause-garbage c))) (return-from mark-garbage-if-satisfied 1))
   (when (zerop (clause-satisfied solver c)) (return-from mark-garbage-if-satisfied 0))
-  (mark-garbage solver c *text-137*)
+  (mark-garbage solver c (c-string-literal "root-level satisfied"))
   1)
 ;;; vendor/satch/source/satch.c:7581:1
 
@@ -9190,7 +8886,9 @@ c
                             (ignorable old-size old-capacity new-capacity new-bytes))
                    (setf (clauses-begin candidates)
                            (c-realloc (clauses-begin candidates) new-bytes))
-                   (when (zerop (clauses-begin candidates)) (fatal-error *text-98* new-bytes))
+                   (when (zerop (clauses-begin candidates))
+                     (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                      new-bytes))
                    (setf (clauses-end candidates) (+ (clauses-begin candidates) (* 8 old-size)))
                    (setf (clauses-allocated candidates)
                            (+ (clauses-begin candidates) (* 8 new-capacity)))))
@@ -9214,8 +8912,9 @@ c
       (when (>= (m-u32 (+ solver 884)) 2)
         (locally
          (declare (optimize (speed 1) (safety 1)))
-         (message solver 2 *text-19* (statistics-reductions (solver-statistics solver)) *text-138*
-          size-candidates
+         (message solver 2 (c-string-literal "reduce")
+          (statistics-reductions (solver-statistics solver))
+          (c-string-literal "gathered %zu reduce candidate clauses %.0f%%") size-candidates
           (percent (integer64-double size-candidates nil) (integer64-double redundant nil))))))
     0))
 ;;; vendor/satch/source/satch.c:7661:1
@@ -9568,8 +9267,10 @@ c
       (when (>= (m-u32 (+ solver 884)) 4)
         (locally
          (declare (optimize (speed 1) (safety 1)))
-         (message solver 4 *text-19* (statistics-reductions (solver-statistics solver)) *text-139*
-          reduce size (percent (integer64-double reduce nil) (integer64-double size nil)))))
+         (message solver 4 (c-string-literal "reduce")
+          (statistics-reductions (solver-statistics solver))
+          (c-string-literal "target is to reduce %zu out of %zu clauses %.0f%%") reduce size
+          (percent (integer64-double reduce nil) (integer64-double size nil)))))
       (let* ((keep-fraction (float (- 1.0d0 0.75d0) 1.0d0))
              (keep
               (values
@@ -9591,14 +9292,15 @@ c
                             (clauses-end address-3)))))
                    (declare (type c-address c)
                             (ignorable c))
-                   (mark-garbage solver c *text-140*)
+                   (mark-garbage solver c (c-string-literal "reducing"))
                    (u64-incf reduced)))
         (u64-incf (statistics-reduced (solver-statistics solver)) reduced)
         (when (>= (m-u32 (+ solver 884)) 3)
           (locally
            (declare (optimize (speed 1) (safety 1)))
-           (message solver 3 *text-19* (statistics-reductions (solver-statistics solver))
-            *text-141* reduced size
+           (message solver 3 (c-string-literal "reduce")
+            (statistics-reductions (solver-statistics solver))
+            (c-string-literal "reducing %zu out of %zu clauses %.0f%%") reduced size
             (percent (integer64-double reduced nil) (integer64-double size nil))))))))
   0)
 ;;; vendor/satch/source/satch.c:7939:1
@@ -9654,7 +9356,9 @@ c
               (when (>= (m-u32 (+ solver 884)) 2)
                 (locally
                  (declare (optimize (speed 1) (safety 1)))
-                 (message solver 2 *text-19* reductions *text-142* (m-size count) (m-size bytes)
+                 (message solver 2 (c-string-literal "reduce") reductions
+                  (c-string-literal "collected %zu clauses (%zu bytes, %.0f MB)") (m-size count)
+                  (m-size bytes)
                   (float (/ (integer64-double (m-size bytes) nil) (float (c-u32 (ash 1 20)) 1.0d0))
                          1.0d0))))
               (u64-incf (statistics-collected (solver-statistics solver)) (m-size bytes))
@@ -9679,7 +9383,8 @@ c
                   (when (>= (m-u32 (+ solver 884)) 4)
                     (locally
                      (declare (optimize (speed 1) (safety 1)))
-                     (message solver 4 *text-19* reductions *text-143*
+                     (message solver 4 (c-string-literal "reduce") reductions
+                      (c-string-literal "next limit at %lu after %lu conflicts")
                       (limits-reduce-conflicts (limits-reduce (solver-limits solver)))
                       interval))))))
               (report solver 1 45)
@@ -9761,10 +9466,11 @@ c
       (when (>= (m-u32 (+ solver 884)) 3)
         (locally
          (declare (optimize (speed 1) (safety 1)))
-         (message solver 3 *text-144* switched *text-145*
+         (message solver 3 (c-string-literal "switch") switched
+          (c-string-literal "new %s mode limit of %lu ticks after %lu ticks")
           (if (not (zerop (solver-stable solver)))
-              *text-16*
-              *text-21*)
+              (c-string-literal "focused")
+              (c-string-literal "stable"))
           (limits-mode-ticks-limit (limits-mode-ticks (limits-mode limits))) scaled))))))
   0)
 ;;; vendor/satch/source/satch.c:8115:1
@@ -9776,7 +9482,8 @@ c
   (when (>= (m-u32 (+ solver 884)) 2)
     (locally
      (declare (optimize (speed 1) (safety 1)))
-     (message solver 2 *text-144* switched *text-146*
+     (message solver 2 (c-string-literal "switch") switched
+      (c-string-literal "limit of %lu ticks hit at %lu ticks")
       (limits-mode-ticks-limit (limits-mode-ticks (limits-mode (solver-limits solver))))
       (statistics-ticks (solver-statistics solver)))))
   0)
@@ -9803,7 +9510,8 @@ c
       (when (>= (m-u32 (+ solver 884)) 2)
         (locally
          (declare (optimize (speed 1) (safety 1)))
-         (message solver 2 *text-144* switched *text-147*
+         (message solver 2 (c-string-literal "switch") switched
+          (c-string-literal "limit of %lu conflicts hit at %lu conflicts and %lu ticks")
           (limits-mode-conflicts (limits-mode limits))
           (statistics-conflicts (solver-statistics solver))
           (statistics-ticks (solver-statistics solver)))))
@@ -10036,7 +9744,8 @@ c
                                                                                                  (solver-binaries
                                                                                                   solver)))
                                                                                              (fatal-error
-                                                                                              *text-98*
+                                                                                              (c-string-literal
+                                                                                               "out-of-memory reallocating '%zu' bytes")
                                                                                               new-bytes))
                                                                                            (setf (unsigned-stack-end
                                                                                                   (solver-binaries
@@ -10150,7 +9859,8 @@ c
                                                                                                  (solver-binaries
                                                                                                   solver)))
                                                                                              (fatal-error
-                                                                                              *text-98*
+                                                                                              (c-string-literal
+                                                                                               "out-of-memory reallocating '%zu' bytes")
                                                                                               new-bytes-2))
                                                                                            (setf (unsigned-stack-end
                                                                                                   (solver-binaries
@@ -10552,9 +10262,11 @@ c
     (loop while (and (/= ptr-c end-c) (not (zerop (progn (setf c (m-ptr ptr-c)) 1))))
           do (when (zerop (clause-garbage c))
                (if (not (zerop (clause-eliminated solver c)))
-                   (mark-garbage solver c *text-148*)
+                   (mark-garbage solver c (c-string-literal "eliminated"))
                    (when (not (zerop (clause-satisfied solver c)))
-                     (mark-garbage solver c *text-137*)))) (incf ptr-c 8))
+                     (mark-garbage solver c (c-string-literal "root-level satisfied"))))) (incf
+                                                                                           ptr-c
+                                                                                           8))
     0))
 ;;; vendor/satch/source/satch.c:8529:1
 
@@ -10579,8 +10291,10 @@ c
           (when (>= (m-u32 (+ solver 884)) 2)
             (locally
              (declare (optimize (speed 1) (safety 1)))
-             (message solver 2 *text-149* (statistics-eliminations (solver-statistics solver))
-              *text-142* (m-size count) (m-size bytes)
+             (message solver 2 (c-string-literal "elimination")
+              (statistics-eliminations (solver-statistics solver))
+              (c-string-literal "collected %zu clauses (%zu bytes, %.0f MB)") (m-size count)
+              (m-size bytes)
               (float (/ (integer64-double (m-size bytes) nil) (float (c-u32 (ash 1 20)) 1.0d0))
                      1.0d0))))
           (u64-incf (statistics-collected (solver-statistics solver)) (m-size bytes))
@@ -10705,7 +10419,8 @@ c
                                                     (u32-incf found)))) (incf p-other 4)))
                                    (when (> clashed 1) (return-from next-iteration-4 nil))
                                    (when (not (zerop satisfied))
-                                     (mark-garbage solver c *text-137*)
+                                     (mark-garbage solver c
+                                      (c-string-literal "root-level satisfied"))
                                      (return-from next-iteration-4 nil))
                                    (when (< found size) (return-from next-iteration-4 nil))
                                    (cond
@@ -10789,7 +10504,7 @@ c
                                          (setf (clause-search c) 0)
                                          (u64-incf
                                           (statistics-strengthened (solver-statistics solver)))))))
-                                    (t (mark-garbage solver c *text-150*)
+                                    (t (mark-garbage solver c (c-string-literal "subsumed"))
                                      (u64-incf
                                       (statistics-subsumed (solver-statistics solver)))))))) (incf
                                                                                               p
@@ -10892,13 +10607,20 @@ c
                              (setf min-neg-lit not-lit))))))) (incf p-lit 4)))
       (u64-incf (statistics-subsumption-ticks (solver-statistics solver)) ticks)
       (if (not (zerop satisfied))
-          (when (zerop (is-temporary-binary solver c)) (mark-garbage solver c *text-137*))
+          (when (zerop (is-temporary-binary solver c))
+            (mark-garbage solver c (c-string-literal "root-level satisfied")))
           (when (not (zerop subsume))
             (when (<= (integer64-double min-pos-occs nil) 1000.0d0)
               (if (= min-pos-lit 4294967295)
                   (progn
                    (c-fflush 1)
-                   (c-fprintf 2 *text-151* *text-152* 8930 *text-153* *text-154*)
+                   (c-fprintf 2
+                              (c-string-literal "%s:%ld: %s: Coverage goal `%s' reached.
+")
+                              (c-string-literal
+                               "/workspace/scratch/ffe3804f3dbf/ooparts/vendor/satch/source/satch.c")
+                              8930 (c-string-literal "backward_subsume_with_clause")
+                              (c-string-literal "min_pos_lit == INVALID"))
                    (c-abort)
                    0)
                   0)
@@ -10910,7 +10632,13 @@ c
               (if (= min-neg-lit 4294967295)
                   (progn
                    (c-fflush 1)
-                   (c-fprintf 2 *text-151* *text-152* 8947 *text-153* *text-155*)
+                   (c-fprintf 2
+                              (c-string-literal "%s:%ld: %s: Coverage goal `%s' reached.
+")
+                              (c-string-literal
+                               "/workspace/scratch/ffe3804f3dbf/ooparts/vendor/satch/source/satch.c")
+                              8947 (c-string-literal "backward_subsume_with_clause")
+                              (c-string-literal "min_neg_lit == INVALID"))
                    (c-abort)
                    0)
                   0)
@@ -11227,14 +10955,20 @@ c
                                                                (locally
                                                                 (declare
                                                                  (optimize (speed 1) (safety 1)))
-                                                                (message solver 4 *text-156*
-                                                                 subsumptions *text-157*)))
+                                                                (message solver 4
+                                                                 (c-string-literal "subsumption")
+                                                                 subsumptions
+                                                                 (c-string-literal
+                                                                  "subsumption ticks limit hit"))))
                                                              (return-from loop-end-10
                                                                nil)))) (u32-incf idx-2))))
                                           (when (>= (m-u32 (+ solver 884)) 3)
                                             (locally
                                              (declare (optimize (speed 1) (safety 1)))
-                                             (message solver 3 *text-156* subsumptions *text-158*
+                                             (message solver 3 (c-string-literal "subsumption")
+                                              subsumptions
+                                              (c-string-literal
+                                               "tried %u variables %.0f%% of %u scheduled %.0f%% in round %u")
                                               tried
                                               (percent (float tried 1.0d0) (float scheduled 1.0d0))
                                               scheduled
@@ -11266,8 +11000,11 @@ c
                                               (when (>= (m-u32 (+ solver 884)) 3)
                                                 (locally
                                                  (declare (optimize (speed 1) (safety 1)))
-                                                 (message solver 3 *text-156* subsumptions
-                                                  *text-159* subsumed strengthened round)))
+                                                 (message solver 3 (c-string-literal "subsumption")
+                                                  subsumptions
+                                                  (c-string-literal
+                                                   "subsumed %lu and strengthened %lu clauses in round %u")
+                                                  subsumed strengthened round)))
                                               (report solver
                                                (c-u32
                                                 (c-s32
@@ -11304,7 +11041,8 @@ c
               (when (>= (m-u32 (+ solver 884)) 3)
                 (locally
                  (declare (optimize (speed 1) (safety 1)))
-                 (message solver 3 *text-156* subsumptions *text-160* kept
+                 (message solver 3 (c-string-literal "subsumption") subsumptions
+                  (c-string-literal "keeping %u variables scheduled %.0f%%") kept
                   (percent (float kept 1.0d0)
                    (integer64-double (statistics-remaining (solver-statistics solver)) nil)))))
               (when (zerop kept)
@@ -11313,8 +11051,9 @@ c
               (when (>= (m-u32 (+ solver 884)) 2)
                 (locally
                  (declare (optimize (speed 1) (safety 1)))
-                 (message solver 2 *text-156* subsumptions *text-161* total-subsumed
-                  total-strengthened round)))
+                 (message solver 2 (c-string-literal "subsumption") subsumptions
+                  (c-string-literal "subsumed %lu and strengthened %lu clauses in %u rounds")
+                  total-subsumed total-strengthened round)))
               (stop-profiling solver (profiles-subsume-address (solver-profiles solver))
                (process-time)))))))))
     0))
@@ -11660,7 +11399,9 @@ c
                                                                      (zerop
                                                                       (unsigned-stack-begin
                                                                        (solver-resolvents solver)))
-                                                                   (fatal-error *text-98*
+                                                                   (fatal-error
+                                                                    (c-string-literal
+                                                                     "out-of-memory reallocating '%zu' bytes")
                                                                     new-bytes))
                                                                  (setf (unsigned-stack-end
                                                                         (solver-resolvents solver))
@@ -11761,7 +11502,9 @@ c
                                                                      (zerop
                                                                       (unsigned-stack-begin
                                                                        (solver-resolvents solver)))
-                                                                   (fatal-error *text-98*
+                                                                   (fatal-error
+                                                                    (c-string-literal
+                                                                     "out-of-memory reallocating '%zu' bytes")
                                                                     new-bytes-2))
                                                                  (setf (unsigned-stack-end
                                                                         (solver-resolvents solver))
@@ -11836,7 +11579,10 @@ c
                                                           (zerop
                                                            (unsigned-stack-begin
                                                             (solver-resolvents solver)))
-                                                        (fatal-error *text-98* new-bytes-3))
+                                                        (fatal-error
+                                                         (c-string-literal
+                                                          "out-of-memory reallocating '%zu' bytes")
+                                                         new-bytes-3))
                                                       (setf (unsigned-stack-end
                                                              (solver-resolvents solver))
                                                               (+
@@ -11960,7 +11706,7 @@ c
         (setf (unsigned-stack-begin (solver-extend solver))
                 (c-realloc (unsigned-stack-begin (solver-extend solver)) new-bytes))
         (when (zerop (unsigned-stack-begin (solver-extend solver)))
-          (fatal-error *text-98* new-bytes))
+          (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes") new-bytes))
         (setf (unsigned-stack-end (solver-extend solver))
                 (+ (unsigned-stack-begin (solver-extend solver)) (* 4 old-size)))
         (setf (unsigned-stack-allocated (solver-extend solver))
@@ -11999,7 +11745,7 @@ c
         (setf (unsigned-stack-begin (solver-extend solver))
                 (c-realloc (unsigned-stack-begin (solver-extend solver)) new-bytes-2))
         (when (zerop (unsigned-stack-begin (solver-extend solver)))
-          (fatal-error *text-98* new-bytes-2))
+          (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes") new-bytes-2))
         (setf (unsigned-stack-end (solver-extend solver))
                 (+ (unsigned-stack-begin (solver-extend solver)) (* 4 old-size-2)))
         (setf (unsigned-stack-allocated (solver-extend solver))
@@ -12042,7 +11788,8 @@ c
                    (setf (unsigned-stack-begin (solver-extend solver))
                            (c-realloc (unsigned-stack-begin (solver-extend solver)) new-bytes-3))
                    (when (zerop (unsigned-stack-begin (solver-extend solver)))
-                     (fatal-error *text-98* new-bytes-3))
+                     (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                      new-bytes-3))
                    (setf (unsigned-stack-end (solver-extend solver))
                            (+ (unsigned-stack-begin (solver-extend solver)) (* 4 old-size-3)))
                    (setf (unsigned-stack-allocated (solver-extend solver))
@@ -12089,7 +11836,7 @@ c
       (setf (unsigned-stack-begin (solver-extend solver))
               (c-realloc (unsigned-stack-begin (solver-extend solver)) new-bytes))
       (when (zerop (unsigned-stack-begin (solver-extend solver)))
-        (fatal-error *text-98* new-bytes))
+        (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes") new-bytes))
       (setf (unsigned-stack-end (solver-extend solver))
               (+ (unsigned-stack-begin (solver-extend solver)) (* 4 old-size)))
       (setf (unsigned-stack-allocated (solver-extend solver))
@@ -12128,7 +11875,7 @@ c
       (setf (unsigned-stack-begin (solver-extend solver))
               (c-realloc (unsigned-stack-begin (solver-extend solver)) new-bytes-2))
       (when (zerop (unsigned-stack-begin (solver-extend solver)))
-        (fatal-error *text-98* new-bytes-2))
+        (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes") new-bytes-2))
       (setf (unsigned-stack-end (solver-extend solver))
               (+ (unsigned-stack-begin (solver-extend solver)) (* 4 old-size-2)))
       (setf (unsigned-stack-allocated (solver-extend solver))
@@ -12184,7 +11931,7 @@ c
           (setf c (untag-clause solver 0 eliminated c))))
       (if (not (zerop (clause-garbage c)))
           (return-from eliminate-watched-clause 0)
-          (mark-garbage solver c *text-148*)))
+          (mark-garbage solver c (c-string-literal "eliminated"))))
   0)
 ;;; vendor/satch/source/satch.c:9597:1
 
@@ -12287,7 +12034,9 @@ c
                                               (unsigned-stack-begin (solver-clause solver))
                                               new-bytes))
                                      (when (zerop (unsigned-stack-begin (solver-clause solver)))
-                                       (fatal-error *text-98* new-bytes))
+                                       (fatal-error
+                                        (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                                        new-bytes))
                                      (setf (unsigned-stack-end (solver-clause solver))
                                              (+ (unsigned-stack-begin (solver-clause solver))
                                                 (* 4 old-size)))
@@ -12381,7 +12130,9 @@ c
       (when (>= (m-u32 (+ solver 884)) 2)
         (locally
          (declare (optimize (speed 1) (safety 1)))
-         (message solver 2 *text-149* eliminations *text-162* limit 0.2d0 delta)))
+         (message solver 2 (c-string-literal "elimination") eliminations
+          (c-string-literal "elimination limit of %lu ticks = %g * search ticks %lu") limit 0.2d0
+          delta)))
       (setf (limits-eliminate-ticks (limits-eliminate limits))
               (c-u64 (+ (statistics-elimination-ticks statistics) limit))))))
   0)
@@ -12427,7 +12178,9 @@ c
       (when (>= (m-u32 (+ solver 884)) 2)
         (locally
          (declare (optimize (speed 1) (safety 1)))
-         (message solver 2 *text-149* eliminations *text-163* limit 0.1d0 delta)))
+         (message solver 2 (c-string-literal "elimination") eliminations
+          (c-string-literal "subsumption limit of %lu ticks = %g * search ticks %lu") limit 0.1d0
+          delta)))
       (setf (limits-subsume-ticks (limits-subsume limits))
               (c-u64 (+ (statistics-subsumption-ticks statistics) limit))))))
   0)
@@ -12559,9 +12312,11 @@ c
                                                                                                                                    (message
                                                                                                                                     solver
                                                                                                                                     4
-                                                                                                                                    *text-149*
+                                                                                                                                    (c-string-literal
+                                                                                                                                     "elimination")
                                                                                                                                     eliminations
-                                                                                                                                    *text-164*)))
+                                                                                                                                    (c-string-literal
+                                                                                                                                     "elimination ticks limit hit"))))
                                                                                                                                 (return-from
                                                                                                                                     loop-end-5
                                                                                                                                   nil)) (u32-incf
@@ -12586,9 +12341,11 @@ c
                                                                                            (message
                                                                                             solver
                                                                                             3
-                                                                                            *text-149*
+                                                                                            (c-string-literal
+                                                                                             "elimination")
                                                                                             eliminations
-                                                                                            *text-165*
+                                                                                            (c-string-literal
+                                                                                             "eliminated %u variables %.0f%% of remaining %u in round %u")
                                                                                             eliminated
                                                                                             (percent
                                                                                              (float
@@ -12644,13 +12401,15 @@ c
           (when (>= (m-u32 (+ solver 884)) 3)
             (locally
              (declare (optimize (speed 1) (safety 1)))
-             (message solver 3 *text-149* eliminations *text-160* kept
+             (message solver 3 (c-string-literal "elimination") eliminations
+              (c-string-literal "keeping %u variables scheduled %.0f%%") kept
               (percent (float kept 1.0d0)
                (integer64-double (statistics-remaining (solver-statistics solver)) nil)))))
           (when (>= (m-u32 (+ solver 884)) 2)
             (locally
              (declare (optimize (speed 1) (safety 1)))
-             (message solver 2 *text-149* eliminations *text-166* total
+             (message solver 2 (c-string-literal "elimination") eliminations
+              (c-string-literal "eliminated %u variables %.0f%% in total in %u rounds") total
               (percent (float total 1.0d0) (float original 1.0d0)) round)))
           (mark-and-collect-garbage-clauses-after-elimination solver)
           (switch-to-sparse-mode solver)
@@ -12686,7 +12445,8 @@ c
                 (when (>= (m-u32 (+ solver 884)) 4)
                   (locally
                    (declare (optimize (speed 1) (safety 1)))
-                   (message solver 4 *text-149* eliminations *text-143*
+                   (message solver 4 (c-string-literal "elimination") eliminations
+                    (c-string-literal "next limit at %lu after %lu conflicts")
                     (limits-eliminate-conflicts (limits-eliminate limits)) interval)))))))
           (stop-profiling solver (profiles-eliminate-address (solver-profiles solver))
            (process-time))
@@ -13259,7 +13019,10 @@ c
                                            (when
                                                (zerop
                                                 (unsigned-stack-begin (solver-sorter solver)))
-                                             (fatal-error *text-98* new-bytes))
+                                             (fatal-error
+                                              (c-string-literal
+                                               "out-of-memory reallocating '%zu' bytes")
+                                              new-bytes))
                                            (setf (unsigned-stack-end (solver-sorter solver))
                                                    (+ (unsigned-stack-begin (solver-sorter solver))
                                                       (* 4 old-size)))
@@ -13312,7 +13075,10 @@ c
                                            (when
                                                (zerop
                                                 (unsigned-stack-begin (solver-sorter solver)))
-                                             (fatal-error *text-98* new-bytes-2))
+                                             (fatal-error
+                                              (c-string-literal
+                                               "out-of-memory reallocating '%zu' bytes")
+                                              new-bytes-2))
                                            (setf (unsigned-stack-end (solver-sorter solver))
                                                    (+ (unsigned-stack-begin (solver-sorter solver))
                                                       (* 4 old-size-2)))
@@ -13664,7 +13430,7 @@ c
                    (ignorable unit))
           (assign solver unit 0 1)
           (setf (solver-iterate solver) 1)
-          (vivify-mark-garbage solver c *text-167*)
+          (vivify-mark-garbage solver c (c-string-literal "subsumed by unit"))
           (let* ((conflict (boolean-constraint-propagation solver)))
             (declare (type c-address conflict)
                      (ignorable conflict))
@@ -13744,7 +13510,7 @@ c
                            (ignorable redundant))
                   (trace-and-check-temporary-addition solver)
                   (add-new-binary-and-watch-it solver redundant)
-                  (vivify-mark-garbage solver c *text-168*)
+                  (vivify-mark-garbage solver c (c-string-literal "vivified clause"))
                   (u64-incf (statistics-vivify-strengthened (solver-statistics solver)))
                   (setf res 1))
                 (cond
@@ -13801,7 +13567,9 @@ c
                                               (unsigned-stack-begin (solver-clause solver))
                                               new-bytes))
                                      (when (zerop (unsigned-stack-begin (solver-clause solver)))
-                                       (fatal-error *text-98* new-bytes))
+                                       (fatal-error
+                                        (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                                        new-bytes))
                                      (setf (unsigned-stack-end (solver-clause solver))
                                              (+ (unsigned-stack-begin (solver-clause solver))
                                                 (* 4 old-size-2)))
@@ -13893,7 +13661,9 @@ c
                                   (c-realloc (unsigned-stack-begin (solver-clause solver))
                                              new-bytes-2))
                           (when (zerop (unsigned-stack-begin (solver-clause solver)))
-                            (fatal-error *text-98* new-bytes-2))
+                            (fatal-error
+                             (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                             new-bytes-2))
                           (setf (unsigned-stack-end (solver-clause solver))
                                   (+ (unsigned-stack-begin (solver-clause solver))
                                      (* 4 old-size-3)))
@@ -13936,7 +13706,9 @@ c
                                   (c-realloc (unsigned-stack-begin (solver-clause solver))
                                              new-bytes-3))
                           (when (zerop (unsigned-stack-begin (solver-clause solver)))
-                            (fatal-error *text-98* new-bytes-3))
+                            (fatal-error
+                             (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                             new-bytes-3))
                           (setf (unsigned-stack-end (solver-clause solver))
                                   (+ (unsigned-stack-begin (solver-clause solver))
                                      (* 4 old-size-4)))
@@ -13952,7 +13724,8 @@ c
                       (add-new-binary-and-watch-it solver (clause-redundant c))
                       (setf (unsigned-stack-end (solver-clause solver))
                               (unsigned-stack-begin (solver-clause solver)))
-                      (vivify-mark-garbage solver c *text-169*))
+                      (vivify-mark-garbage solver c
+                       (c-string-literal "vivify shortened to binary clause")))
                      (t (setf (clause-search c) 0)
                       (u64-incf (statistics-vivify-strengthened (solver-statistics solver)))
                       (watch-clause solver c)))
@@ -13961,7 +13734,8 @@ c
                   (cond
                    ((and (not (zerop irredundant)) (zerop (clause-redundant c)))
                     (u64-incf (statistics-vivify-subsume (solver-statistics solver)))
-                    (vivify-mark-garbage solver c *text-170*) (setf res 1))
+                    (vivify-mark-garbage solver c (c-string-literal "vivify subsumed (learn)"))
+                    (setf res 1))
                    (t (setf res 0))))))))))
       res)))
 ;;; vendor/satch/source/satch.c:10582:1
@@ -14093,7 +13867,9 @@ c
                                        (c-realloc (unsigned-stack-begin (solver-clause solver))
                                                   new-bytes))
                                (when (zerop (unsigned-stack-begin (solver-clause solver)))
-                                 (fatal-error *text-98* new-bytes))
+                                 (fatal-error
+                                  (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                                  new-bytes))
                                (setf (unsigned-stack-end (solver-clause solver))
                                        (+ (unsigned-stack-begin (solver-clause solver))
                                           (* 4 old-size)))
@@ -14254,7 +14030,7 @@ c
           (setf (unsigned-stack-begin (solver-clause solver))
                   (c-realloc (unsigned-stack-begin (solver-clause solver)) new-bytes))
           (when (zerop (unsigned-stack-begin (solver-clause solver)))
-            (fatal-error *text-98* new-bytes))
+            (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes") new-bytes))
           (setf (unsigned-stack-end (solver-clause solver))
                   (+ (unsigned-stack-begin (solver-clause solver)) (* 4 old-size)))
           (setf (unsigned-stack-allocated (solver-clause solver))
@@ -14322,7 +14098,8 @@ c
                                       (ignorable value))
                              (when (< value 0) (return-from next-iteration-6 nil))
                              (when (> value 0)
-                               (vivify-mark-garbage solver c *text-137*)
+                               (vivify-mark-garbage solver c
+                                (c-string-literal "root-level satisfied"))
                                (return-from loop-end-5 nil))
                              (when
                                  (= (unsigned-stack-end sorted) (unsigned-stack-allocated sorted))
@@ -14351,7 +14128,9 @@ c
                                  (setf (unsigned-stack-begin sorted)
                                          (c-realloc (unsigned-stack-begin sorted) new-bytes))
                                  (when (zerop (unsigned-stack-begin sorted))
-                                   (fatal-error *text-98* new-bytes))
+                                   (fatal-error
+                                    (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                                    new-bytes))
                                  (setf (unsigned-stack-end sorted)
                                          (+ (unsigned-stack-begin sorted) (* 4 old-size)))
                                  (setf (unsigned-stack-allocated sorted)
@@ -14460,7 +14239,9 @@ c
                                    (cond
                                     ((zerop (clause-redundant c)) (setf implied lit-3)
                                      (setf conflict (vivify-unit-conflict solver lit-3)))
-                                    (t (vivify-mark-garbage solver c *text-171*)
+                                    (t
+                                     (vivify-mark-garbage solver c
+                                      (c-string-literal "vivify implied"))
                                      (u64-incf
                                       (statistics-vivify-implied (solver-statistics solver)))
                                      (setf res 1)))
@@ -14472,7 +14253,8 @@ c
                                      (ignorable subsumed))
                             (backtrack solver (c-u32 (- (solver-level solver) 1)))
                             (cond
-                             ((not (zerop subsumed)) (vivify-mark-garbage solver c *text-172*)
+                             ((not (zerop subsumed))
+                              (vivify-mark-garbage solver c (c-string-literal "vivify subsumed"))
                               (u64-incf (statistics-vivify-subsume (solver-statistics solver)))
                               (u64-incf (statistics-subsumed (solver-statistics solver)))
                               (setf res 1))
@@ -14538,7 +14320,10 @@ c
                                                (when
                                                    (zerop
                                                     (unsigned-stack-begin (solver-clause solver)))
-                                                 (fatal-error *text-98* new-bytes-2))
+                                                 (fatal-error
+                                                  (c-string-literal
+                                                   "out-of-memory reallocating '%zu' bytes")
+                                                  new-bytes-2))
                                                (setf (unsigned-stack-end (solver-clause solver))
                                                        (+
                                                         (unsigned-stack-begin
@@ -14590,7 +14375,8 @@ c
                               (ignorable value))
                      (when (> value 0)
                        (setf satisfied 1)
-                       (mark-garbage solver c *text-173*)
+                       (mark-garbage solver c
+                        (c-string-literal "vivification satisfied candidate"))
                        (return-from loop-end-3 nil))
                      (when (zerop value)
                        (when
@@ -14622,7 +14408,9 @@ c
                                    (c-realloc (unsigned-stack-begin (solver-clause solver))
                                               new-bytes))
                            (when (zerop (unsigned-stack-begin (solver-clause solver)))
-                             (fatal-error *text-98* new-bytes))
+                             (fatal-error
+                              (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                              new-bytes))
                            (setf (unsigned-stack-end (solver-clause solver))
                                    (+ (unsigned-stack-begin (solver-clause solver))
                                       (* 4 old-size)))
@@ -14655,7 +14443,7 @@ c
           (cond
            ((= non-false 2) (trace-and-check-temporary-addition solver)
             (add-new-binary-and-watch-it solver (clause-redundant c))
-            (mark-garbage solver c *text-174*))
+            (mark-garbage solver c (c-string-literal "vivification shrunken candidate")))
            (t
             (let* ((old-size-2 (clause-size c)) (new-size 0) (lits (clause-literals c)))
               (declare (type (unsigned-byte 32) old-size-2)
@@ -14702,7 +14490,9 @@ c
                                          (c-realloc (unsigned-stack-begin (solver-clause solver))
                                                     new-bytes-2))
                                  (when (zerop (unsigned-stack-begin (solver-clause solver)))
-                                   (fatal-error *text-98* new-bytes-2))
+                                   (fatal-error
+                                    (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                                    new-bytes-2))
                                  (setf (unsigned-stack-end (solver-clause solver))
                                          (+ (unsigned-stack-begin (solver-clause solver))
                                             (* 4 old-size-3)))
@@ -14845,7 +14635,10 @@ c
                                       (when
                                           (zerop
                                            (clauses-begin (solver-vivification-schedule solver)))
-                                        (fatal-error *text-98* new-bytes))
+                                        (fatal-error
+                                         (c-string-literal
+                                          "out-of-memory reallocating '%zu' bytes")
+                                         new-bytes))
                                       (setf (clauses-end (solver-vivification-schedule solver))
                                               (+
                                                (clauses-begin
@@ -14922,7 +14715,10 @@ c
                                       (when
                                           (zerop
                                            (clauses-begin (solver-vivification-schedule solver)))
-                                        (fatal-error *text-98* new-bytes-2))
+                                        (fatal-error
+                                         (c-string-literal
+                                          "out-of-memory reallocating '%zu' bytes")
+                                         new-bytes-2))
                                       (setf (clauses-end (solver-vivification-schedule solver))
                                               (+
                                                (clauses-begin
@@ -14990,7 +14786,8 @@ c
       (let* ((counts (c-calloc (c-u32 (* 2 (solver-size solver))) 4)))
         (declare (type c-address counts)
                  (ignorable counts))
-        (when (zerop counts) (fatal-error *text-175*))
+        (when (zerop counts)
+          (fatal-error (c-string-literal "could not allocate counts for vivification")))
         (let* ((schedule (solver-vivification-schedule-address solver)))
           (declare (type c-address schedule)
                    (ignorable schedule))
@@ -15216,7 +15013,8 @@ c
           (when (>= (m-u32 (+ solver 884)) 2)
             (locally
              (declare (optimize (speed 1) (safety 1)))
-             (message solver 2 *text-176* vivifications *text-162*
+             (message solver 2 (c-string-literal "vivification") vivifications
+              (c-string-literal "elimination limit of %lu ticks = %g * search ticks %lu")
               (c-u64 (+ (statistics-ticks (solver-statistics solver)) delta))
               (float (* (float 100 1.0d0) 0.001d0) 1.0d0) delta)))
           (locally
@@ -15258,7 +15056,8 @@ c
                   (when (>= (m-u32 (+ solver 884)) 2)
                     (locally
                      (declare (optimize (speed 1) (safety 1)))
-                     (message solver 2 *text-176* vivifications *text-177*
+                     (message solver 2 (c-string-literal "vivification") vivifications
+                      (c-string-literal "%lu vivified, next limit at %lu after %lu conflicts")
                       (c-u64 (- (statistics-vivified (solver-statistics solver)) vivified)) limit
                       interval))))))
               (setf (solver-vivifying solver) 0)
@@ -15365,16 +15164,18 @@ c
     (declare (type (integer 0 1) colors)
              (type c-address terminal-file)
              (ignorable colors terminal-file))
-    (c-fprintf 2 *text-178*
+    (c-fprintf 2
+               (c-string-literal "%slibsatch: %sfatal error: %sinvalid API usage in '%s': %s
+")
                (if (not (zerop colors))
-                   *text-1*
-                   *text-2*)
+                   (c-string-literal "[1m")
+                   (c-string-literal ""))
                (if (not (zerop colors))
-                   *text-3*
-                   *text-2*)
+                   (c-string-literal "[31m")
+                   (c-string-literal ""))
                (if (not (zerop colors))
-                   *text-4*
-                   *text-2*)
+                   (c-string-literal "[0m")
+                   (c-string-literal ""))
                function message)
     (c-fflush 2)
     (c-abort))
@@ -15385,7 +15186,7 @@ c
   (let* ((solver (c-calloc 1 1992)))
     (declare (type c-address solver)
              (ignorable solver))
-    (when (zerop solver) (fatal-error *text-179*))
+    (when (zerop solver) (fatal-error (c-string-literal "could not allocate solver")))
     (init-binary solver)
     (setf (heap-factor (+ (solver-scores solver) (* 56 0))) 1.15d0)
     (setf (heap-factor (+ (solver-scores solver) (* 56 1))) 1.05d0)
@@ -15557,7 +15358,8 @@ c
               (setf (unsigned-stack-begin (solver-clause solver))
                       (c-realloc (unsigned-stack-begin (solver-clause solver)) new-bytes))
               (when (zerop (unsigned-stack-begin (solver-clause solver)))
-                (fatal-error *text-98* new-bytes))
+                (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                 new-bytes))
               (setf (unsigned-stack-end (solver-clause solver))
                       (+ (unsigned-stack-begin (solver-clause solver)) (* 4 old-size)))
               (setf (unsigned-stack-allocated (solver-clause solver))
@@ -15595,7 +15397,8 @@ c
               (setf (int-stack-begin (solver-added solver))
                       (c-realloc (int-stack-begin (solver-added solver)) new-bytes-2))
               (when (zerop (int-stack-begin (solver-added solver)))
-                (fatal-error *text-98* new-bytes-2))
+                (fatal-error (c-string-literal "out-of-memory reallocating '%zu' bytes")
+                 new-bytes-2))
               (setf (int-stack-end (solver-added solver))
                       (+ (int-stack-begin (solver-added solver)) (* 4 old-size-2)))
               (setf (int-stack-allocated (solver-added solver))
@@ -15671,7 +15474,8 @@ c
 (defun satch-release (solver)
   (declare (type c-address solver)
            (ignorable solver))
-  (when (zerop solver) (invalid-usage *text-180* *text-181*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument") (c-string-literal "satch_release")))
   (internal-release solver)
   0)
 ;;; vendor/satch/source/satch.c:12161:1
@@ -15680,10 +15484,13 @@ c
   (declare (type c-address solver)
            (type (signed-byte 32) elit)
            (ignorable solver elit))
-  (when (zerop solver) (invalid-usage *text-180* *text-182*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument") (c-string-literal "satch_add")))
   (when (not (zerop (statistics-solved (solver-statistics solver))))
-    (invalid-usage *text-183* *text-182*))
-  (when (not (/= elit (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-182*))
+    (invalid-usage (c-string-literal "incremental usage not implemented yet")
+     (c-string-literal "satch_add")))
+  (when (not (/= elit (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument") (c-string-literal "satch_add")))
   (internal-add solver elit)
   0)
 ;;; vendor/satch/source/satch.c:12174:1
@@ -15691,9 +15498,11 @@ c
 (defun satch-add-empty (solver)
   (declare (type c-address solver)
            (ignorable solver))
-  (when (zerop solver) (invalid-usage *text-180* *text-185*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument") (c-string-literal "satch_add_empty")))
   (when (not (zerop (statistics-solved (solver-statistics solver))))
-    (invalid-usage *text-183* *text-185*))
+    (invalid-usage (c-string-literal "incremental usage not implemented yet")
+     (c-string-literal "satch_add_empty")))
   (internal-add solver 0)
   0)
 ;;; vendor/satch/source/satch.c:12182:1
@@ -15702,11 +15511,16 @@ c
   (declare (type c-address solver)
            (type (signed-byte 32) unit)
            (ignorable solver unit))
-  (when (zerop solver) (invalid-usage *text-180* *text-186*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument") (c-string-literal "satch_add_unit")))
   (when (not (zerop (statistics-solved (solver-statistics solver))))
-    (invalid-usage *text-183* *text-186*))
-  (when (zerop unit) (invalid-usage *text-187* *text-186*))
-  (when (not (/= unit (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-186*))
+    (invalid-usage (c-string-literal "incremental usage not implemented yet")
+     (c-string-literal "satch_add_unit")))
+  (when (zerop unit)
+    (invalid-usage (c-string-literal "zero literal argument") (c-string-literal "satch_add_unit")))
+  (when (not (/= unit (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument")
+     (c-string-literal "satch_add_unit")))
   (internal-add solver unit)
   (internal-add solver 0)
   0)
@@ -15717,13 +15531,24 @@ c
            (type (signed-byte 32) a)
            (type (signed-byte 32) b)
            (ignorable solver a b))
-  (when (zerop solver) (invalid-usage *text-180* *text-188*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument")
+     (c-string-literal "satch_add_binary_clause")))
   (when (not (zerop (statistics-solved (solver-statistics solver))))
-    (invalid-usage *text-183* *text-188*))
-  (when (zerop a) (invalid-usage *text-187* *text-188*))
-  (when (not (/= a (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-188*))
-  (when (zerop b) (invalid-usage *text-187* *text-188*))
-  (when (not (/= b (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-188*))
+    (invalid-usage (c-string-literal "incremental usage not implemented yet")
+     (c-string-literal "satch_add_binary_clause")))
+  (when (zerop a)
+    (invalid-usage (c-string-literal "zero literal argument")
+     (c-string-literal "satch_add_binary_clause")))
+  (when (not (/= a (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument")
+     (c-string-literal "satch_add_binary_clause")))
+  (when (zerop b)
+    (invalid-usage (c-string-literal "zero literal argument")
+     (c-string-literal "satch_add_binary_clause")))
+  (when (not (/= b (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument")
+     (c-string-literal "satch_add_binary_clause")))
   (internal-add solver a)
   (internal-add solver b)
   (internal-add solver 0)
@@ -15736,15 +15561,30 @@ c
            (type (signed-byte 32) b)
            (type (signed-byte 32) c)
            (ignorable solver a b c))
-  (when (zerop solver) (invalid-usage *text-180* *text-189*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument")
+     (c-string-literal "satch_add_ternary_clause")))
   (when (not (zerop (statistics-solved (solver-statistics solver))))
-    (invalid-usage *text-183* *text-189*))
-  (when (zerop a) (invalid-usage *text-187* *text-189*))
-  (when (not (/= a (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-189*))
-  (when (zerop b) (invalid-usage *text-187* *text-189*))
-  (when (not (/= b (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-189*))
-  (when (zerop c) (invalid-usage *text-187* *text-189*))
-  (when (not (/= c (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-189*))
+    (invalid-usage (c-string-literal "incremental usage not implemented yet")
+     (c-string-literal "satch_add_ternary_clause")))
+  (when (zerop a)
+    (invalid-usage (c-string-literal "zero literal argument")
+     (c-string-literal "satch_add_ternary_clause")))
+  (when (not (/= a (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument")
+     (c-string-literal "satch_add_ternary_clause")))
+  (when (zerop b)
+    (invalid-usage (c-string-literal "zero literal argument")
+     (c-string-literal "satch_add_ternary_clause")))
+  (when (not (/= b (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument")
+     (c-string-literal "satch_add_ternary_clause")))
+  (when (zerop c)
+    (invalid-usage (c-string-literal "zero literal argument")
+     (c-string-literal "satch_add_ternary_clause")))
+  (when (not (/= c (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument")
+     (c-string-literal "satch_add_ternary_clause")))
   (internal-add solver a)
   (internal-add solver b)
   (internal-add solver c)
@@ -15759,17 +15599,36 @@ c
            (type (signed-byte 32) c)
            (type (signed-byte 32) d)
            (ignorable solver a b c d))
-  (when (zerop solver) (invalid-usage *text-180* *text-190*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument")
+     (c-string-literal "satch_add_quaternary_clause")))
   (when (not (zerop (statistics-solved (solver-statistics solver))))
-    (invalid-usage *text-183* *text-190*))
-  (when (zerop a) (invalid-usage *text-187* *text-190*))
-  (when (not (/= a (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-190*))
-  (when (zerop b) (invalid-usage *text-187* *text-190*))
-  (when (not (/= b (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-190*))
-  (when (zerop c) (invalid-usage *text-187* *text-190*))
-  (when (not (/= c (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-190*))
-  (when (zerop d) (invalid-usage *text-187* *text-190*))
-  (when (not (/= d (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-190*))
+    (invalid-usage (c-string-literal "incremental usage not implemented yet")
+     (c-string-literal "satch_add_quaternary_clause")))
+  (when (zerop a)
+    (invalid-usage (c-string-literal "zero literal argument")
+     (c-string-literal "satch_add_quaternary_clause")))
+  (when (not (/= a (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument")
+     (c-string-literal "satch_add_quaternary_clause")))
+  (when (zerop b)
+    (invalid-usage (c-string-literal "zero literal argument")
+     (c-string-literal "satch_add_quaternary_clause")))
+  (when (not (/= b (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument")
+     (c-string-literal "satch_add_quaternary_clause")))
+  (when (zerop c)
+    (invalid-usage (c-string-literal "zero literal argument")
+     (c-string-literal "satch_add_quaternary_clause")))
+  (when (not (/= c (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument")
+     (c-string-literal "satch_add_quaternary_clause")))
+  (when (zerop d)
+    (invalid-usage (c-string-literal "zero literal argument")
+     (c-string-literal "satch_add_quaternary_clause")))
+  (when (not (/= d (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument")
+     (c-string-literal "satch_add_quaternary_clause")))
   (internal-add solver a)
   (internal-add solver b)
   (internal-add solver c)
@@ -15782,7 +15641,8 @@ c
   (declare (type c-address solver)
            (type (signed-byte 32) max-var)
            (ignorable solver max-var))
-  (when (zerop solver) (invalid-usage *text-180* *text-191*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument") (c-string-literal "satch_reserve")))
   (let* ((requested-capacity (c-u64 max-var)))
     (declare (type c-size requested-capacity)
              (ignorable requested-capacity))
@@ -15794,7 +15654,9 @@ c
 (defun satch-maximum-variable (solver)
   (declare (type c-address solver)
            (ignorable solver))
-  (when (zerop solver) (invalid-usage *text-180* *text-192*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument")
+     (c-string-literal "satch_maximum_variable")))
   (c-s32 (solver-size solver)))
 ;;; vendor/satch/source/satch.c:12266:1
 
@@ -15802,17 +15664,20 @@ c
   (declare (type c-address solver)
            (type (signed-byte 32) elit)
            (ignorable solver elit))
-  (when (zerop solver) (invalid-usage *text-180* *text-193*))
-  (when (zerop elit) (invalid-usage *text-187* *text-193*))
-  (when (not (/= elit (c-s32 (- -2147483647 1)))) (invalid-usage *text-184* *text-193*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument") (c-string-literal "satch_val")))
+  (when (zerop elit)
+    (invalid-usage (c-string-literal "zero literal argument") (c-string-literal "satch_val")))
+  (when (not (/= elit (c-s32 (- -2147483647 1))))
+    (invalid-usage (c-string-literal "'INT_MIN' literal argument") (c-string-literal "satch_val")))
   (when (not (= (solver-status solver) 10))
     (invalid-usage
      (if (= (solver-status solver) 20)
-         *text-194*
+         (c-string-literal "expected status to be '10' and not '20'")
          (if (zerop (solver-status solver))
-             *text-195*
-             *text-196*))
-     *text-193*))
+             (c-string-literal "expected status to be '10' and not '0'")
+             (c-string-literal "expected status to be '10'")))
+     (c-string-literal "satch_val")))
   (let* ((eidx (c-abs elit)))
     (declare (type (signed-byte 32) eidx)
              (ignorable eidx))
@@ -15839,16 +15704,20 @@ c
   (declare (type c-address solver)
            (type (signed-byte 32) conflict-limit)
            (ignorable solver conflict-limit))
-  (when (zerop solver) (invalid-usage *text-180* *text-197*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument") (c-string-literal "satch_solve")))
   (when
       (not
        (= (unsigned-stack-end (solver-clause solver))
           (unsigned-stack-begin (solver-clause solver))))
-    (invalid-usage *text-198* *text-197*))
-  (when (not (zerop (solver-status solver))) (invalid-usage *text-199* *text-197*))
+    (invalid-usage (c-string-literal "incomplete clause (zero literal missing)")
+     (c-string-literal "satch_solve")))
+  (when (not (zerop (solver-status solver)))
+    (invalid-usage (c-string-literal "no incremental solving yet")
+     (c-string-literal "satch_solve")))
   (u64-incf (statistics-solved (solver-statistics solver)))
   (when (not (zerop (options-verbose (solver-options solver))))
-    (internal-section solver *text-200*))
+    (internal-section solver (c-string-literal "solving")))
   (let* ((res (solve solver conflict-limit)))
     (declare (type (signed-byte 32) res)
              (ignorable res))
@@ -15861,7 +15730,9 @@ c
   (declare (type c-address solver)
            (type (signed-byte 32) new-verbose-level)
            (ignorable solver new-verbose-level))
-  (when (zerop solver) (invalid-usage *text-180* *text-201*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument")
+     (c-string-literal "satch_set_verbose_level")))
   (when (< new-verbose-level 0) (setf new-verbose-level 0))
   (setf (options-verbose (solver-options solver)) (c-u32 new-verbose-level))
   0)
@@ -15870,7 +15741,9 @@ c
 (defun satch-enable-logging-messages (solver)
   (declare (type c-address solver)
            (ignorable solver))
-  (when (zerop solver) (invalid-usage *text-180* *text-202*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument")
+     (c-string-literal "satch_enable_logging_messages")))
   (setf (options-verbose (solver-options solver)) 2147483647)
   0)
 ;;; vendor/satch/source/satch.c:12349:1
@@ -15878,7 +15751,9 @@ c
 (defun satch-ascii-proof (solver)
   (declare (type c-address solver)
            (ignorable solver))
-  (when (zerop solver) (invalid-usage *text-180* *text-203*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument")
+     (c-string-literal "satch_ascii_proof")))
   (setf (options-ascii (solver-options solver)) 1)
   0)
 ;;; vendor/satch/source/satch.c:12356:1
@@ -15887,7 +15762,9 @@ c
   (declare (type c-address solver)
            (type c-address proof)
            (ignorable solver proof))
-  (when (zerop solver) (invalid-usage *text-180* *text-204*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument")
+     (c-string-literal "satch_trace_proof")))
   (setf (solver-proof solver) proof)
   0)
 ;;; vendor/satch/source/satch.c:12365:1
@@ -15898,7 +15775,9 @@ c
 (defun satch-start-profiling-parsing (solver)
   (declare (type c-address solver)
            (ignorable solver))
-  (when (zerop solver) (invalid-usage *text-180* *text-205*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument")
+     (c-string-literal "satch_start_profiling_parsing")))
   (start-profiling solver (profiles-parse-address (solver-profiles solver)))
   0)
 ;;; vendor/satch/source/satch.c:12378:1
@@ -15907,7 +15786,9 @@ c
   (declare (optimize (speed 1) (safety 1))
            (type c-address solver)
            (ignorable solver))
-  (when (zerop solver) (invalid-usage *text-180* *text-206*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument")
+     (c-string-literal "satch_stop_profiling_parsing")))
   (stop-profiling solver (profiles-parse-address (solver-profiles solver)) (process-time)))
 ;;; vendor/satch/source/satch.c:12385:1
 
@@ -15916,7 +15797,8 @@ c
            (type c-address solver)
            (type c-address name)
            (ignorable solver name))
-  (when (zerop solver) (invalid-usage *text-180* *text-207*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument") (c-string-literal "satch_section")))
   (internal-section solver name)
   0)
 ;;; vendor/satch/source/satch.c:12392:1
@@ -15925,7 +15807,9 @@ c
   (declare (optimize (speed 1) (safety 1))
            (type c-address solver)
            (ignorable solver))
-  (when (zerop solver) (invalid-usage *text-180* *text-208*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument")
+     (c-string-literal "satch_statistics")))
   (let* ((stop (print-profiles solver)))
     (declare (type double-float stop)
              (ignorable stop))
@@ -15937,7 +15821,8 @@ c
 (defun satch-conflicts (solver)
   (declare (type c-address solver)
            (ignorable solver))
-  (when (zerop solver) (invalid-usage *text-180* *text-209*))
+  (when (zerop solver)
+    (invalid-usage (c-string-literal "zero solver argument") (c-string-literal "satch_conflicts")))
   (let* ((conflicts
           (locally
            (declare (optimize (speed 1)))

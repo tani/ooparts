@@ -10,6 +10,20 @@ storage. Both use the same checked LP64 layout. See
 [portability](../portability.md) for dependencies, host float requirements and
 backend selection.
 
+## Generated constants and literals
+
+The engine has two numeric `defconstant` values, `+slow-beta+` and
+`+fast-beta+`, and no `defparameter` bindings. C string literals use
+`c-string-literal`, which creates their arena addresses with `load-time-value`.
+Each compiled occurrence allocates once when loaded; evaluating it repeatedly
+does not allocate. Compiled files therefore never retain an address from the
+compilation process. The original constant strings are not represented by
+hundreds of mutable special variables.
+
+Allocator arenas, stream tables and live-solver registries remain runtime
+state. The generator retains that distinction, so regenerating the engine
+preserves the constant/literal representation.
+
 ## Solve a formula
 
 ```lisp

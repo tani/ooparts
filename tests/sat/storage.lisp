@@ -10,6 +10,13 @@
                          (assert ,value () "Arena check ~D failed: ~S" checks ',value))))
       (unwind-protect
            (progn
+             ;; Literal addresses belong to the loading process, and repeated
+             ;; evaluation of the compiled expression performs no allocation.
+             (let* ((literal (compile nil '(lambda () (c-string-literal "SAT literal"))))
+                    (address (funcall literal)) (top *heap-top*))
+               (check (string= (lisp-string address) "SAT literal"))
+               (check (= address (funcall literal)))
+               (check (= top *heap-top*)))
              ;; Cross-width accesses test the representation, not just a pair
              ;; of matching encoders and decoders. Unaligned words are legal.
              (setf (m-u64 (+ cell 1)) #x0123456789abcdef)

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SBCL Selective CPS — 意味論と実装</title>
+<style>
+@font-face{font-family:"SCPS Docs Sans";src:url("assets/SCPSDocsSans-subset.woff") format("woff");font-style:normal;font-weight:100 900;font-display:swap}
+:root {color-scheme:light;--ink:#172a3b;--muted:#526477;--line:#dce4ea;--accent:#176c73}
+*{box-sizing:border-box}body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.85 "SCPS Docs Sans",system-ui,-apple-system,"Noto Sans JP",sans-serif}
+main{max-width:1000px;margin:36px auto;padding:54px 64px;background:white;border:1px solid var(--line);border-radius:12px}
+header{padding-bottom:26px;border-bottom:3px solid var(--accent)}.eyebrow{font:700 12px/1.5 system-ui;letter-spacing:.14em;color:var(--accent)}
+h1{font-size:34px;line-height:1.35;margin:12px 0 14px}h2{font-size:23px;margin:44px 0 14px}h3{font-size:18px;margin-top:26px}
+p{margin:14px 0}.sub{color:var(--muted)}a{color:#086f80}code,pre{font-family:"DejaVu Sans Mono",Consolas,monospace;font-size:.9em}code{background:#edf3f6;padding:.1em .3em;border-radius:3px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf3f6;padding:18px 22px;border-radius:6px;line-height:1.65}
+.math{overflow-x:auto;padding:8px 0}.note{border-left:4px solid var(--accent);padding:8px 20px;background:#edf7f6;margin:24px 0}table{width:100%;border-collapse:collapse;margin:22px 0;font-size:14px}th,td{border:1px solid var(--line);padding:11px 14px;vertical-align:top}th{background:#edf3f6;text-align:left}li{margin:8px 0}footer{border-top:1px solid var(--line);margin-top:42px;padding-top:18px;font-size:13px;color:var(--muted)}
+@media(max-width:700px){main{margin:0;padding:28px 20px;border:0;border-radius:0}h1{font-size:27px}table{font-size:12px}th,td{padding:8px}}@media print{body{background:white}main{margin:0;border:0;padding:0;max-width:none}h2,h3{break-after:avoid}pre,table,.math{break-inside:avoid}}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'local'},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
+</script>
+<script defer src="assets/tex-svg.js"></script>
+</head>
+<body><main>
+<header><div class="eyebrow">IMPLEMENTATION NOTE · 2026-10-29</div>
+<h1>SBCL 上の selective CPS による<br>shift / reset</h1>
+<p class="sub">単一 prompt、多重呼出し、合成的継続。Asai–Uehara の純粋性注釈に基づく考え方を、動的型付けの Common Lisp へ保守的に適用する。</p></header>
+
+<div class="note"><strong>保証の範囲。</strong>ここに記すのは実装の操作的仕様と設計上の意味保存の根拠であり、この CL 実装全体の機械検証ではない。論文の answer-type 多相型推論器そのものを実装したという主張も行わない。未変換の native スタックを捕捉しないという適用範囲を明示する。</div>
+
+<h2>1. 基準となる意味論</h2>
+<p>コアは call-by-value の λ 計算へ Danvy–Filinski の shift/reset を加えたものとする。\(v\) は値、\(E\) は reset を含まない評価文脈である。Common Lisp では関数適用を <code>funcall</code> で表し、引数を左から右へ評価する。</p>
+<div class="math">\[
+\begin{aligned}
+e &amp;::= v \mid e\;e \mid \langle e\rangle \mid \mathcal S k.e\\
+E &amp;::= [\,] \mid E\;e \mid v\;E
+\end{aligned}
+\]</div>
+<div class="math">\[
+\begin{aligned}
+(\lambda x.e)\;v &amp;\longrightarrow e[v/x],\\
+\langle v\rangle &amp;\longrightarrow v,\\
+\langle E[\mathcal S k.e]\rangle
+ &amp;\longrightarrow
+ \left\langle e\left[(\lambda x.\langle E[x]\rangle)/k\right]\right\rangle.
+\end{aligned}
+\]</div>
+<p>最後の規則で継続の本体に再び reset がある点が本質である。取得した継続の呼出しは呼出し元へ値を返し、その再開中の shift には新しい delimiter が見える。単発の非局所脱出、abortive な call/cc、control/prompt を代用しない。</p>
+<pre>(reset (+ 1 (shift k (+ (funcall k 10) (funcall k 20)))))
+;; =&gt; 32
+
+(let ((k (reset (+ 10 (shift k k)))))
+  (list (funcall k 2) (funcall k 7)))
+;; =&gt; (12 17)</pre>
+
+<h2>2. 注釈と selective CPS</h2>
+<p>制御効果の注釈は \(p\leq i\) の２点とする。\(p\) は直接実行できることを意味し、参照透過性は意味しない。副作用を持つ <code>rplaca</code> 等も制御を捕捉しなければ直接実行できる。</p>
+<div class="math">\[
+\begin{aligned}
+\epsilon_{\mathrm{sub}} &amp;\leq \epsilon_{\mathrm{parent}},\\
+\epsilon_{\mathrm{body}(f)} &amp;\leq \epsilon_{\mathrm{latent}(f)},\\
+\epsilon_{\mathrm{latent}(f)} &amp;\leq \epsilon_{\mathrm{call}(f)},\\
+\epsilon_{\mathcal S k.e} &amp;= i,\qquad
+\epsilon_{\langle e\rangle}=p.
+\end{aligned}
+\]</div>
+<p>不明な関数呼出しは \(i\) から開始する。既知の CL プリミティブの安全な呼出しは \(p\) とし、ローカル関数の呼出しはその latent effect に依存させる。optional/key/aux の初期化式も関数の効果へ加える。再帰的な <code>labels</code> の制約は単調な不動点計算で解く。関数値の生成と、その本体を呼び出した場合の効果を区別する。</p>
+<p>Common Lisp の動的制御形式は、必要なら保守的に CPS 側へ置く。捕捉や領域外への脱出を含む block/tagbody、および special 束縛にはランタイムのフレームが必要である。reset はその内部の制御効果を外へ伝えず、制御効果のある body には独立した trampoline と prompt を作る。body も純粋なら、その生成を省略して直接実行する。</p>
+<table><thead><tr><th>論文との対応</th><th>この実装</th></tr></thead><tbody>
+<tr><td>pure / impure の注釈による選択的変換</td><td>制約で分類した direct 部分を native Lisp として生成する。</td></tr>
+<tr><td>関数型上の latent effect</td><td>ローカルな名前付き関数に latent effect を持たせ、動的な関数値は保守的に CPS 呼出しする。</td></tr>
+<tr><td>answer type を含む多相型推論</td><td>実装しない。動的型付けを保ち、native/CPS の関数値を実行時に橋渡しする。</td></tr>
+<tr><td>型の異なる関数表現の整合</td><td>CPS 関数を SB-MOP の funcallable object として表し、native 関数と呼出し口を共通化する。</td></tr>
+<tr><td>論文の正当性定理・Agda 検証</td><td>参考にするが、この CL 拡張へその定理をそのまま適用したとは主張しない。</td></tr>
+</tbody></table>
+
+<h2>3. ヒープ上の継続と新しい prompt</h2>
+<p>ランタイムの継続は不変のフレーム列である。\(P\) を最も近い prompt、\(R\) をそれより外側とする。</p>
+<div class="math">\[
+K=F_1::\cdots::F_n::P::R,
+\qquad \Gamma=[F_1,\ldots,F_n].
+\]</div>
+<p>shift は \(\Gamma\) を保存し、\(P\) までの動的領域を退出してから body を実行する。取得した継続を値列 \(\vec v\) で呼ぶと、呼出し元の継続 \(C\) の上へ新しい prompt とフレーム列のコピーを置く。</p>
+<div class="math">\[
+\operatorname{invoke}(\Gamma,\vec v,C)
+=\operatorname{resume}\bigl(
+\operatorname{copy}(\Gamma)\mathbin{+\!+}[P_{\rm fresh}]\mathbin{+\!+}C,
+\vec v\bigr).
+\]</div>
+<p>フレームの spine を複製し、保存済みの spine を破壊しない。通常のフレームの処理関数は、古い継続末尾を閉包へ埋め込まず、明示的な <code>next</code> 引数を受け取る。字句変数のロケーションや special の束縛セルは共有する。従って継続の多重呼出しはストアを巻き戻さず、既に評価した引数や副作用を最初から再実行もしない。</p>
+
+<h2>4. 多値と評価順序</h2>
+<p>内部の戻り値は長さゼロを許す値列 \(\vec v=(v_1,\ldots,v_m)\) である。関数引数・条件式・setq の RHS 等の単一値文脈では次の射影を行う。</p>
+<div class="math">\[
+\operatorname{primary}(\vec v)=
+\begin{cases}v_1 &amp; m&gt;0,\\ \mathrm{nil} &amp; m=0.\end{cases}
+\]</div>
+<p><code>multiple-value-call</code> は各引数式の値列を順に連結する。<code>multiple-value-prog1</code> と <code>unwind-protect</code> の正常復帰では元の値列を保持する。継続の引数もこの値列なので、<code>(funcall k)</code> と <code>(funcall k 1 2 3)</code> の両方を扱える。</p>
+<p>評価済みの引数は各々の字句的な一時変数に保持する。後続の引数で shift が生じても、先行する引数式を再評価したり、後で変化した場所を読み直したりしない。</p>
+
+<h2>5. 動的領域と保留中の制御遷移</h2>
+<p>special / progv の束縛、catch、block、tagbody、cleanup、dynamic-wind をフレームとして持つ。各 task は自身の継続フレームが表す special 束縛の下で実行される。native な <code>symbol-value</code>、setq、makunbound の結果を束縛セルへ同期する。</p>
+<p>移行元と移行先の共通末尾を計算し、退出する領域の cleanup/after を内側から外側へ実行する。再入する wind の before は外側から内側へ実行する。cleanup は共有される可変の「使用済み」フラグで単発化しない。</p>
+<p>cleanup や before 自身から shift する場合、保留中の移行先まで継続の一部になる。このため移行先は不透明な閉包に隠さず、<code>transfer-goal</code> / <code>entry-state</code> のデータとして保持する。フレーム複製時に移行先と prompt の対応も付け替える。元の reset の外にある、失効した block 等を復活させることはない。</p>
+<pre>(reset
+  (let ((first t))
+    (+ 10 (unwind-protect (shift k (funcall k 1))
+            (when first
+              (setf first nil)
+              (shift h (+ 100 (funcall h 0))))))))
+;; =&gt; 111  (cleanup 中の捕捉も合成的)</pre>
+<p>direct 側の reset と CPS 側の呼出しが別の driver に属する場合、return/go/throw はまず現在の driver の仮想的な動的領域を退出し、それから native の脱出を行う。これにより native アンワインドの開始前には、cleanup 内の shift も通常どおり扱える。</p>
+
+<h2>6. native 境界</h2>
+<p>未変換関数の戻り先はヒープ上にない。その内部から外側の prompt へ継続を捕捉することはできない。CPS 関数の native な呼出し口は、暗黙の reset を作らない独立した driver を使い、外側まで捕捉しようとすれば <code>native-boundary</code> を通知する。callee 内の明示的な reset で完結する操作は可能である。</p>
+<p>map 系、reduce、some/every 等の同梱アダプタは callback の戻り先もヒープ上へ置く。新しい関数には <code>register-cps-adapter</code> で同じ呼出し規約を持つ変換済みの実装を登録できる。</p>
+<p>未処理の native エラー等によって既に始まった native アンワインドも境界である。その際の cleanup から元の prompt へ捕捉する要求を拒否し、成功したかのように計算を進めない。独立した新しい reset 内での捕捉は許す。</p>
+<p>単一 prompt のコア意味論を実装する範囲と、未変換 Common Lisp 全体との透過的相互運用を区別する。後者について無制限の互換性を主張しない。ローカル型宣言を観測する独自マクロなど、詳細な制約は README を参照されたい。</p>
+
+<h2>1.1 の最適化</h2>
+<p>純粋な引数列を左から右へ通常の let* で評価し、その値を字句的な一時変数へ保持する。単一値文脈では CL の通常の評価が第１値を取り、値がなければ nil とする。したがって、直接実行する部分をまとめても、後続の shift や代入によって先行する引数を読み直すことはない。progv が必要な領域では適切な束縛を設定した task の内部で直接評価する。</p>
+<p>block と tagbody の領域効果を、その本体・return-from/go と相互に制約する。効果が純粋な閉じた領域は native な block/tagbody として生成する。関数または reset の境界をまたぐ参照は保守的にヒープ上の対象へ昇格させ、元の対象の失効検査を維持する。</p>
+<p>継続の共通末尾は不変・非循環のフレーム列の長さを合わせて探索する。複製対象が保留中の制御移行を含まなければ mapping を省略する。transition/enter フレームを含む場合の移行先の付け替えは元の経路を使う。動的環境、cleanup、多重呼出しの規約を省略する最適化ではない。</p>
+<h2>7. 検証</h2>
+<p>コンパイラとは独立した簡約器は、βv と上記 shift/reset 規則を捕獲回避置換で直接実行する。コンパイラ IR、ランタイムフレーム、CPS evaluator を使わない。</p>
+<table><thead><tr><th>検証</th><th>内容</th></tr></thead><tbody>
+<tr><td>参照簡約器との比較</td><td>7 種類のスキーマを 12 × 12 の定数で具体化した 1008 式と、固定 seed から深さ 4/5 で生成した 320 式。selective / full の両方を比較。</td></tr>
+<tr><td>CL 拡張の具体例</td><td>多値、評価順序、可変セル、通常 lambda list、高階関数、再帰、非局所脱出、動的束縛、ハンドラ/restart、wind と cleanup 中の捕捉。</td></tr>
+<tr><td>資源・実行形態</td><td>10 万回の末尾再帰、深さ 2000 の多重呼出し、full GC 後・別スレッドでの呼出し、別プロセスでの FASL / core のロード。</td></tr>
+</tbody></table>
+<p>検証件数、SBCL バージョンと実行結果の正本は同梱の <code>VERIFICATION.txt</code> に記載する。テスト成功は形式証明の代用ではない。</p>
+
+<h2>参照</h2>
+<ol>
+<li>Asai, K. and Uehara, C. (2018). <em>Selective CPS Transformation for Shift and Reset</em>. PEPM, 40–52. <a href="https://doi.org/10.1145/3162069">DOI</a> · <a href="https://www.is.ocha.ac.jp/~asai/papers/pepm18.pdf">著者版</a></li>
+<li>Ishio, C. and Asai, K. (2020). <em>Verifying Selective CPS Transformation for Shift and Reset</em>. LNCS 12053, 38–57. <a href="https://doi.org/10.1007/978-3-030-47147-7_3">DOI</a> · <a href="https://www.is.ocha.ac.jp/~asai/papers/tfp19.agda">Agda 形式化</a></li>
+<li><a href="https://cl-cont.common-lisp.dev/">cl-cont</a> / <a href="https://gitlab.common-lisp.net/cl-cont/cl-cont">source</a>. 設計上の参照資料。配布コードの依存ではない。</li>
+</ol>
+<footer>数式の LaTeX ソースをこの HTML に保持する。数式表示は同梱 MathJax 3.2.2 (Apache-2.0) による。日本語フォントは Noto Sans JP の subset (SIL OFL-1.1)。コードのライセンスは MIT。原論文・cl-cont・Agda ソースは配布物に複製していない。</footer>
+</main></body></html>

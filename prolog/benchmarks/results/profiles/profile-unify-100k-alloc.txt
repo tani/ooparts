@@ -1,0 +1,45 @@
+Profile: unify-100k mode=ALLOC
+
+Number of samples:     20000
+Unique traces:         65
+Alloc interval:        1 regions (approximately 32 kB)
+Total sampling amount: 20000 regions (approximately 640000 kB)
+Graph cycles:        0
+Sampled threads:
+   #<THREAD "main thread" RUNNING {10013C8003}> (13872/1048576 bytes, 65 hash buckets)
+
+           Self        Total        Cumul
+  Nr  Count     %  Count     %  Count     %    Calls  Function
+------------------------------------------------------------------------
+   2  16783  83.9  16783  83.9  16783  83.9        -  LIST-ALLOC-TRAMP
+   4   3217  16.1   3217  16.1  20000 100.0        -  ALLOC-TRAMP
+   6      0   0.0  20000 100.0  20000 100.0        -  (LAMBDA NIL :IN "/workspace/scratch/3bbc51abd2c1/ooparts/prolog/benchmarks/profile.lisp")
+   8      0   0.0  20000 100.0  20000 100.0        -  SB-INT:SIMPLE-EVAL-IN-LEXENV
+  10      0   0.0  20000 100.0  20000 100.0        -  SB-EXT:EVAL-TLF
+  12      0   0.0  20000 100.0  20000 100.0        -  (LABELS SB-FASL::EVAL-FORM :IN SB-INT:LOAD-AS-SOURCE)
+  14      0   0.0  20000 100.0  20000 100.0        -  (LAMBDA (SB-KERNEL:FORM &KEY :CURRENT-INDEX &ALLOW-OTHER-KEYS) :IN SB-INT:LOAD-AS-SOURCE)
+  16      0   0.0  20000 100.0  20000 100.0        -  SB-C::%DO-FORMS-FROM-INFO
+  18      0   0.0  20000 100.0  20000 100.0        -  SB-INT:LOAD-AS-SOURCE
+  20      0   0.0  20000 100.0  20000 100.0        -  (LABELS SB-FASL::LOAD-STREAM-1 :IN LOAD)
+  22      0   0.0  20000 100.0  20000 100.0        -  SB-FASL::CALL-WITH-LOAD-BINDINGS
+  24      0   0.0  20000 100.0  20000 100.0        -  LOAD
+  26      0   0.0  20000 100.0  20000 100.0        -  (FLET SB-IMPL::LOAD-SCRIPT :IN SB-IMPL::PROCESS-SCRIPT)
+  28      0   0.0  20000 100.0  20000 100.0        -  (FLET SB-UNIX::BODY :IN SB-IMPL::PROCESS-SCRIPT)
+  30      0   0.0  20000 100.0  20000 100.0        -  (FLET "WITHOUT-INTERRUPTS-BODY-11" :IN SB-IMPL::PROCESS-SCRIPT)
+  32      0   0.0  20000 100.0  20000 100.0        -  SB-IMPL::PROCESS-SCRIPT
+  34      0   0.0  20000 100.0  20000 100.0        -  SB-IMPL::TOPLEVEL-INIT
+  36      0   0.0  20000 100.0  20000 100.0        -  (FLET SB-UNIX::BODY :IN SB-IMPL::START-LISP)
+  38      0   0.0  20000 100.0  20000 100.0        -  (FLET "WITHOUT-INTERRUPTS-BODY-3" :IN SB-IMPL::START-LISP)
+  40      0   0.0  20000 100.0  20000 100.0        -  SB-IMPL::%START-LISP
+  42      0   0.0  20000 100.0  20000 100.0        -  foreign function call_into_lisp_
+  44      0   0.0  13235  66.2  20000 100.0        -  MAKE-QUERY
+  46      0   0.0   8829  44.1  20000 100.0        -  (LABELS OOPARTS/PROLOG::BUILD-TERM :IN OOPARTS/PROLOG::LOWER-WAM-CODE)
+  48      0   0.0   8829  44.1  20000 100.0        -  (LABELS OOPARTS/PROLOG::LOWER-SEQUENCE :IN OOPARTS/PROLOG::LOWER-WAM-CODE)
+  50      0   0.0   8829  44.1  20000 100.0        -  OOPARTS/PROLOG::LOWER-WAM-CODE
+  52      0   0.0   5257  26.3  20000 100.0        -  OOPARTS/PROLOG::COMPOUND-FIELDS
+  54      0   0.0   4831  24.2  20000 100.0        -  OOPARTS/PROLOG::RUN-MACHINE
+  56      0   0.0   4355  21.8  20000 100.0        -  OOPARTS/PROLOG::MAP-TERM
+  58      0   0.0   4163  20.8  20000 100.0        -  OOPARTS/PROLOG::STRUCTURE-FIELDS
+  60      0   0.0   2426  12.1  20000 100.0        -  OOPARTS/PROLOG::GOAL-INSTRUCTIONS
+------------------------------------------------------------------------
+          0   0.0                                     elsewhere

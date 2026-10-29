@@ -1,0 +1,676 @@
+{
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "engines": {
+    "ooparts/prolog": {
+      "version": "SBCL 2.2.9.debian",
+      "command": [
+        "/workspace/scratch/3bbc51abd2c1/sbcl-runtime/usr/bin/sbcl",
+        "--dynamic-space-size",
+        "2048",
+        "--control-stack-size",
+        "1",
+        "--script",
+        "benchmarks/competitive.lisp"
+      ],
+      "cold_seconds": {
+        "queens": 0.050234,
+        "tak": 0.000972,
+        "reverse": 0.012884,
+        "qsort": 0.000763,
+        "graph": 0.000267,
+        "differentiate": 0.00037
+      },
+      "cases": {
+        "queens": [
+          {
+            "seconds": 0.00104081,
+            "allocated_bytes": 1276671,
+            "batch": 100,
+            "batch_seconds": 0.104081
+          },
+          {
+            "seconds": 0.00107955,
+            "allocated_bytes": 1276671,
+            "batch": 100,
+            "batch_seconds": 0.107955
+          },
+          {
+            "seconds": 0.00108689,
+            "allocated_bytes": 1276671,
+            "batch": 100,
+            "batch_seconds": 0.108689
+          },
+          {
+            "seconds": 0.00130746,
+            "allocated_bytes": 1276671,
+            "batch": 100,
+            "batch_seconds": 0.130746
+          },
+          {
+            "seconds": 0.00103019,
+            "allocated_bytes": 1276671,
+            "batch": 100,
+            "batch_seconds": 0.103019
+          }
+        ],
+        "tak": [
+          {
+            "seconds": 0.00118011,
+            "allocated_bytes": 3918,
+            "batch": 100,
+            "batch_seconds": 0.118011
+          },
+          {
+            "seconds": 0.00109546,
+            "allocated_bytes": 3918,
+            "batch": 100,
+            "batch_seconds": 0.109546
+          },
+          {
+            "seconds": 0.00106137,
+            "allocated_bytes": 3918,
+            "batch": 100,
+            "batch_seconds": 0.106137
+          },
+          {
+            "seconds": 0.00104374,
+            "allocated_bytes": 3918,
+            "batch": 100,
+            "batch_seconds": 0.104374
+          },
+          {
+            "seconds": 0.00104787,
+            "allocated_bytes": 3918,
+            "batch": 100,
+            "batch_seconds": 0.104787
+          }
+        ],
+        "reverse": [
+          {
+            "seconds": 0.0129745,
+            "allocated_bytes": 11551534,
+            "batch": 10,
+            "batch_seconds": 0.129745
+          },
+          {
+            "seconds": 0.0132644,
+            "allocated_bytes": 11551534,
+            "batch": 10,
+            "batch_seconds": 0.132644
+          },
+          {
+            "seconds": 0.0131814,
+            "allocated_bytes": 11551534,
+            "batch": 10,
+            "batch_seconds": 0.131814
+          },
+          {
+            "seconds": 0.0127639,
+            "allocated_bytes": 11551534,
+            "batch": 10,
+            "batch_seconds": 0.127639
+          },
+          {
+            "seconds": 0.0126509,
+            "allocated_bytes": 11551534,
+            "batch": 10,
+            "batch_seconds": 0.126509
+          }
+        ],
+        "qsort": [
+          {
+            "seconds": 0.00107155,
+            "allocated_bytes": 723084,
+            "batch": 100,
+            "batch_seconds": 0.107155
+          },
+          {
+            "seconds": 0.00113035,
+            "allocated_bytes": 723084,
+            "batch": 100,
+            "batch_seconds": 0.113035
+          },
+          {
+            "seconds": 0.00109005,
+            "allocated_bytes": 723084,
+            "batch": 100,
+            "batch_seconds": 0.109005
+          },
+          {
+            "seconds": 0.00127244,
+            "allocated_bytes": 723084,
+            "batch": 100,
+            "batch_seconds": 0.127244
+          },
+          {
+            "seconds": 0.00124117,
+            "allocated_bytes": 723084,
+            "batch": 100,
+            "batch_seconds": 0.124117
+          }
+        ],
+        "graph": [
+          {
+            "seconds": 0.000212128,
+            "allocated_bytes": 168185,
+            "batch": 500,
+            "batch_seconds": 0.106064
+          },
+          {
+            "seconds": 0.000159878,
+            "allocated_bytes": 168185,
+            "batch": 500,
+            "batch_seconds": 0.079939
+          },
+          {
+            "seconds": 0.000157214,
+            "allocated_bytes": 168185,
+            "batch": 500,
+            "batch_seconds": 0.078607
+          },
+          {
+            "seconds": 0.000196862,
+            "allocated_bytes": 168185,
+            "batch": 500,
+            "batch_seconds": 0.098431
+          },
+          {
+            "seconds": 0.000183178,
+            "allocated_bytes": 168185,
+            "batch": 500,
+            "batch_seconds": 0.091589
+          }
+        ],
+        "differentiate": [
+          {
+            "seconds": 0.000423896,
+            "allocated_bytes": 66734,
+            "batch": 250,
+            "batch_seconds": 0.105974
+          },
+          {
+            "seconds": 0.000380328,
+            "allocated_bytes": 66734,
+            "batch": 250,
+            "batch_seconds": 0.095082
+          },
+          {
+            "seconds": 0.000374924,
+            "allocated_bytes": 66734,
+            "batch": 250,
+            "batch_seconds": 0.093731
+          },
+          {
+            "seconds": 0.000392252,
+            "allocated_bytes": 66734,
+            "batch": 250,
+            "batch_seconds": 0.098063
+          },
+          {
+            "seconds": 0.00039246,
+            "allocated_bytes": 66734,
+            "batch": 250,
+            "batch_seconds": 0.098115
+          }
+        ]
+      }
+    },
+    "swi": {
+      "version": "SWI-Prolog version 9.2.9 for x86_64-linux",
+      "command": [
+        "/workspace/scratch/7ce7a2317224/swi-9.2/usr/lib/swi-prolog/bin/x86_64-linux/swipl",
+        "-O",
+        "-q",
+        "-s",
+        "benchmarks/competitive-swi.pl"
+      ],
+      "cold_seconds": {
+        "queens": 0.003042556,
+        "tak": 0.003684555,
+        "reverse": 0.021931568,
+        "qsort": 0.004582722,
+        "graph": 0.000624643,
+        "differentiate": 0.000843677
+      },
+      "cases": {
+        "queens": [
+          {
+            "seconds": 0.0027211,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.272109964
+          },
+          {
+            "seconds": 0.002564281,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.256428097
+          },
+          {
+            "seconds": 0.002504448,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.25044478
+          },
+          {
+            "seconds": 0.00244277,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.244277026
+          },
+          {
+            "seconds": 0.002630439,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.263043868
+          }
+        ],
+        "tak": [
+          {
+            "seconds": 0.003980253,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.398025294
+          },
+          {
+            "seconds": 0.004154904,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.415490407
+          },
+          {
+            "seconds": 0.003971451,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.397145068
+          },
+          {
+            "seconds": 0.003875332,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.387533249
+          },
+          {
+            "seconds": 0.003904813,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.390481281
+          }
+        ],
+        "reverse": [
+          {
+            "seconds": 0.021154575,
+            "allocated_bytes": 0,
+            "batch": 10,
+            "batch_seconds": 0.211545749
+          },
+          {
+            "seconds": 0.02133469,
+            "allocated_bytes": 0,
+            "batch": 10,
+            "batch_seconds": 0.213346901
+          },
+          {
+            "seconds": 0.022852316,
+            "allocated_bytes": 0,
+            "batch": 10,
+            "batch_seconds": 0.228523162
+          },
+          {
+            "seconds": 0.022074951,
+            "allocated_bytes": 0,
+            "batch": 10,
+            "batch_seconds": 0.22074951
+          },
+          {
+            "seconds": 0.023617164,
+            "allocated_bytes": 0,
+            "batch": 10,
+            "batch_seconds": 0.236171639
+          }
+        ],
+        "qsort": [
+          {
+            "seconds": 0.004111045,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.411104451
+          },
+          {
+            "seconds": 0.004067097,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.406709716
+          },
+          {
+            "seconds": 0.003937581,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.393758064
+          },
+          {
+            "seconds": 0.003915525,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.3915525
+          },
+          {
+            "seconds": 0.004017949,
+            "allocated_bytes": 0,
+            "batch": 100,
+            "batch_seconds": 0.401794873
+          }
+        ],
+        "graph": [
+          {
+            "seconds": 0.000332848,
+            "allocated_bytes": 0,
+            "batch": 500,
+            "batch_seconds": 0.166424074
+          },
+          {
+            "seconds": 0.000354089,
+            "allocated_bytes": 0,
+            "batch": 500,
+            "batch_seconds": 0.177044286
+          },
+          {
+            "seconds": 0.000353924,
+            "allocated_bytes": 0,
+            "batch": 500,
+            "batch_seconds": 0.176962121
+          },
+          {
+            "seconds": 0.000354903,
+            "allocated_bytes": 0,
+            "batch": 500,
+            "batch_seconds": 0.177451533
+          },
+          {
+            "seconds": 0.000339355,
+            "allocated_bytes": 0,
+            "batch": 500,
+            "batch_seconds": 0.169677692
+          }
+        ],
+        "differentiate": [
+          {
+            "seconds": 0.001020555,
+            "allocated_bytes": 0,
+            "batch": 250,
+            "batch_seconds": 0.255138856
+          },
+          {
+            "seconds": 0.000985141,
+            "allocated_bytes": 0,
+            "batch": 250,
+            "batch_seconds": 0.246285159
+          },
+          {
+            "seconds": 0.000914594,
+            "allocated_bytes": 0,
+            "batch": 250,
+            "batch_seconds": 0.228648522
+          },
+          {
+            "seconds": 0.000880146,
+            "allocated_bytes": 0,
+            "batch": 250,
+            "batch_seconds": 0.220036416
+          },
+          {
+            "seconds": 0.000924282,
+            "allocated_bytes": 0,
+            "batch": 250,
+            "batch_seconds": 0.23107051
+          }
+        ]
+      }
+    }
+  },
+  "summary": {
+    "queens": {
+      "ooparts/prolog": 0.00107955,
+      "swi": 0.002564281,
+      "swi_over_ooparts/prolog": 2.375323977583252,
+      "baseline": 0.243975,
+      "baseline_over_ooparts/prolog": 225.99694317076558
+    },
+    "tak": {
+      "ooparts/prolog": 0.00106137,
+      "swi": 0.003971451,
+      "swi_over_ooparts/prolog": 3.7418157664151046,
+      "baseline": 0.378788,
+      "baseline_over_ooparts/prolog": 356.88591160481263
+    },
+    "reverse": {
+      "ooparts/prolog": 0.0129745,
+      "swi": 0.022074951,
+      "swi_over_ooparts/prolog": 1.7014105360514855,
+      "baseline": 2.202894,
+      "baseline_over_ooparts/prolog": 169.78642722262902
+    },
+    "qsort": {
+      "ooparts/prolog": 0.00113035,
+      "swi": 0.004017949,
+      "swi_over_ooparts/prolog": 3.554606095457159,
+      "baseline": 0.264484,
+      "baseline_over_ooparts/prolog": 233.98416419693015
+    },
+    "graph": {
+      "ooparts/prolog": 0.000183178,
+      "swi": 0.000353924,
+      "swi_over_ooparts/prolog": 1.9321315878544367,
+      "baseline": 0.841005,
+      "baseline_over_ooparts/prolog": 4591.189990064309
+    },
+    "differentiate": {
+      "ooparts/prolog": 0.000392252,
+      "swi": 0.000924282,
+      "swi_over_ooparts/prolog": 2.3563474501086037,
+      "baseline": 0.078147,
+      "baseline_over_ooparts/prolog": 199.22651764681888
+    }
+  },
+  "date": "2026-10-23 JST",
+  "cpu": "AMD EPYC 9V74; 9 visible vCPUs; quota 8 CPUs; single-threaded queries",
+  "memory_limit_bytes": 8589934592,
+  "baseline": {
+    "revision": "9e14c1ec8823b5ce283b3683bca9195c9f686d74",
+    "cases": {
+      "queens": [
+        {
+          "seconds": 0.274483,
+          "allocated_bytes": 154026128,
+          "batch": 1,
+          "batch_seconds": 0.274483
+        },
+        {
+          "seconds": 0.234683,
+          "allocated_bytes": 154026128,
+          "batch": 1,
+          "batch_seconds": 0.234683
+        },
+        {
+          "seconds": 0.243975,
+          "allocated_bytes": 154026128,
+          "batch": 1,
+          "batch_seconds": 0.243975
+        },
+        {
+          "seconds": 0.251115,
+          "allocated_bytes": 154026128,
+          "batch": 1,
+          "batch_seconds": 0.251115
+        },
+        {
+          "seconds": 0.233954,
+          "allocated_bytes": 154026128,
+          "batch": 1,
+          "batch_seconds": 0.233954
+        }
+      ],
+      "tak": [
+        {
+          "seconds": 0.403818,
+          "allocated_bytes": 250403984,
+          "batch": 1,
+          "batch_seconds": 0.403818
+        },
+        {
+          "seconds": 0.401681,
+          "allocated_bytes": 250403984,
+          "batch": 1,
+          "batch_seconds": 0.401681
+        },
+        {
+          "seconds": 0.365781,
+          "allocated_bytes": 250403984,
+          "batch": 1,
+          "batch_seconds": 0.365781
+        },
+        {
+          "seconds": 0.378788,
+          "allocated_bytes": 250403984,
+          "batch": 1,
+          "batch_seconds": 0.378788
+        },
+        {
+          "seconds": 0.372703,
+          "allocated_bytes": 250403984,
+          "batch": 1,
+          "batch_seconds": 0.372703
+        }
+      ],
+      "reverse": [
+        {
+          "seconds": 2.202894,
+          "allocated_bytes": 1163144624,
+          "batch": 1,
+          "batch_seconds": 2.202894
+        },
+        {
+          "seconds": 2.236902,
+          "allocated_bytes": 1163144624,
+          "batch": 1,
+          "batch_seconds": 2.236902
+        },
+        {
+          "seconds": 2.235292,
+          "allocated_bytes": 1163144624,
+          "batch": 1,
+          "batch_seconds": 2.235292
+        },
+        {
+          "seconds": 2.06706,
+          "allocated_bytes": 1163144624,
+          "batch": 1,
+          "batch_seconds": 2.06706
+        },
+        {
+          "seconds": 2.01949,
+          "allocated_bytes": 1163144624,
+          "batch": 1,
+          "batch_seconds": 2.01949
+        }
+      ],
+      "qsort": [
+        {
+          "seconds": 0.275036,
+          "allocated_bytes": 163812256,
+          "batch": 1,
+          "batch_seconds": 0.275036
+        },
+        {
+          "seconds": 0.265566,
+          "allocated_bytes": 163812256,
+          "batch": 1,
+          "batch_seconds": 0.265566
+        },
+        {
+          "seconds": 0.264484,
+          "allocated_bytes": 163812256,
+          "batch": 1,
+          "batch_seconds": 0.264484
+        },
+        {
+          "seconds": 0.261781,
+          "allocated_bytes": 163812256,
+          "batch": 1,
+          "batch_seconds": 0.261781
+        },
+        {
+          "seconds": 0.264153,
+          "allocated_bytes": 163812256,
+          "batch": 1,
+          "batch_seconds": 0.264153
+        }
+      ],
+      "graph": [
+        {
+          "seconds": 0.735402,
+          "allocated_bytes": 785944352,
+          "batch": 1,
+          "batch_seconds": 0.735402
+        },
+        {
+          "seconds": 0.841005,
+          "allocated_bytes": 785944352,
+          "batch": 1,
+          "batch_seconds": 0.841005
+        },
+        {
+          "seconds": 0.825442,
+          "allocated_bytes": 785944352,
+          "batch": 1,
+          "batch_seconds": 0.825442
+        },
+        {
+          "seconds": 0.855112,
+          "allocated_bytes": 785944352,
+          "batch": 1,
+          "batch_seconds": 0.855112
+        },
+        {
+          "seconds": 0.861657,
+          "allocated_bytes": 785944352,
+          "batch": 1,
+          "batch_seconds": 0.861657
+        }
+      ],
+      "differentiate": [
+        {
+          "seconds": 0.078467,
+          "allocated_bytes": 58531056,
+          "batch": 1,
+          "batch_seconds": 0.078467
+        },
+        {
+          "seconds": 0.076914,
+          "allocated_bytes": 58531056,
+          "batch": 1,
+          "batch_seconds": 0.076914
+        },
+        {
+          "seconds": 0.07664,
+          "allocated_bytes": 58531056,
+          "batch": 1,
+          "batch_seconds": 0.07664
+        },
+        {
+          "seconds": 0.078147,
+          "allocated_bytes": 58531056,
+          "batch": 1,
+          "batch_seconds": 0.078147
+        },
+        {
+          "seconds": 0.081015,
+          "allocated_bytes": 58531056,
+          "batch": 1,
+          "batch_seconds": 0.081015
+        }
+      ]
+    },
+    "note": "Five single-query samples after one warmup; optimized and SWI samples use identical per-case batches."
+  }
+}

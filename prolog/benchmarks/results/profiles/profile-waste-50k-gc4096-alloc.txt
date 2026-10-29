@@ -1,0 +1,45 @@
+Profile: waste-50k-gc4096 mode=ALLOC
+
+Number of samples:     20000
+Unique traces:         54
+Alloc interval:        1 regions (approximately 32 kB)
+Total sampling amount: 20000 regions (approximately 640000 kB)
+Graph cycles:        0
+Sampled threads:
+   #<THREAD "main thread" RUNNING {10013C8003}> (11112/1048576 bytes, 54 hash buckets)
+
+           Self        Total        Cumul
+  Nr  Count     %  Count     %  Count     %    Calls  Function
+------------------------------------------------------------------------
+   2  15583  77.9  15583  77.9  15583  77.9        -  ALLOC-TRAMP
+   4   4417  22.1   4417  22.1  20000 100.0        -  LIST-ALLOC-TRAMP
+   6      0   0.0  20000 100.0  20000 100.0        -  OOPARTS/PROLOG::RUN-MACHINE
+   8      0   0.0  20000 100.0  20000 100.0        -  (LAMBDA NIL :IN "/workspace/scratch/3bbc51abd2c1/ooparts/prolog/benchmarks/profile.lisp")
+  10      0   0.0  20000 100.0  20000 100.0        -  SB-INT:SIMPLE-EVAL-IN-LEXENV
+  12      0   0.0  20000 100.0  20000 100.0        -  SB-EXT:EVAL-TLF
+  14      0   0.0  20000 100.0  20000 100.0        -  (LABELS SB-FASL::EVAL-FORM :IN SB-INT:LOAD-AS-SOURCE)
+  16      0   0.0  20000 100.0  20000 100.0        -  (LAMBDA (SB-KERNEL:FORM &KEY :CURRENT-INDEX &ALLOW-OTHER-KEYS) :IN SB-INT:LOAD-AS-SOURCE)
+  18      0   0.0  20000 100.0  20000 100.0        -  SB-C::%DO-FORMS-FROM-INFO
+  20      0   0.0  20000 100.0  20000 100.0        -  SB-INT:LOAD-AS-SOURCE
+  22      0   0.0  20000 100.0  20000 100.0        -  (LABELS SB-FASL::LOAD-STREAM-1 :IN LOAD)
+  24      0   0.0  20000 100.0  20000 100.0        -  SB-FASL::CALL-WITH-LOAD-BINDINGS
+  26      0   0.0  20000 100.0  20000 100.0        -  LOAD
+  28      0   0.0  20000 100.0  20000 100.0        -  (FLET SB-IMPL::LOAD-SCRIPT :IN SB-IMPL::PROCESS-SCRIPT)
+  30      0   0.0  20000 100.0  20000 100.0        -  (FLET SB-UNIX::BODY :IN SB-IMPL::PROCESS-SCRIPT)
+  32      0   0.0  20000 100.0  20000 100.0        -  (FLET "WITHOUT-INTERRUPTS-BODY-11" :IN SB-IMPL::PROCESS-SCRIPT)
+  34      0   0.0  20000 100.0  20000 100.0        -  SB-IMPL::PROCESS-SCRIPT
+  36      0   0.0  20000 100.0  20000 100.0        -  SB-IMPL::TOPLEVEL-INIT
+  38      0   0.0  20000 100.0  20000 100.0        -  (FLET SB-UNIX::BODY :IN SB-IMPL::START-LISP)
+  40      0   0.0  20000 100.0  20000 100.0        -  (FLET "WITHOUT-INTERRUPTS-BODY-3" :IN SB-IMPL::START-LISP)
+  42      0   0.0  20000 100.0  20000 100.0        -  SB-IMPL::%START-LISP
+  44      0   0.0  20000 100.0  20000 100.0        -  foreign function call_into_lisp_
+  46      0   0.0   8447  42.2  20000 100.0        -  SB-IMPL::%MAKE-HASH-TABLE
+  48      0   0.0   8446  42.2  20000 100.0        -  SB-IMPL::%ALLOC-HASH-TABLE
+  50      0   0.0   7515  37.6  20000 100.0        -  OOPARTS/PROLOG::MAP-TERM
+  52      0   0.0   3397  17.0  20000 100.0        -  OOPARTS/PROLOG::UNIFY
+  54      0   0.0   2003  10.0  20000 100.0        -  OOPARTS/PROLOG::INVOKE-PREDICATE
+  56      0   0.0   1621   8.1  20000 100.0        -  OOPARTS/PROLOG::INSTANTIATE
+  58      0   0.0   1619   8.1  20000 100.0        -  OOPARTS/PROLOG::EXECUTE-TERM-INSTRUCTION
+  60      0   0.0   1618   8.1  20000 100.0        -  OOPARTS/PROLOG::ENSURE-REGISTERS
+------------------------------------------------------------------------
+          0   0.0                                     elsewhere

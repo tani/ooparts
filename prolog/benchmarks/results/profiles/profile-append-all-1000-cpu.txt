@@ -1,0 +1,44 @@
+Profile: append-all-1000 mode=CPU
+
+Number of samples:   1200
+Sample interval:     0.003 seconds
+Total sampling time: 3.6000001 seconds
+Graph cycles:        0
+Sampled threads:
+   #<THREAD "main thread" RUNNING {10013C8003}> (74632/1048576 bytes, 374 hash buckets)
+
+           Self        Total        Cumul
+  Nr  Count     %  Count     %  Count     %    Calls  Function
+------------------------------------------------------------------------
+   2    277  23.1   1089  90.8    277  23.1        -  OOPARTS/PROLOG::MAP-TERM
+   4    116   9.7    116   9.7    393  32.8        -  foreign function pthread_sigmask
+   6    106   8.8    106   8.8    499  41.6        -  SB-IMPL::REHASH
+   8     84   7.0    394  32.8    583  48.6        -  SB-IMPL::GROW-HASH-TABLE
+  10     79   6.6     79   6.6    662  55.2        -  SB-C::CHECK-DS-LIST
+  12     71   5.9    118   9.8    733  61.1        -  (LAMBDA (OOPARTS/PROLOG::X) :IN OOPARTS/PROLOG::REIFY)
+  14     64   5.3     64   5.3    797  66.4        -  SB-IMPL::GETHASH/EQ
+  16     43   3.6    452  37.7    840  70.0        -  (FLET SB-IMPL::INSERT-AT :IN "SYS:SRC;CODE;TARGET-HASH-TABLE.LISP")
+  18     38   3.2     38   3.2    878  73.2        -  OOPARTS/PROLOG::DEREF
+  20     34   2.8     34   2.8    912  76.0        -  VECTOR-FILL/T
+  22     32   2.7    483  40.3    944  78.7        -  SB-IMPL::PUTHASH/EQ
+  24     23   1.9     23   1.9    967  80.6        -  SB-IMPL::GETHASH3
+  26     19   1.6     19   1.6    986  82.2        -  RESTORE-YMM
+  28     14   1.2     14   1.2   1000  83.3        -  SB-KERNEL:%PUTHASH
+  30     10   0.8    130  10.8   1010  84.2        -  SB-IMPL::HASH-TABLE-NEW-VECTORS
+  32     10   0.8     37   3.1   1020  85.0        -  OOPARTS/PROLOG::RUN-MACHINE
+  34      7   0.6      9   0.8   1027  85.6        -  SB-KERNEL::INTEGER-/-INTEGER
+  36      5   0.4      5   0.4   1032  86.0        -  SAVE-YMM
+  38      4   0.3      6   0.5   1036  86.3        -  SB-IMPL::%ALLOC-HASH-TABLE
+  40      4   0.3      4   0.3   1040  86.7        -  foreign function gc_find_freeish_pages
+  42      4   0.3      4   0.3   1044  87.0        -  SB-KERNEL:TWO-ARG->
+  44      2   0.2    100   8.3   1046  87.2        -  foreign function alloc
+  46      2   0.2      6   0.5   1048  87.3        -  foreign function alloc_list
+  48      2   0.2      4   0.3   1050  87.5        -  TRUNCATE
+  50      2   0.2      3   0.3   1052  87.7        -  VECTOR-PUSH-EXTEND
+  52      2   0.2      2   0.2   1054  87.8        -  OOPARTS/PROLOG::UNWIND-TRAIL
+  54      2   0.2      2   0.2   1056  88.0        -  (SB-VM::OPTIMIZED-DATA-VECTOR-REF T)
+  56      2   0.2      2   0.2   1058  88.2        -  foreign function __pthread_mutex_unlock
+  58      2   0.2      2   0.2   1060  88.3        -  SB-KERNEL:TWO-ARG-<
+  60      2   0.2      2   0.2   1062  88.5        -  SB-KERNEL::FIXNUM-GCD
+------------------------------------------------------------------------
+        115   9.6                                     elsewhere

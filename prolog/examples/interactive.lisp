@@ -1,0 +1,7 @@
+(require :asdf)
+(asdf:load-asd (merge-pathnames "../../ooparts.asd" *load-truename*))
+(asdf:load-system "ooparts/prolog")
+(use-package :prolog)
+(<-- (append () ?ys ?ys))
+(<- (append (?x . ?xs) ?ys (?x . ?zs)) (append ?xs ?ys ?zs))
+(?- (append ?xs ?ys (a b c)))

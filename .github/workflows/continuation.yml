@@ -1,0 +1,17 @@
+name: Continuation (SBCL)
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y sbcl
+      - run: bash continuation/tests/run.sh
+      - name: Test both libraries in one image
+        run: >-
+          sbcl --dynamic-space-size 2048 --control-stack-size 1 --non-interactive
+          --eval '(require :asdf)'
+          --eval '(asdf:load-asd (truename "ooparts.asd"))'
+          --eval '(asdf:test-system "ooparts")'

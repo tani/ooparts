@@ -1,0 +1,198 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  This file is part of Logtalk <https://logtalk.org/>
+%  SPDX-FileCopyrightText: 1998-2026 Paulo Moura <pmoura@logtalk.org>
+%  SPDX-License-Identifier: Apache-2.0
+%
+%  Licensed under the Apache License, Version 2.0 (the "License");
+%  you may not use this file except in compliance with the License.
+%  You may obtain a copy of the License at
+%
+%      http://www.apache.org/licenses/LICENSE-2.0
+%
+%  Unless required by applicable law or agreed to in writing, software
+%  distributed under the License is distributed on an "AS IS" BASIS,
+%  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%  See the License for the specific language governing permissions and
+%  limitations under the License.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+:- object(tests,
+	extends(lgtunit)).
+
+	:- info([
+		version is 1:9:1,
+		author is 'Paulo Moura',
+		date is 2026-09-08,
+		comment is 'Unit tests for the ISO Prolog standard number_chars/2 built-in predicate.'
+	]).
+
+	:- set_logtalk_flag(arithmetic_expressions, silent).
+	:- set_logtalk_flag(suspicious_calls, silent).
+
+	% tests from the ISO/IEC 13211-1:1995(E) standard, section 8.16.7.4
+
+	test(iso_number_chars_2_01, true(L == ['3','3'])) :-
+		{number_chars(33, L)}.
+
+	test(iso_number_chars_2_02, true) :-
+		{number_chars(33, ['3','3'])}.
+
+	test(iso_number_chars_2_03, true(N == 33.0)) :-
+		{number_chars(33.0, L), number_chars(N, L)}.
+
+	test(iso_number_chars_2_04, true(X == 3.3)) :-
+		{number_chars(X, ['3','.','3','E','+','0'])}.
+
+	test(iso_number_chars_2_05, true) :-
+		{number_chars(3.3, ['3'| _L])}.
+
+	test(iso_number_chars_2_06, true(A == -25)) :-
+		{number_chars(A, ['-','2','5'])}.
+
+	test(iso_number_chars_2_07, true(A == 3)) :-
+		{number_chars(A, ['\n',' ','3'])}.
+
+	test(iso_number_chars_2_08, error(syntax_error(_))) :-
+		{number_chars(_A, ['3',' '])}.
+
+	test(iso_number_chars_2_09, true(A == 15)) :-
+		{number_chars(A, ['0',x,f])}.
+
+	test(iso_number_chars_2_10, true(A == 0'a)) :-
+		{number_chars(A, ['0','''',a])}.
+
+	test(iso_number_chars_2_11, true(A == 4.2)) :-
+		{number_chars(A, ['4','.','2'])}.
+
+	test(iso_number_chars_2_12, true(A == 4.2)) :-
+		{number_chars(A, ['4','2','.','0','e','-','1'])}.
+
+	% tests from the ISO/IEC 13211-1:1995(E) standard, section 8.16.7.1 NOTES
+
+	test(iso_number_chars_2_13, true) :-
+		C = ['0', '.', '1'],
+		{number_chars(X, C), number_chars(X, C)}.
+
+	quick_check(iso_number_chars_2_14, round_trip(+integer)).
+
+	quick_check(iso_number_chars_2_15, round_trip(+float)).
+
+	% tests from the Prolog ISO conformance testing framework written by Péter Szabó and Péter Szeredi
+
+	test(eddbali_number_chars_2_16, error(instantiation_error)) :-
+		{number_chars(_A, _L)}.
+
+	test(eddbali_number_chars_2_17, error(type_error(number,a))) :-
+		{number_chars(a, _L)}.
+
+	test(eddbali_number_chars_2_18, error(type_error(list,4))) :-
+		{number_chars(_A, 4)}.
+
+	test(eddbali_number_chars_2_19, error(type_error(character,2))) :-
+		{number_chars(_A, ['4',2])}.
+
+	test(sics_number_chars_2_20, error(instantiation_error)) :-
+		{number_chars(_A, [a|_L])}.
+
+	test(sics_number_chars_2_21, error(instantiation_error)) :-
+		{number_chars(_A, [a,_L])}.
+
+	test(sics_number_chars_2_22, true(X == 9)) :-
+		{number_chars(X, [' ','0','o','1','1'])}.
+
+	test(sics_number_chars_2_23, true(X == 17)) :-
+		{number_chars(X, [' ','0','x','1','1'])}.
+
+	test(sics_number_chars_2_24, true(X == 3)) :-
+		{number_chars(X, [' ','0','b','1','1'])}.
+
+	test(sics_number_chars_2_25, error(syntax_error(_))) :-
+		{number_chars(_X, ['0','o','8'])}.
+
+	test(sics_number_chars_2_26, error(syntax_error(_))) :-
+		{number_chars(_X, ['0','b','2'])}.
+
+	test(sics_number_chars_2_27, error(syntax_error(_))) :-
+		{number_chars(_X, ['0','x','g'])}.
+
+	% the following test is disabled as there is no portable
+	% way to specify a supporting text encoding such as UTF-8
+	% for all Logtalk supported backend Prolog compilers
+
+	- test(sics_number_chars_2_28, error(syntax_error(_)), [note('Requires Prolog portable solution to specify text encoding')]) :-
+		{number_chars(_X, ['á'])}.
+
+	test(sics_number_chars_2_29, error(syntax_error(_))) :-
+		{number_chars(_X, ['a'])}.
+
+	test(sics_number_chars_2_30, error(syntax_error(_))) :-
+		{number_chars(_X, ['0','x','0','.','0'])}.
+
+	% tests from the Logtalk portability work
+
+	test(lgt_number_chars_2_31, true(A-B == '4'-'2')) :-
+		{number_chars(42, [A,B])}.
+
+	test(lgt_number_chars_2_32, error(type_error(character,1))) :-
+		{number_chars(1234, [1,2,3,4])}.
+
+	% tests from (or derived from) the WG17 test suite
+
+	test(wg17_number_chars_2_33, true) :-
+		{number_chars(1.0e9, ['1',.,'0','E','9'])}.
+
+	test(wg17_number_chars_2_34, true) :-
+		{number_chars(1.0e9, ['1',.,'0','E','+','9'])}.
+
+	test(wg17_number_chars_2_35, error(syntax_error(_))) :-
+		{number_chars(1, [])}.
+
+	test(wg17_number_chars_2_36, error(syntax_error(_))) :-
+		{number_chars(_, ['3',.])}.
+
+	test(wg17_number_chars_2_37, error(syntax_error(_))) :-
+		{number_chars(_, ['0','B','1'])}.
+
+	test(wg17_number_chars_2_38, error(syntax_error(_))) :-
+		{number_chars(_, ['0','O','7'])}.
+
+	test(wg17_number_chars_2_39, error(syntax_error(_))) :-
+		{number_chars(_, ['0','X',f])}.
+
+	test(wg17_number_chars_2_40, true(X == 32)) :-
+		{number_chars(X, ['0','''',' '])}.
+
+	% tests from the Logtalk portability work
+
+	test(lgt_number_chars_2_41, false) :-
+		{number_chars(123, ['2'| _])}.
+
+	test(lgt_number_chars_2_42, error(type_error(list,['2'| '3']))) :-
+		{number_chars(123, ['2'| '3'])}.
+
+	test(lgt_number_chars_2_43, error(syntax_error(_))) :-
+		{number_chars(_, ['3','%'])}.
+
+	test(lgt_number_chars_2_44, error(syntax_error(_))) :-
+		{number_chars(_, ['3','/','*',' ','*','/'])}.
+
+	test(lgt_number_chars_2_45, error(type_error(list,['1','2','3'| '4']))) :-
+		{number_chars(123, ['1','2','3'| '4'])}.
+
+	test(lgt_number_chars_2_46, error(type_error(character, 4))) :-
+		{number_chars(123, ['1','2','3',4])}.
+
+	test(lgt_number_chars_2_47, true(Tail == [])) :-
+		{number_chars(123, ['1','2','3'| Tail])}.
+
+	% auxiliary predicates
+
+	round_trip(X) :-
+		{number_chars(X, L),
+		 number_chars(Y, L),
+		 X == Y}.
+
+:- end_object.

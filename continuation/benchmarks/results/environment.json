@@ -1,0 +1,30 @@
+{
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "cpu_affinity": 0,
+  "logical_cpus": 9,
+  "processes": 3,
+  "rounds": 9,
+  "target_seconds": 0.05,
+  "source_sha256": {
+    "compiler.lisp": "513fe2f6fd7c2ec9c0e1b23ac4ed71a682356a6dfd831e5c74d8b9659673b412",
+    "example.lisp": "e3c32d0eeb46ad827315746d316673ccf80157d0bbcda74e38c4e0da56a0dd22",
+    "load.lisp": "68f8e59a3e09650adf19d760767360b87f9136e9278a4cd718415b9483b86755",
+    "package.lisp": "8b9fc6687306d5eeadf02b337fb151945a25a6de92ee77b6909872c36d6da51a",
+    "runtime.lisp": "22fcc92888ca78ac4eddede88db696ecba34d6935e5469f0e4c1091404eb0551",
+    "test.lisp": "39002ee9019eda0f6e15390f7c8d7eef6086ff49657594b6bb6571e5b07f47f3"
+  },
+  "policy": {
+    "speed": 3,
+    "safety": 1,
+    "debug": 0
+  },
+  "timestamp_utc": "2026-10-29T00:10:01Z",
+  "baseline_selection": "head",
+  "cl_cont_head_commit": "2cbe618d833b97ac4eb8dbb68c059c0913ff9c4b",
+  "benchmark_sha256": {
+    "benchmarks.lisp": "69a9d5394a58ae310bc04c3d21f715e4ebda85a8b696c28d77c61070daaf722c",
+    "bootstrap.lisp": "8a1b2861047dc88fd9f3749f73316edaadb411ea232117bec284c2cc7017ea5a"
+  },
+  "lisp": "SBCL 2.2.9.debian",
+  "cpu_info": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           46 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  9\nOn-line CPU(s) list:                     0-8\nVendor ID:                               AuthenticAMD\nModel name:                              AMD EPYC 9V74 80-Core Processor\nBIOS Model name:                           CPU @ 0.0GHz\nBIOS CPU family:                         0\nCPU family:                              25\nModel:                                   17\nThread(s) per core:                      1\nCore(s) per socket:                      9\nSocket(s):                               1\nStepping:                                1\nBogoMIPS:                                5192.24\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves avx512_bf16 clzero xsaveerptr arat npt nrip_save tsc_scale vmcb_clean flushbyasid pausefilter pfthreshold v_vmsave_vmload avx512vbmi umip avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq rdpid fsrm arch_capabilities\nHypervisor vendor:                       KVM\nVirtualization type:                     full\nL1d cache:                               160 KiB (5 instances)\nL1i cache:                               160 KiB (5 instances)\nL2 cache:                                5 MiB (5 instances)\nL3 cache:                                32 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-8\nVulnerability Gather data sampling:      Not affected\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Not affected\nVulnerability Spec rstack overflow:      Vulnerable\nVulnerability Spec store bypass:         Vulnerable\nVulnerability Spectre v1:                Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers\nVulnerability Spectre v2:                Vulnerable; STIBP: disabled; PBRSB-eIBRS: Not affected; BHI: Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Vulnerable\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Not affected\n"
+}

@@ -1,0 +1,44 @@
+Profile: unify-100k mode=CPU
+
+Number of samples:   1200
+Sample interval:     0.003 seconds
+Total sampling time: 3.6000001 seconds
+Graph cycles:        0
+Sampled threads:
+   #<THREAD "main thread" RUNNING {10013C8003}> (138672/1048576 bytes, 688 hash buckets)
+
+           Self        Total        Cumul
+  Nr  Count     %  Count     %  Count     %    Calls  Function
+------------------------------------------------------------------------
+   2    133  11.1    133  11.1    133  11.1        -  SB-IMPL::GETHASH/EQ
+   4     83   6.9     83   6.9    216  18.0        -  foreign function pthread_sigmask
+   6     68   5.7    571  47.6    284  23.7        -  OOPARTS/PROLOG::RUN-MACHINE
+   8     58   4.8     58   4.8    342  28.5        -  SB-IMPL::REHASH
+  10     57   4.8     61   5.1    399  33.3        -  OOPARTS/PROLOG::STRUCTURE-FIELDS
+  12     39   3.3    313  26.1    438  36.5        -  (LABELS OOPARTS/PROLOG::BUILD-TERM :IN OOPARTS/PROLOG::LOWER-WAM-CODE)
+  14     39   3.3    194  16.2    477  39.8        -  OOPARTS/PROLOG::MAP-TERM
+  16     34   2.8    112   9.3    511  42.6        -  OOPARTS/PROLOG::EXECUTE-TERM-INSTRUCTION
+  18     32   2.7     32   2.7    543  45.3        -  (SB-VM::OPTIMIZED-DATA-VECTOR-SET T)
+  20     31   2.6    143  11.9    574  47.8        -  SB-IMPL::GROW-HASH-TABLE
+  22     25   2.1     25   2.1    599  49.9        -  (SB-VM::OPTIMIZED-DATA-VECTOR-REF T)
+  24     24   2.0    188  15.7    623  51.9        -  COLLECT-QUERY-GARBAGE
+  26     24   2.0     66   5.5    647  53.9        -  (LABELS OOPARTS/PROLOG::EMIT :IN OOPARTS/PROLOG::LOWER-WAM-CODE)
+  28     24   2.0     24   2.0    671  55.9        -  SB-C::CHECK-DS-LIST
+  30     22   1.8     22   1.8    693  57.7        -  VECTOR-FILL/T
+  32     21   1.8    188  15.7    714  59.5        -  SB-IMPL::PUTHASH/EQ
+  34     20   1.7     30   2.5    734  61.2        -  SB-IMPL::VECTOR-TO-LIST*
+  36     19   1.6     71   5.9    753  62.7        -  SB-IMPL::%MAKE-HASH-TABLE
+  38     19   1.6     19   1.6    772  64.3        -  SB-IMPL::APPEND2
+  40     18   1.5    166  13.8    790  65.8        -  (FLET SB-IMPL::INSERT-AT :IN "SYS:SRC;CODE;TARGET-HASH-TABLE.LISP")
+  42     18   1.5     64   5.3    808  67.3        -  VECTOR-PUSH-EXTEND
+  44     18   1.5     44   3.7    826  68.8        -  OOPARTS/PROLOG::RECORD-CELL
+  46     18   1.5     34   2.8    844  70.3        -  (SETF OOPARTS/PROLOG::REGISTER-VALUE)
+  48     18   1.5     18   1.5    862  71.8        -  SB-VM::SLOW-HAIRY-DATA-VECTOR-SET
+  50     16   1.3     16   1.3    878  73.2        -  SB-KERNEL:HAIRY-DATA-VECTOR-REF/CHECK-BOUNDS
+  52     15   1.3     15   1.3    893  74.4        -  OOPARTS/PROLOG::REGISTER-VALUE
+  54     14   1.2     36   3.0    907  75.6        -  REPLACE
+  56     12   1.0     84   7.0    919  76.6        -  OOPARTS/PROLOG::COMPOUND-FIELDS
+  58     12   1.0     12   1.0    931  77.6        -  GENERIC-+
+  60     11   0.9     14   1.2    942  78.5        -  SB-VM::EXTEND-VECTOR
+------------------------------------------------------------------------
+         63   5.3                                     elsewhere

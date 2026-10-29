@@ -1,0 +1,263 @@
+--- a/src/engine.lisp
++++ b/src/engine.lisp
+@@ -3,7 +3,7 @@
+ 
+ (defstruct (logic-var (:constructor %make-var (id)))
+   (id 0 :type fixnum) binding)
+-(defstruct (slot-ref (:constructor slot-ref (index &optional anonymous))) index anonymous)
++(defstruct (slot-ref (:constructor slot-ref (index &optional anonymous))) (index 0 :type (integer 0 #.most-positive-fixnum)) anonymous)
+ (define-condition iso-exception (error)
+   ((term :initarg :term :reader iso-exception-term))
+   (:report (lambda (c s) (let ((*print-circle* t) (*print-level* 8) (*print-length* 12))
+@@ -14,41 +14,51 @@
+   (tabled (make-hash-table :test 'equal)) (generation 0) iso-state)
+ (defvar *database* (make-database))
+ (defstruct (machine (:constructor %make-machine))
+-  database code iso-handlers (pc 0) args slots continuation (cut 0) scopes
++  database (code nil :type (or null (vector t))) iso-handlers
++  (pc 0 :type (integer 0 #.most-positive-fixnum))
++  (args nil :type (or null (vector t))) (slots nil :type (or null (vector t)))
++  continuation (cut 0 :type (integer 0 #.most-positive-fixnum)) scopes
+   slg slg-worker slg-owner slg-root slg-bypass slg-paused slg-lineage delays
+   scan (mode :read) (serial 0)
+   (gc-floor 4096) (gc-limit 4096) (gc-count 0) (gc-reclaimed 0)
+   (allocations 0) (max-trail 0) (max-live 0)
+-  (heap (make-array 64 :adjustable t :fill-pointer 0))
+-  (trail (make-array 64 :adjustable t :fill-pointer 0))
+-  (choices (make-array 16 :adjustable t :fill-pointer 0))
++  (heap (make-array 64 :adjustable t :fill-pointer 0) :type (vector t))
++  (trail (make-array 64 :adjustable t :fill-pointer 0) :type (vector t))
++  (choices (make-array 16 :adjustable t :fill-pointer 0) :type (vector t))
+   variables (ready nil) (closed nil) (steps 0) (max-depth 0)
+   (max-choices 0) (max-heap 0))
+ 
+ (defun pop-clear (vector)
++  (declare (type (vector t) vector))
+   (let* ((index (1- (fill-pointer vector))) (value (aref vector index)))
+     (setf (aref vector index) nil (fill-pointer vector) index)
+     value))
+ (defun truncate-vector (vector mark)
++  (declare (type (vector t) vector))
+   (loop for i from mark below (fill-pointer vector) do (setf (aref vector i) nil))
+   (setf (fill-pointer vector) mark))
+ 
+ (defun record-cell (vm cell)
++  (declare (type machine vm))
+   (incf (machine-serial vm)) (incf (machine-allocations vm))
+   (vector-push-extend cell (machine-heap vm))
+   (setf (machine-max-heap vm)
+         (max (machine-max-heap vm) (fill-pointer (machine-heap vm))))
+   cell)
+ (defun fresh-var (vm)
++  (declare (type machine vm))
+   (let ((v (%make-var (machine-serial vm))))
+     (setf (logic-var-binding v) v)
+     (record-cell vm v)))
+-(defun fresh-cons (vm car cdr) (record-cell vm (cons car cdr)))
++(defun fresh-cons (vm car cdr)
++  (declare (type machine vm))
++  (record-cell vm (cons car cdr)))
+ (defun deref (term)
+   (loop while (and (logic-var-p term)
+                    (not (eq term (logic-var-binding term))))
+         do (setf term (logic-var-binding term)) finally (return term)))
+ (defun bind-var (vm var value)
++  (declare (type machine vm) (type logic-var var))
+   ;; Only variables older than the youngest choice need undo records.
+   (let ((choices (machine-choices vm)))
+     (when (and (plusp (fill-pointer choices))
+@@ -58,12 +68,14 @@
+             (max (machine-max-trail vm) (fill-pointer (machine-trail vm))))))
+   (setf (logic-var-binding var) value))
+ (defun unwind-trail (vm mark)
++  (declare (type machine vm))
+   (loop while (> (fill-pointer (machine-trail vm)) mark)
+         for v = (pop-clear (machine-trail vm))
+         do (setf (logic-var-binding v) v)))
+ 
+ (defun unify (vm left right)
+   "Iterative rational-tree unification; failure is rolled back by the VM."
++  (declare (type machine vm))
+   (let ((work (list (cons left right))) (seen (make-hash-table :test 'eq)))
+     (loop while work for pair = (pop work)
+           for a = (deref (car pair)) for b = (deref (cdr pair)) do
+@@ -88,6 +100,7 @@
+          (seen (make-hash-table :test 'eq)))
+     (loop while work do
+       (destructuring-bind (source target side) (pop work)
++        (declare (type cons target) (type (member :car :cdr) side))
+         (let* ((value (funcall atom-function source))
+                (mapped (if (consp value)
+                            (or (gethash value seen)
+@@ -99,9 +112,11 @@
+           (if (eq side :car) (setf (car target) mapped) (setf (cdr target) mapped)))))
+     (car box)))
+ (defun instantiate (template slots &optional vm)
++  (declare (type (or null (vector t)) slots) (type (or null machine) vm))
+   (map-term template (lambda (x) (if (slot-ref-p x) (aref slots (slot-ref-index x)) x))
+             (and vm (lambda () (fresh-cons vm nil nil)))))
+ (defun reify (term &optional (names (make-hash-table :test 'eq)))
++  (declare (type hash-table names))
+   (map-term term (lambda (x)
+                    (let ((v (deref x)))
+                      (if (logic-var-p v)
+@@ -115,10 +130,12 @@
+     (error "Invalid predicate: ~S" goal))
+   (cons (car goal) (length (cdr goal))))
+ (defun resolve-code (vm name arity)
++  (declare (type machine vm))
+   (let ((definition (gethash (cons name arity)
+                              (database-predicates (machine-database vm)))))
+     (and definition (predicate-code definition))))
+ (defun backtrack (vm)
++  (declare (type machine vm))
+   (when (zerop (fill-pointer (machine-choices vm)))
+     (close-query vm)
+     (return-from backtrack nil))
+@@ -134,6 +151,7 @@
+           (machine-cut vm) (choice-cut cp) (machine-scopes vm) (choice-scopes cp) (machine-slots vm) (choice-slots cp) (machine-scan vm) nil)
+     t))
+ (defun push-choice (vm target &optional branchp)
++  (declare (type machine vm))
+   (vector-push-extend
+    (make-choice :code (machine-code vm) :pc target
+                 :args (copy-seq (machine-args vm))
+@@ -145,6 +163,7 @@
+   (setf (machine-max-choices vm)
+         (max (machine-max-choices vm) (fill-pointer (machine-choices vm)))))
+ (defun restore-continuation (vm)
++  (declare (type machine vm))
+   (let ((c (machine-continuation vm)))
+     (unless c (error "Missing VM continuation"))
+     (setf (machine-iso-handlers vm) (continuation-handlers c)
+@@ -158,6 +177,7 @@
+     (fill (machine-args vm) nil)
+     (maybe-collect vm)))
+ (defun invoke-predicate (vm name arity tailp)
++  (declare (type machine vm))
+   (when (iso-builtin-p name arity)
+     (return-from invoke-predicate (iso-invoke vm name arity tailp)))
+   (setf name (iso-resolve-name (machine-database vm) name arity))
+@@ -190,9 +210,10 @@
+     t))
+ 
+ (defun run-machine (vm)
++  (declare (type machine vm))
+   (loop until (machine-closed vm) do
+     (when (machine-slg-paused vm) (return-from run-machine nil))
+-    (let* ((instruction (aref (machine-code vm) (machine-pc vm)))
++    (let* ((instruction (aref (the (vector t) (machine-code vm)) (machine-pc vm)))
+            (op (car instruction)) (operands (cdr instruction)))
+       (incf (machine-pc vm)) (incf (machine-steps vm))
+       (handler-case
+@@ -246,6 +267,7 @@
+   nil)
+ 
+ (defun close-query (vm)
++  (declare (type machine vm))
+   (when (and (machine-slg vm) (not (machine-slg-worker vm)))
+     (slg-close (machine-slg vm)))
+   (unwind-trail vm 0)
+@@ -260,6 +282,7 @@
+   nil)
+ (defun next-solution (vm)
+   "Return an alist and a success flag; an empty alist can still be a solution."
++  (declare (type machine vm))
+   (when (machine-closed vm) (return-from next-solution (values nil nil)))
+   (when (machine-slg vm) (slg-check-database vm))
+   (when (machine-ready vm)
+@@ -280,6 +303,7 @@
+                         (machine-delays vm))))))
+   (values nil nil))
+ (defun query-statistics (vm)
++  (declare (type machine vm))
+   (list :instructions (machine-steps vm) :max-continuation-depth (machine-max-depth vm)
+         :max-choice-points (machine-max-choices vm)
+         :allocated-cells (machine-allocations vm) :heap-cells (fill-pointer (machine-heap vm))
+--- a/src/gc.lisp
++++ b/src/gc.lisp
+@@ -3,6 +3,7 @@
+ (defun collect-query-garbage (vm)
+   "Nonmoving mark/compact of VM ownership vectors, at instruction boundaries.
+ Object identity and allocation age survive compaction. Lisp GC reclaims bytes."
++  (declare (type machine vm))
+   (when (machine-closed vm) (return-from collect-query-garbage 0))
+   (let ((marked (make-hash-table :test 'eq)) (frames (make-hash-table :test 'eq))
+         (work nil) (heap (machine-heap vm)) (trail (machine-trail vm))
+@@ -68,5 +69,6 @@
+         (incf (machine-gc-count vm)) (incf (machine-gc-reclaimed vm) reclaimed)
+         reclaimed))))
+ (defun maybe-collect (vm)
++  (declare (type machine vm))
+   (when (and (machine-gc-limit vm) (>= (length (machine-heap vm)) (machine-gc-limit vm)))
+     (collect-query-garbage vm)))
+--- a/src/wam.lisp
++++ b/src/wam.lisp
+@@ -1,23 +1,31 @@
+ (in-package #:ooparts/prolog)
+ 
+ (defun ensure-registers (vm count)
++  (declare (type machine vm))
+   (when (< (length (machine-args vm)) count)
+     (let ((new (make-array (max count 16 (* 2 (length (machine-args vm)))) :initial-element nil)))
+       (replace new (machine-args vm)) (setf (machine-args vm) new))))
+ (defun register-value (vm register)
++  (declare (type machine vm))
+   (ecase (first register)
+-    ((:x :a) (aref (machine-args vm) (second register)))
+-    (:y (aref (machine-slots vm) (second register)))))
++    ((:x :a) (aref (the (vector t) (machine-args vm))
++                 (the (integer 0 #.most-positive-fixnum) (second register))))
++    (:y (aref (the (vector t) (machine-slots vm))
++                 (the (integer 0 #.most-positive-fixnum) (second register))))))
+ (defun (setf register-value) (value vm register)
++  (declare (type machine vm))
+   (ecase (first register)
+     ((:x :a) (ensure-registers vm (1+ (second register)))
+-             (setf (aref (machine-args vm) (second register)) value))
+-    (:y (setf (aref (machine-slots vm) (second register)) value))))
++             (setf (aref (the (vector t) (machine-args vm))
++                 (the (integer 0 #.most-positive-fixnum) (second register))) value))
++    (:y (setf (aref (the (vector t) (machine-slots vm))
++                 (the (integer 0 #.most-positive-fixnum) (second register))) value))))
+ (defun scan-value (location)
+   (if (eq (cdr location) :car) (caar location) (cdar location)))
+ (defun (setf scan-value) (value location)
+   (if (eq (cdr location) :car) (setf (caar location) value) (setf (cdar location) value)))
+ (defun begin-list (vm register buildp)
++  (declare (type machine vm))
+   (let ((term (unless buildp (deref (register-value vm register)))))
+     (cond ((or buildp (logic-var-p term))
+            (let ((cell (fresh-cons vm nil nil)))
+@@ -30,6 +38,7 @@
+                  (machine-scan vm) (list (cons term :car) (cons term :cdr))) t)
+           (t nil))))
+ (defun new-structure (vm functor arity)
++  (declare (type machine vm))
+   ;; The public S-expression representation remains (functor arg ...).
+   (let* ((root (fresh-cons vm functor nil)) (tail root) (locations nil))
+     (dotimes (i arity)
+@@ -37,6 +46,7 @@
+         (setf (cdr tail) cell tail cell) (push (cons cell :car) locations)))
+     (values root (nreverse locations))))
+ (defun begin-structure (vm functor arity register buildp)
++  (declare (type machine vm))
+   (unless (and (integerp arity) (>= arity 0)) (error "Invalid structure arity"))
+   (let ((term (unless buildp (deref (register-value vm register)))))
+     (when (or buildp (logic-var-p term))
+@@ -58,6 +68,7 @@
+       (unless (unify vm tail nil) (return-from begin-structure nil))
+       (setf (machine-mode vm) :read (machine-scan vm) (nreverse locations)) t)))
+ (defun scan-instruction (vm operation operand)
++  (declare (type machine vm))
+   (let ((location (pop (machine-scan vm))))
+     (unless location (error "Term scan exhausted for ~S" operation))
+     (ecase operation
+@@ -75,6 +86,7 @@
+       (:void
+        (when (eq (machine-mode vm) :write) (setf (scan-value location) (fresh-var vm))) t))))
+ (defun execute-term-instruction (vm op operands)
++  (declare (type machine vm))
+   (case op
+     (get-variable (setf (register-value vm (first operands))
+                         (register-value vm (second operands))) t)

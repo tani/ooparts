@@ -1,0 +1,15 @@
+variant,case,run_ms,run_MiB
+baseline,host-tail-100k,187.996,259.363
+baseline,let-tail-100k,235.995,396.648
+baseline,waste-50k-gc4096,179.998,188.598
+scalar-unify,host-tail-100k,171.997,222.759
+scalar-unify,let-tail-100k,219.997,341.735
+scalar-unify,waste-50k-gc4096,163.997,151.981
+scalar-map,host-tail-100k,147.997,144.918
+scalar-map,let-tail-100k,183.997,213.635
+scalar-map,waste-50k-gc4096,159.997,131.365
+both,host-tail-100k,151.998,108.316
+both,let-tail-100k,171.998,158.667
+both,waste-50k-gc4096,139.998,94.785
+numeric-index,fact-last-1000x1000,4.000,2.364
+numeric-index,slg-path-1000,71.999,8.509

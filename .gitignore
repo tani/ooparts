@@ -1,0 +1,8 @@
+*.fasl
+*.core
+**/__pycache__/
+continuation/benchmarks/cache/
+continuation/benchmarks/vendor/
+prolog/iso-results*/
+iso-results*/
+/ooparts-prolog

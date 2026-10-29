@@ -1,0 +1,11 @@
+.direnv/
+result
+result-*
+coverage/
+*.fasl
+*.fas
+*.o
+*.abcl
+iso-results*/
+__pycache__/
+/cons

@@ -1,0 +1,44 @@
+Profile: arith-tail-100k mode=CPU
+
+Number of samples:   1200
+Sample interval:     0.003 seconds
+Total sampling time: 3.6000001 seconds
+Graph cycles:        0
+Sampled threads:
+   #<THREAD "main thread" RUNNING {10013C8003}> (182688/1048576 bytes, 905 hash buckets)
+
+           Self        Total        Cumul
+  Nr  Count     %  Count     %  Count     %    Calls  Function
+------------------------------------------------------------------------
+   2    137  11.4    137  11.4    137  11.4        -  SB-KERNEL:STRING=*
+   4     89   7.4   1190  99.2    226  18.8        -  OOPARTS/PROLOG::RUN-MACHINE
+   6     50   4.2     50   4.2    276  23.0        -  foreign function pthread_sigmask
+   8     45   3.8    331  27.6    321  26.8        -  OOPARTS/PROLOG::ISO-EVAL
+  10     34   2.8     88   7.3    355  29.6        -  SB-IMPL::GETHASH/EQUAL
+  12     29   2.4     93   7.8    384  32.0        -  OOPARTS/PROLOG::EXECUTE-TERM-INSTRUCTION
+  14     27   2.3    640  53.3    411  34.3        -  OOPARTS/PROLOG::ISO-INVOKE
+  16     27   2.3    138  11.5    438  36.5        -  SB-IMPL::%MAKE-HASH-TABLE
+  18     24   2.0     48   4.0    462  38.5        -  SB-IMPL::%ALLOC-HASH-TABLE
+  20     23   1.9     40   3.3    485  40.4        -  OOPARTS/PROLOG::ENSURE-REGISTERS
+  22     23   1.9     27   2.3    508  42.3        -  STRING-UPCASE
+  24     20   1.7     22   1.8    528  44.0        -  SB-IMPL::VECTOR-TO-LIST*
+  26     20   1.7     20   1.7    548  45.7        -  SYMBOL-FUNCTION
+  28     20   1.7     20   1.7    568  47.3        -  (SB-VM::OPTIMIZED-DATA-VECTOR-REF T)
+  30     19   1.6     37   3.1    587  48.9        -  SB-IMPL::GROW-HASH-TABLE
+  32     19   1.6     22   1.8    606  50.5        -  SB-IMPL::%FIND-SYMBOL
+  34     19   1.6     19   1.6    625  52.1        -  SB-KERNEL:HAIRY-DATA-VECTOR-REF/CHECK-BOUNDS
+  36     18   1.5     38   3.2    643  53.6        -  SB-IMPL::MAKE-HASH-TABLE-USING-DEFAULTS
+  38     18   1.5     18   1.5    661  55.1        -  SB-KERNEL:TWO-ARG-/
+  40     17   1.4     17   1.4    678  56.5        -  OOPARTS/PROLOG::DEREF
+  42     16   1.3     16   1.3    694  57.8        -  SB-KERNEL:%SXHASH-STRING
+  44     16   1.3     16   1.3    710  59.2        -  SB-IMPL::GETHASH3
+  46     15   1.3    429  35.8    725  60.4        -  OOPARTS/PROLOG::ISO-DETERMINISTIC
+  48     15   1.3     36   3.0    740  61.7        -  (LABELS SB-IMPL::SXHASH-RECURSE :IN SXHASH)
+  50     14   1.2     29   2.4    754  62.8        -  (SETF OOPARTS/PROLOG::REGISTER-VALUE)
+  52     14   1.2     17   1.4    768  64.0        -  OOPARTS/PROLOG::MAKE-CHOICE
+  54     14   1.2     14   1.2    782  65.2        -  SB-KERNEL:%UNARY-TRUNCATE
+  56     13   1.1     13   1.1    795  66.3        -  SB-IMPL::GETHASH/EQ
+  58     12   1.0     60   5.0    807  67.3        -  (LABELS OOPARTS/PROLOG::EVALUATE :IN OOPARTS/PROLOG::ISO-EVAL)
+  60     12   1.0     20   1.7    819  68.3        -  (LABELS SB-IMPL::EQUAL-AUX :IN EQUAL)
+------------------------------------------------------------------------
+         54   4.5                                     elsewhere

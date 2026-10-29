@@ -1,0 +1,34 @@
+{
+  "predicates/atom_chars_2/tests.lgt:iso_atom_chars_2_02:37": {
+    "reason": "NIL atom spelling is nil rather than the ISO [] atom.",
+    "observation": "(:OBSERVED (POST_FAILED (== (OOPARTS/PROLOG/ATOMS::|n| OOPARTS/PROLOG/ATOMS::|i| OOPARTS/PROLOG/ATOMS::|l|) ([ ]))))"
+  },
+  "predicates/atom_codes_2/tests.lgt:iso_atom_codes_2_02:37": {
+    "reason": "NIL atom spelling is nil rather than the ISO [] atom.",
+    "observation": "(:OBSERVED (POST_FAILED (== (110 105 108) (91 93))))"
+  },
+  "predicates/functor_3/tests.lgt:iso_functor_3_10:65": {
+    "reason": "Native applications do not expose ISO list-cell functor ./2.",
+    "observation": "(:OBSERVED (EXCEPTION (OOPARTS/PROLOG/ATOMS::|error| OOPARTS/PROLOG/ATOMS::|instantiation_error| (OOPARTS/PROLOG/ATOMS::/ FUNCTOR 3))))"
+  },
+  "predicates/keysort_2/tests.lgt:iso_keysort_2_02:37": {
+    "reason": "KEYSORT sorts native cons pairs rather than ISO Key-Value compounds.",
+    "observation": "(:OBSERVED (POST_FAILED (== ((- 2 99) (- 1 A) (- 3 (F #1=#:?G0)) (- 1 Z) (- 1 A) (- 2 44)) ((- 1 A) (- 1 Z) (- 1 A) (- 2 99) (- 2 44) (- 3 (F #1#))))))"
+  },
+  "predicates/write_term_3/tests.lgt:iso_write_term_3_002:53": {
+    "reason": "Canonical output preserves native lists rather than expanding them to ISO ./2 compounds.",
+    "observation": "(:OBSERVED (POST_FAILED (== (91 49 44 50 44 51 93) (39 46 39 40 49 44 39 46 39 40 50 44 39 46 39 40 51 44 91 93 41 41 41))))"
+  },
+  "syntax/lists/tests.lgt:iso_list_01:34": {
+    "reason": "Native list cells and explicit ./2 applications are distinct cons structures.",
+    "observation": "(:OBSERVED (POST_FAILED (== (OOPARTS/PROLOG/ATOMS::|a|) (|.| A NIL))))"
+  },
+  "syntax/lists/tests.lgt:iso_list_02:38": {
+    "reason": "Native list cells and explicit ./2 applications are distinct cons structures.",
+    "observation": "(:OBSERVED (POST_FAILED (== (OOPARTS/PROLOG/ATOMS::|a| OOPARTS/PROLOG/ATOMS::|b|) (|.| A (|.| B NIL)))))"
+  },
+  "syntax/lists/tests.lgt:iso_list_03:42": {
+    "reason": "Native list cells and explicit ./2 applications are distinct cons structures.",
+    "observation": "(:OBSERVED (POST_FAILED (== (OOPARTS/PROLOG/ATOMS::|a| . OOPARTS/PROLOG/ATOMS::|b|) (|.| A B))))"
+  }
+}

@@ -1,0 +1,1472 @@
+{
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "rounds": 2,
+  "repeats": 3,
+  "batch": 20,
+  "execution_order": [
+    [
+      "full",
+      "native_only",
+      "native_linear",
+      "swi"
+    ],
+    [
+      "swi",
+      "native_linear",
+      "native_only",
+      "full"
+    ]
+  ],
+  "engines": {
+    "full": {
+      "command": [
+        "/workspace/scratch/3bbc51abd2c1/sbcl-runtime/usr/bin/sbcl",
+        "--dynamic-space-size",
+        "2048",
+        "--control-stack-size",
+        "1",
+        "--script",
+        "benchmarks/competitive.lisp"
+      ],
+      "cases": {
+        "queens": [
+          {
+            "round": 0,
+            "seconds": 0.0009885,
+            "allocated_bytes": 1276356,
+            "batch": 20,
+            "batch_seconds": 0.01977
+          },
+          {
+            "round": 0,
+            "seconds": 0.00101675,
+            "allocated_bytes": 1276356,
+            "batch": 20,
+            "batch_seconds": 0.020335
+          },
+          {
+            "round": 0,
+            "seconds": 0.00103975,
+            "allocated_bytes": 1276356,
+            "batch": 20,
+            "batch_seconds": 0.020795
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009765,
+            "allocated_bytes": 1276356,
+            "batch": 20,
+            "batch_seconds": 0.01953
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009682,
+            "allocated_bytes": 1276356,
+            "batch": 20,
+            "batch_seconds": 0.019364
+          },
+          {
+            "round": 1,
+            "seconds": 0.0010094,
+            "allocated_bytes": 1276356,
+            "batch": 20,
+            "batch_seconds": 0.020188
+          }
+        ],
+        "tak": [
+          {
+            "round": 0,
+            "seconds": 0.0010828,
+            "allocated_bytes": 3262,
+            "batch": 20,
+            "batch_seconds": 0.021656
+          },
+          {
+            "round": 0,
+            "seconds": 0.00114765,
+            "allocated_bytes": 3262,
+            "batch": 20,
+            "batch_seconds": 0.022953
+          },
+          {
+            "round": 0,
+            "seconds": 0.00108415,
+            "allocated_bytes": 3262,
+            "batch": 20,
+            "batch_seconds": 0.021683
+          },
+          {
+            "round": 1,
+            "seconds": 0.00102985,
+            "allocated_bytes": 3262,
+            "batch": 20,
+            "batch_seconds": 0.020597
+          },
+          {
+            "round": 1,
+            "seconds": 0.00111945,
+            "allocated_bytes": 3262,
+            "batch": 20,
+            "batch_seconds": 0.022389
+          },
+          {
+            "round": 1,
+            "seconds": 0.00094295,
+            "allocated_bytes": 3262,
+            "batch": 20,
+            "batch_seconds": 0.018859
+          }
+        ],
+        "reverse": [
+          {
+            "round": 0,
+            "seconds": 0.0102982,
+            "allocated_bytes": 11550124,
+            "batch": 20,
+            "batch_seconds": 0.205964
+          },
+          {
+            "round": 0,
+            "seconds": 0.01019875,
+            "allocated_bytes": 11550358,
+            "batch": 20,
+            "batch_seconds": 0.203975
+          },
+          {
+            "round": 0,
+            "seconds": 0.00993795,
+            "allocated_bytes": 11549984,
+            "batch": 20,
+            "batch_seconds": 0.198759
+          },
+          {
+            "round": 1,
+            "seconds": 0.00974335,
+            "allocated_bytes": 11550124,
+            "batch": 20,
+            "batch_seconds": 0.194867
+          },
+          {
+            "round": 1,
+            "seconds": 0.01001895,
+            "allocated_bytes": 11550358,
+            "batch": 20,
+            "batch_seconds": 0.200379
+          },
+          {
+            "round": 1,
+            "seconds": 0.00920565,
+            "allocated_bytes": 11549984,
+            "batch": 20,
+            "batch_seconds": 0.184113
+          }
+        ],
+        "qsort": [
+          {
+            "round": 0,
+            "seconds": 0.00104965,
+            "allocated_bytes": 721777,
+            "batch": 20,
+            "batch_seconds": 0.020993
+          },
+          {
+            "round": 0,
+            "seconds": 0.001046,
+            "allocated_bytes": 721777,
+            "batch": 20,
+            "batch_seconds": 0.02092
+          },
+          {
+            "round": 0,
+            "seconds": 0.0010004,
+            "allocated_bytes": 721777,
+            "batch": 20,
+            "batch_seconds": 0.020008
+          },
+          {
+            "round": 1,
+            "seconds": 0.00100065,
+            "allocated_bytes": 721777,
+            "batch": 20,
+            "batch_seconds": 0.020013
+          },
+          {
+            "round": 1,
+            "seconds": 0.00097165,
+            "allocated_bytes": 721777,
+            "batch": 20,
+            "batch_seconds": 0.019433
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009737,
+            "allocated_bytes": 721777,
+            "batch": 20,
+            "batch_seconds": 0.019474
+          }
+        ],
+        "graph": [
+          {
+            "round": 0,
+            "seconds": 0.00017835,
+            "allocated_bytes": 167914,
+            "batch": 20,
+            "batch_seconds": 0.003567
+          },
+          {
+            "round": 0,
+            "seconds": 0.00017235,
+            "allocated_bytes": 167914,
+            "batch": 20,
+            "batch_seconds": 0.003447
+          },
+          {
+            "round": 0,
+            "seconds": 0.00019105,
+            "allocated_bytes": 167914,
+            "batch": 20,
+            "batch_seconds": 0.003821
+          },
+          {
+            "round": 1,
+            "seconds": 0.0001777,
+            "allocated_bytes": 167914,
+            "batch": 20,
+            "batch_seconds": 0.003554
+          },
+          {
+            "round": 1,
+            "seconds": 0.00015685,
+            "allocated_bytes": 167914,
+            "batch": 20,
+            "batch_seconds": 0.003137
+          },
+          {
+            "round": 1,
+            "seconds": 0.0001563,
+            "allocated_bytes": 167914,
+            "batch": 20,
+            "batch_seconds": 0.003126
+          }
+        ],
+        "differentiate": [
+          {
+            "round": 0,
+            "seconds": 0.0003837,
+            "allocated_bytes": 65035,
+            "batch": 20,
+            "batch_seconds": 0.007674
+          },
+          {
+            "round": 0,
+            "seconds": 0.00036645,
+            "allocated_bytes": 65035,
+            "batch": 20,
+            "batch_seconds": 0.007329
+          },
+          {
+            "round": 0,
+            "seconds": 0.0006075,
+            "allocated_bytes": 65035,
+            "batch": 20,
+            "batch_seconds": 0.01215
+          },
+          {
+            "round": 1,
+            "seconds": 0.00032785,
+            "allocated_bytes": 65035,
+            "batch": 20,
+            "batch_seconds": 0.006557
+          },
+          {
+            "round": 1,
+            "seconds": 0.00033185,
+            "allocated_bytes": 65035,
+            "batch": 20,
+            "batch_seconds": 0.006637
+          },
+          {
+            "round": 1,
+            "seconds": 0.00035085,
+            "allocated_bytes": 65035,
+            "batch": 20,
+            "batch_seconds": 0.007017
+          }
+        ]
+      },
+      "cold_seconds": [
+        {
+          "queens": 0.047379,
+          "tak": 0.000936,
+          "reverse": 0.013867,
+          "qsort": 0.000937,
+          "graph": 0.000269,
+          "differentiate": 0.000393
+        },
+        {
+          "queens": 0.046794,
+          "tak": 0.001313,
+          "reverse": 0.013083,
+          "qsort": 0.00077,
+          "graph": 0.000224,
+          "differentiate": 0.000322
+        }
+      ],
+      "files_sha256": {
+        "src/adapters/adapter.lisp": "5c13212bddfd3fb9fea52f8b08cdd92206251f8722e7ac6872c89cc96be98e65",
+        "src/adapters/arithmetic.lisp": "24b0e52ba7b73480f3906608d895531a5bbf9584d50762cd7bf8589fb2843b22",
+        "src/adapters/builtins.lisp": "c7bb9fd8b281c74396dfdd41a163923961b6550c16e7417720ac294f51ab2cf4",
+        "src/adapters/collection.lisp": "9e7521a41114df86650554eaac9c990bff181380e973281c3df7c98b039ef8f8",
+        "src/adapters/dynamic.lisp": "63a17c7a47017b4b84e12eb56613f42cec235065d00c8d04a6a9c6c3b60bee41",
+        "src/adapters/streams.lisp": "f5e9ddea0342ecc94fb15aaca819efd6402f205ec0c875aa13d301305b04c913",
+        "src/adapters/term-io.lisp": "cdc4481a01da4d4dc8f883528cd6079d41e3ef63ebf715fac32ef902b648b3fb",
+        "src/adapters/term-ops.lisp": "921d02068c01a88a143e8ca206bcf648efe9ca4ffc79f300a20857c248057aba",
+        "src/adapters/term-relations.lisp": "9c57acab68e6e7299a0d9dcc4edcb33827eda50222d9f73c6965dda2bf122c03",
+        "src/api/api.lisp": "df6f820524cf29e90cfe2da1463d21f02254e0dd319f56272501a1fe15986065",
+        "src/api/package.lisp": "bd7a1b354d8fb121dcf5283cb77ad86f16da48e65dcaff5378876544321055dd",
+        "src/api/public.lisp": "d4745497f1cce916ec8c41138addc069f8248970336e9ae3d19d2890f5638bcd",
+        "src/api/registry.lisp": "655ea6f87c0144863f4f746ef5fb391b355a2ccf55d08aa51a8f11314c3c6889",
+        "src/api/state.lisp": "bdb187584a413994e6ff59b2fc9b5749b768202e3877cb86c673261e004a3448",
+        "src/kernel/engine.lisp": "9c1c938ed81a3696519d72e62f56014e0b2c0890993d521c6bf3e06a00f42ab1",
+        "src/kernel/gc.lisp": "7128fe4ca4d18e0999b2125e733e3a2d97f5719518aaf232cdc396f351b1df17",
+        "src/kernel/instructions.lisp": "262a02031622bae971c545608c050ec30a53b3559536a44b1f323d175701d45d",
+        "src/kernel/model.lisp": "2cb6ff048aecdf63d6dc0537e6146bd14e2183dd379c372d8fe1565ade03fb30",
+        "src/kernel/protocol.lisp": "a0a321fe13e6647f5cd0196a9b6ba96375c014fd1880cb62d71461901a534af9",
+        "src/kernel/runtime.lisp": "4bbde18d5a7830fd0bc857b356833b9aa50ee69adf21c867243bbb26cac97ea2",
+        "src/kernel/slg.lisp": "c6793407f78e7bc5f80cd6ee42681c9f86bae1b29b7de0d7037462b64d49c440",
+        "src/kernel/wam.lisp": "bf42bc54d8250cac1d3dac4bab771ea33a1e325090154be4a574b58bed23e4c3",
+        "src/library/standard-library.lisp": "5024888bfcd0deb9e73d183aac75ac606ceeb39e28791eca2a3b277a5e70ae29",
+        "src/prolog/lexer.lisp": "c355f9d2fac296aead14faa11bce0214b935b51975056cbb5760417e8b5dbbe1",
+        "src/prolog/loader.lisp": "0d2468d15b3cbb7638f1aeda04ad2c7c8f606c5c46f8ec152240b79f2642c876",
+        "src/prolog/reader.lisp": "ec9c9a5152a6c785ddb8fdcc894c0523aef58eb9e975ea3db7ec0216901ab2c1",
+        "src/syntax/compiler.lisp": "8f31f94545416ff5c7bba0ac81580edd054cd037f380a0a155e87ab238daf9bc",
+        "src/syntax/control-syntax.lisp": "b2efd538663ba2d1fb4eafdbc1995cd4264b373ba4cff332b078658b22cdfc86",
+        "src/syntax/dcg.lisp": "3cb6e1db45f2d212a9a8819fba025d204fea1afcdfd59b03d46238d3f4ae7340",
+        "src/syntax/host-syntax.lisp": "b25d45b450988d9c41c9fd170bd4908c809678e3f92dd9da12bff4760ea70294",
+        "src/syntax/let-syntax.lisp": "0a74afe2cda40410d189eecdb7478aec33d93e5cdd189b24f89fcf49b2b9a520",
+        "src/syntax/native.lisp": "16a025f5cd4cffdc59e85c23d92098a0a4ee4ef383a2e451bf4ef3d5f58d98c6",
+        "src/syntax/wam-compiler.lisp": "d07e7705fb6370e2c294cebb254cec2c7e13bc50c8cd488c794bdd54c60f59be"
+      },
+      "version": "SBCL 2.2.9.debian"
+    },
+    "native_only": {
+      "command": [
+        "/workspace/scratch/3bbc51abd2c1/sbcl-runtime/usr/bin/sbcl",
+        "--dynamic-space-size",
+        "2048",
+        "--control-stack-size",
+        "1",
+        "--script",
+        "benchmarks/competitive.lisp"
+      ],
+      "cases": {
+        "queens": [
+          {
+            "round": 0,
+            "seconds": 0.0009889,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.019778
+          },
+          {
+            "round": 0,
+            "seconds": 0.00107455,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.021491
+          },
+          {
+            "round": 0,
+            "seconds": 0.0010952,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.021904
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009569,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.019138
+          },
+          {
+            "round": 1,
+            "seconds": 0.00095685,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.019137
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009933,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.019866
+          }
+        ],
+        "tak": [
+          {
+            "round": 0,
+            "seconds": 0.0010129,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.020258
+          },
+          {
+            "round": 0,
+            "seconds": 0.00102655,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.020531
+          },
+          {
+            "round": 0,
+            "seconds": 0.0010081,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.020162
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009845,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.01969
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009249,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.018498
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009237,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.018474
+          }
+        ],
+        "reverse": [
+          {
+            "round": 0,
+            "seconds": 0.0098907,
+            "allocated_bytes": 11552012,
+            "batch": 20,
+            "batch_seconds": 0.197814
+          },
+          {
+            "round": 0,
+            "seconds": 0.010336,
+            "allocated_bytes": 11553177,
+            "batch": 20,
+            "batch_seconds": 0.20672
+          },
+          {
+            "round": 0,
+            "seconds": 0.00963515,
+            "allocated_bytes": 11552278,
+            "batch": 20,
+            "batch_seconds": 0.192703
+          },
+          {
+            "round": 1,
+            "seconds": 0.00938115,
+            "allocated_bytes": 11552012,
+            "batch": 20,
+            "batch_seconds": 0.187623
+          },
+          {
+            "round": 1,
+            "seconds": 0.00950215,
+            "allocated_bytes": 11553177,
+            "batch": 20,
+            "batch_seconds": 0.190043
+          },
+          {
+            "round": 1,
+            "seconds": 0.00957245,
+            "allocated_bytes": 11552278,
+            "batch": 20,
+            "batch_seconds": 0.191449
+          }
+        ],
+        "qsort": [
+          {
+            "round": 0,
+            "seconds": 0.0010326,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.020652
+          },
+          {
+            "round": 0,
+            "seconds": 0.0010487,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.020974
+          },
+          {
+            "round": 0,
+            "seconds": 0.0009757,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.019514
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009948,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.019896
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009572,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.019144
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009669,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.019338
+          }
+        ],
+        "graph": [
+          {
+            "round": 0,
+            "seconds": 0.0001628,
+            "allocated_bytes": 167928,
+            "batch": 20,
+            "batch_seconds": 0.003256
+          },
+          {
+            "round": 0,
+            "seconds": 0.0001621,
+            "allocated_bytes": 167928,
+            "batch": 20,
+            "batch_seconds": 0.003242
+          },
+          {
+            "round": 0,
+            "seconds": 0.000155,
+            "allocated_bytes": 167928,
+            "batch": 20,
+            "batch_seconds": 0.0031
+          },
+          {
+            "round": 1,
+            "seconds": 0.0001546,
+            "allocated_bytes": 167928,
+            "batch": 20,
+            "batch_seconds": 0.003092
+          },
+          {
+            "round": 1,
+            "seconds": 0.00014115,
+            "allocated_bytes": 167928,
+            "batch": 20,
+            "batch_seconds": 0.002823
+          },
+          {
+            "round": 1,
+            "seconds": 0.00014455,
+            "allocated_bytes": 167928,
+            "batch": 20,
+            "batch_seconds": 0.002891
+          }
+        ],
+        "differentiate": [
+          {
+            "round": 0,
+            "seconds": 0.0003467,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.006934
+          },
+          {
+            "round": 0,
+            "seconds": 0.00034035,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.006807
+          },
+          {
+            "round": 0,
+            "seconds": 0.0004107,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.008214
+          },
+          {
+            "round": 1,
+            "seconds": 0.00034185,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.006837
+          },
+          {
+            "round": 1,
+            "seconds": 0.0003589,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.007178
+          },
+          {
+            "round": 1,
+            "seconds": 0.00034035,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.006807
+          }
+        ]
+      },
+      "cold_seconds": [
+        {
+          "queens": 0.03808,
+          "tak": 0.000887,
+          "reverse": 0.013333,
+          "qsort": 0.000856,
+          "graph": 0.00026,
+          "differentiate": 0.000401
+        },
+        {
+          "queens": 0.035296,
+          "tak": 0.00106,
+          "reverse": 0.012011,
+          "qsort": 0.000749,
+          "graph": 0.000226,
+          "differentiate": 0.000327
+        }
+      ],
+      "files_sha256": {
+        "src/adapters/adapter.lisp": "5c13212bddfd3fb9fea52f8b08cdd92206251f8722e7ac6872c89cc96be98e65",
+        "src/adapters/arithmetic.lisp": "24b0e52ba7b73480f3906608d895531a5bbf9584d50762cd7bf8589fb2843b22",
+        "src/adapters/builtins.lisp": "c7bb9fd8b281c74396dfdd41a163923961b6550c16e7417720ac294f51ab2cf4",
+        "src/adapters/collection.lisp": "9e7521a41114df86650554eaac9c990bff181380e973281c3df7c98b039ef8f8",
+        "src/adapters/dynamic.lisp": "63a17c7a47017b4b84e12eb56613f42cec235065d00c8d04a6a9c6c3b60bee41",
+        "src/adapters/streams.lisp": "f5e9ddea0342ecc94fb15aaca819efd6402f205ec0c875aa13d301305b04c913",
+        "src/adapters/term-io.lisp": "cdc4481a01da4d4dc8f883528cd6079d41e3ef63ebf715fac32ef902b648b3fb",
+        "src/adapters/term-ops.lisp": "921d02068c01a88a143e8ca206bcf648efe9ca4ffc79f300a20857c248057aba",
+        "src/adapters/term-relations.lisp": "9c57acab68e6e7299a0d9dcc4edcb33827eda50222d9f73c6965dda2bf122c03",
+        "src/api/api.lisp": "df6f820524cf29e90cfe2da1463d21f02254e0dd319f56272501a1fe15986065",
+        "src/api/package.lisp": "bd7a1b354d8fb121dcf5283cb77ad86f16da48e65dcaff5378876544321055dd",
+        "src/api/public.lisp": "d4745497f1cce916ec8c41138addc069f8248970336e9ae3d19d2890f5638bcd",
+        "src/api/registry.lisp": "655ea6f87c0144863f4f746ef5fb391b355a2ccf55d08aa51a8f11314c3c6889",
+        "src/api/state.lisp": "bdb187584a413994e6ff59b2fc9b5749b768202e3877cb86c673261e004a3448",
+        "src/kernel/engine.lisp": "adb34de04519b1fa412da89ee11804155531b18b1833f08de1f6d1b2dab64f67",
+        "src/kernel/gc.lisp": "7128fe4ca4d18e0999b2125e733e3a2d97f5719518aaf232cdc396f351b1df17",
+        "src/kernel/instructions.lisp": "081f62080fc163f12e3fc5c0a8949cd19b03e18b25fed715968d8003eedb254a",
+        "src/kernel/model.lisp": "2cb6ff048aecdf63d6dc0537e6146bd14e2183dd379c372d8fe1565ade03fb30",
+        "src/kernel/protocol.lisp": "a0a321fe13e6647f5cd0196a9b6ba96375c014fd1880cb62d71461901a534af9",
+        "src/kernel/runtime.lisp": "4bbde18d5a7830fd0bc857b356833b9aa50ee69adf21c867243bbb26cac97ea2",
+        "src/kernel/slg.lisp": "c6793407f78e7bc5f80cd6ee42681c9f86bae1b29b7de0d7037462b64d49c440",
+        "src/kernel/wam.lisp": "bf42bc54d8250cac1d3dac4bab771ea33a1e325090154be4a574b58bed23e4c3",
+        "src/library/standard-library.lisp": "5024888bfcd0deb9e73d183aac75ac606ceeb39e28791eca2a3b277a5e70ae29",
+        "src/prolog/lexer.lisp": "c355f9d2fac296aead14faa11bce0214b935b51975056cbb5760417e8b5dbbe1",
+        "src/prolog/loader.lisp": "0d2468d15b3cbb7638f1aeda04ad2c7c8f606c5c46f8ec152240b79f2642c876",
+        "src/prolog/reader.lisp": "ec9c9a5152a6c785ddb8fdcc894c0523aef58eb9e975ea3db7ec0216901ab2c1",
+        "src/syntax/compiler.lisp": "f589db82b20424f2e6acd797e04209fb929db52dc596e6cc948a8f56e93139bc",
+        "src/syntax/control-syntax.lisp": "b2efd538663ba2d1fb4eafdbc1995cd4264b373ba4cff332b078658b22cdfc86",
+        "src/syntax/dcg.lisp": "3cb6e1db45f2d212a9a8819fba025d204fea1afcdfd59b03d46238d3f4ae7340",
+        "src/syntax/host-syntax.lisp": "b25d45b450988d9c41c9fd170bd4908c809678e3f92dd9da12bff4760ea70294",
+        "src/syntax/let-syntax.lisp": "0a74afe2cda40410d189eecdb7478aec33d93e5cdd189b24f89fcf49b2b9a520",
+        "src/syntax/native.lisp": "21340c7418b27c32ed4270ae2318656d043b69e36344e2525bbea2f8f175ac7b",
+        "src/syntax/wam-compiler.lisp": "d07e7705fb6370e2c294cebb254cec2c7e13bc50c8cd488c794bdd54c60f59be"
+      },
+      "version": "SBCL 2.2.9.debian"
+    },
+    "native_linear": {
+      "command": [
+        "/workspace/scratch/3bbc51abd2c1/sbcl-runtime/usr/bin/sbcl",
+        "--dynamic-space-size",
+        "2048",
+        "--control-stack-size",
+        "1",
+        "--script",
+        "benchmarks/competitive.lisp"
+      ],
+      "cases": {
+        "queens": [
+          {
+            "round": 0,
+            "seconds": 0.00100735,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.020147
+          },
+          {
+            "round": 0,
+            "seconds": 0.0009581,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.019162
+          },
+          {
+            "round": 0,
+            "seconds": 0.00100405,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.020081
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009187,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.018374
+          },
+          {
+            "round": 1,
+            "seconds": 0.00094455,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.018891
+          },
+          {
+            "round": 1,
+            "seconds": 0.00095695,
+            "allocated_bytes": 1276372,
+            "batch": 20,
+            "batch_seconds": 0.019139
+          }
+        ],
+        "tak": [
+          {
+            "round": 0,
+            "seconds": 0.00094415,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.018883
+          },
+          {
+            "round": 0,
+            "seconds": 0.00098735,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.019747
+          },
+          {
+            "round": 0,
+            "seconds": 0.00096725,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.019345
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009341,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.018682
+          },
+          {
+            "round": 1,
+            "seconds": 0.00092305,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.018461
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009531,
+            "allocated_bytes": 3252,
+            "batch": 20,
+            "batch_seconds": 0.019062
+          }
+        ],
+        "reverse": [
+          {
+            "round": 0,
+            "seconds": 0.00952085,
+            "allocated_bytes": 11552944,
+            "batch": 20,
+            "batch_seconds": 0.190417
+          },
+          {
+            "round": 0,
+            "seconds": 0.0113749,
+            "allocated_bytes": 11552262,
+            "batch": 20,
+            "batch_seconds": 0.227498
+          },
+          {
+            "round": 0,
+            "seconds": 0.01024815,
+            "allocated_bytes": 11552780,
+            "batch": 20,
+            "batch_seconds": 0.204963
+          },
+          {
+            "round": 1,
+            "seconds": 0.0091385,
+            "allocated_bytes": 11552012,
+            "batch": 20,
+            "batch_seconds": 0.18277
+          },
+          {
+            "round": 1,
+            "seconds": 0.0091328,
+            "allocated_bytes": 11553177,
+            "batch": 20,
+            "batch_seconds": 0.182656
+          },
+          {
+            "round": 1,
+            "seconds": 0.00897175,
+            "allocated_bytes": 11552278,
+            "batch": 20,
+            "batch_seconds": 0.179435
+          }
+        ],
+        "qsort": [
+          {
+            "round": 0,
+            "seconds": 0.00111645,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.022329
+          },
+          {
+            "round": 0,
+            "seconds": 0.00111815,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.022363
+          },
+          {
+            "round": 0,
+            "seconds": 0.00106405,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.021281
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009742,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.019484
+          },
+          {
+            "round": 1,
+            "seconds": 0.00098875,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.019775
+          },
+          {
+            "round": 1,
+            "seconds": 0.0009521,
+            "allocated_bytes": 723392,
+            "batch": 20,
+            "batch_seconds": 0.019042
+          }
+        ],
+        "graph": [
+          {
+            "round": 0,
+            "seconds": 0.0007727,
+            "allocated_bytes": 85040,
+            "batch": 20,
+            "batch_seconds": 0.015454
+          },
+          {
+            "round": 0,
+            "seconds": 0.000836,
+            "allocated_bytes": 85040,
+            "batch": 20,
+            "batch_seconds": 0.01672
+          },
+          {
+            "round": 0,
+            "seconds": 0.00084325,
+            "allocated_bytes": 85040,
+            "batch": 20,
+            "batch_seconds": 0.016865
+          },
+          {
+            "round": 1,
+            "seconds": 0.00074675,
+            "allocated_bytes": 85040,
+            "batch": 20,
+            "batch_seconds": 0.014935
+          },
+          {
+            "round": 1,
+            "seconds": 0.00076705,
+            "allocated_bytes": 85040,
+            "batch": 20,
+            "batch_seconds": 0.015341
+          },
+          {
+            "round": 1,
+            "seconds": 0.0007831,
+            "allocated_bytes": 85040,
+            "batch": 20,
+            "batch_seconds": 0.015662
+          }
+        ],
+        "differentiate": [
+          {
+            "round": 0,
+            "seconds": 0.00038075,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.007615
+          },
+          {
+            "round": 0,
+            "seconds": 0.0003641,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.007282
+          },
+          {
+            "round": 0,
+            "seconds": 0.000408,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.00816
+          },
+          {
+            "round": 1,
+            "seconds": 0.00033255,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.006651
+          },
+          {
+            "round": 1,
+            "seconds": 0.00032895,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.006579
+          },
+          {
+            "round": 1,
+            "seconds": 0.00032315,
+            "allocated_bytes": 66651,
+            "batch": 20,
+            "batch_seconds": 0.006463
+          }
+        ]
+      },
+      "cold_seconds": [
+        {
+          "queens": 4.12153,
+          "tak": 0.00098,
+          "reverse": 0.012118,
+          "qsort": 0.000945,
+          "graph": 0.001258,
+          "differentiate": 0.000445
+        },
+        {
+          "queens": 4.432083,
+          "tak": 0.000905,
+          "reverse": 0.012035,
+          "qsort": 0.000726,
+          "graph": 0.00091,
+          "differentiate": 0.000337
+        }
+      ],
+      "files_sha256": {
+        "src/adapters/adapter.lisp": "5c13212bddfd3fb9fea52f8b08cdd92206251f8722e7ac6872c89cc96be98e65",
+        "src/adapters/arithmetic.lisp": "24b0e52ba7b73480f3906608d895531a5bbf9584d50762cd7bf8589fb2843b22",
+        "src/adapters/builtins.lisp": "c7bb9fd8b281c74396dfdd41a163923961b6550c16e7417720ac294f51ab2cf4",
+        "src/adapters/collection.lisp": "9e7521a41114df86650554eaac9c990bff181380e973281c3df7c98b039ef8f8",
+        "src/adapters/dynamic.lisp": "63a17c7a47017b4b84e12eb56613f42cec235065d00c8d04a6a9c6c3b60bee41",
+        "src/adapters/streams.lisp": "f5e9ddea0342ecc94fb15aaca819efd6402f205ec0c875aa13d301305b04c913",
+        "src/adapters/term-io.lisp": "cdc4481a01da4d4dc8f883528cd6079d41e3ef63ebf715fac32ef902b648b3fb",
+        "src/adapters/term-ops.lisp": "921d02068c01a88a143e8ca206bcf648efe9ca4ffc79f300a20857c248057aba",
+        "src/adapters/term-relations.lisp": "9c57acab68e6e7299a0d9dcc4edcb33827eda50222d9f73c6965dda2bf122c03",
+        "src/api/api.lisp": "df6f820524cf29e90cfe2da1463d21f02254e0dd319f56272501a1fe15986065",
+        "src/api/package.lisp": "bd7a1b354d8fb121dcf5283cb77ad86f16da48e65dcaff5378876544321055dd",
+        "src/api/public.lisp": "d4745497f1cce916ec8c41138addc069f8248970336e9ae3d19d2890f5638bcd",
+        "src/api/registry.lisp": "655ea6f87c0144863f4f746ef5fb391b355a2ccf55d08aa51a8f11314c3c6889",
+        "src/api/state.lisp": "bdb187584a413994e6ff59b2fc9b5749b768202e3877cb86c673261e004a3448",
+        "src/kernel/engine.lisp": "adb34de04519b1fa412da89ee11804155531b18b1833f08de1f6d1b2dab64f67",
+        "src/kernel/gc.lisp": "7128fe4ca4d18e0999b2125e733e3a2d97f5719518aaf232cdc396f351b1df17",
+        "src/kernel/instructions.lisp": "081f62080fc163f12e3fc5c0a8949cd19b03e18b25fed715968d8003eedb254a",
+        "src/kernel/model.lisp": "2cb6ff048aecdf63d6dc0537e6146bd14e2183dd379c372d8fe1565ade03fb30",
+        "src/kernel/protocol.lisp": "a0a321fe13e6647f5cd0196a9b6ba96375c014fd1880cb62d71461901a534af9",
+        "src/kernel/runtime.lisp": "4bbde18d5a7830fd0bc857b356833b9aa50ee69adf21c867243bbb26cac97ea2",
+        "src/kernel/slg.lisp": "c6793407f78e7bc5f80cd6ee42681c9f86bae1b29b7de0d7037462b64d49c440",
+        "src/kernel/wam.lisp": "bf42bc54d8250cac1d3dac4bab771ea33a1e325090154be4a574b58bed23e4c3",
+        "src/library/standard-library.lisp": "5024888bfcd0deb9e73d183aac75ac606ceeb39e28791eca2a3b277a5e70ae29",
+        "src/prolog/lexer.lisp": "c355f9d2fac296aead14faa11bce0214b935b51975056cbb5760417e8b5dbbe1",
+        "src/prolog/loader.lisp": "0d2468d15b3cbb7638f1aeda04ad2c7c8f606c5c46f8ec152240b79f2642c876",
+        "src/prolog/reader.lisp": "ec9c9a5152a6c785ddb8fdcc894c0523aef58eb9e975ea3db7ec0216901ab2c1",
+        "src/syntax/compiler.lisp": "f589db82b20424f2e6acd797e04209fb929db52dc596e6cc948a8f56e93139bc",
+        "src/syntax/control-syntax.lisp": "b2efd538663ba2d1fb4eafdbc1995cd4264b373ba4cff332b078658b22cdfc86",
+        "src/syntax/dcg.lisp": "3cb6e1db45f2d212a9a8819fba025d204fea1afcdfd59b03d46238d3f4ae7340",
+        "src/syntax/host-syntax.lisp": "b25d45b450988d9c41c9fd170bd4908c809678e3f92dd9da12bff4760ea70294",
+        "src/syntax/let-syntax.lisp": "0a74afe2cda40410d189eecdb7478aec33d93e5cdd189b24f89fcf49b2b9a520",
+        "src/syntax/native.lisp": "078b8918fe8c137b60e3ca6dcc61be661c7892955ef6c345789e606f817ca7d3",
+        "src/syntax/wam-compiler.lisp": "d07e7705fb6370e2c294cebb254cec2c7e13bc50c8cd488c794bdd54c60f59be"
+      },
+      "version": "SBCL 2.2.9.debian"
+    },
+    "swi": {
+      "command": [
+        "/workspace/scratch/7ce7a2317224/swi-9.2/usr/lib/swi-prolog/bin/x86_64-linux/swipl",
+        "-O",
+        "-q",
+        "-s",
+        "benchmarks/competitive-swi.pl"
+      ],
+      "cases": {
+        "queens": [
+          {
+            "round": 0,
+            "seconds": 0.002210537,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.04421074
+          },
+          {
+            "round": 0,
+            "seconds": 0.002204265,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.044085305
+          },
+          {
+            "round": 0,
+            "seconds": 0.002229365,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.044587297
+          },
+          {
+            "round": 1,
+            "seconds": 0.002328554,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.046571078
+          },
+          {
+            "round": 1,
+            "seconds": 0.002365404,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.047308077
+          },
+          {
+            "round": 1,
+            "seconds": 0.002308034,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.046160681
+          }
+        ],
+        "tak": [
+          {
+            "round": 0,
+            "seconds": 0.003250435,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.065008702
+          },
+          {
+            "round": 0,
+            "seconds": 0.003244677,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.064893542
+          },
+          {
+            "round": 0,
+            "seconds": 0.003238881,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.064777621
+          },
+          {
+            "round": 1,
+            "seconds": 0.003318466,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.066369324
+          },
+          {
+            "round": 1,
+            "seconds": 0.003301949,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.066038985
+          },
+          {
+            "round": 1,
+            "seconds": 0.003435643,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.068712855
+          }
+        ],
+        "reverse": [
+          {
+            "round": 0,
+            "seconds": 0.01756914,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.351382806
+          },
+          {
+            "round": 0,
+            "seconds": 0.017988164,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.35976328
+          },
+          {
+            "round": 0,
+            "seconds": 0.018114282,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.362285637
+          },
+          {
+            "round": 1,
+            "seconds": 0.0212343,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.424686001
+          },
+          {
+            "round": 1,
+            "seconds": 0.019832068,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.396641355
+          },
+          {
+            "round": 1,
+            "seconds": 0.018656092,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.373121848
+          }
+        ],
+        "qsort": [
+          {
+            "round": 0,
+            "seconds": 0.003373573,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.067471452
+          },
+          {
+            "round": 0,
+            "seconds": 0.003275737,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.065514741
+          },
+          {
+            "round": 0,
+            "seconds": 0.003333075,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.066661495
+          },
+          {
+            "round": 1,
+            "seconds": 0.003567203,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.071344064
+          },
+          {
+            "round": 1,
+            "seconds": 0.003372369,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.067447377
+          },
+          {
+            "round": 1,
+            "seconds": 0.003429259,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.068585178
+          }
+        ],
+        "graph": [
+          {
+            "round": 0,
+            "seconds": 0.000258862,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.005177241
+          },
+          {
+            "round": 0,
+            "seconds": 0.000266728,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.005334563
+          },
+          {
+            "round": 0,
+            "seconds": 0.000259924,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.005198472
+          },
+          {
+            "round": 1,
+            "seconds": 0.000270112,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.005402233
+          },
+          {
+            "round": 1,
+            "seconds": 0.000259523,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.00519046
+          },
+          {
+            "round": 1,
+            "seconds": 0.000267003,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.005340061
+          }
+        ],
+        "differentiate": [
+          {
+            "round": 0,
+            "seconds": 0.000780065,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.015601303
+          },
+          {
+            "round": 0,
+            "seconds": 0.000766153,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.015323063
+          },
+          {
+            "round": 0,
+            "seconds": 0.000772827,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.01545655
+          },
+          {
+            "round": 1,
+            "seconds": 0.000821478,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.016429558
+          },
+          {
+            "round": 1,
+            "seconds": 0.000823397,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.016467935
+          },
+          {
+            "round": 1,
+            "seconds": 0.000776831,
+            "allocated_bytes": 0,
+            "batch": 20,
+            "batch_seconds": 0.015536628
+          }
+        ]
+      },
+      "cold_seconds": [
+        {
+          "queens": 0.002476089,
+          "tak": 0.003281769,
+          "reverse": 0.020570207,
+          "qsort": 0.00331614,
+          "graph": 0.000474792,
+          "differentiate": 0.0007983
+        },
+        {
+          "queens": 0.002361009,
+          "tak": 0.003273427,
+          "reverse": 0.031380054,
+          "qsort": 0.003625738,
+          "graph": 0.000702078,
+          "differentiate": 0.000822906
+        }
+      ],
+      "version": "SWI-Prolog version 9.2.9 for x86_64-linux"
+    }
+  },
+  "summary": {
+    "queens": {
+      "full": {
+        "seconds": 0.00099895,
+        "swi_over_variant": 2.2710841383452625,
+        "min_seconds": 0.0009682,
+        "max_seconds": 0.00103975
+      },
+      "native_only": {
+        "seconds": 0.0009911,
+        "swi_over_variant": 2.2890722429623653,
+        "min_seconds": 0.00095685,
+        "max_seconds": 0.0010952
+      },
+      "native_linear": {
+        "seconds": 0.0009575250000000001,
+        "swi_over_variant": 2.369337093026292,
+        "min_seconds": 0.0009187,
+        "max_seconds": 0.00100735
+      },
+      "swi": {
+        "seconds": 0.0022686995,
+        "swi_over_variant": 1.0,
+        "min_seconds": 0.002204265,
+        "max_seconds": 0.002365404
+      }
+    },
+    "tak": {
+      "full": {
+        "seconds": 0.001083475,
+        "swi_over_variant": 3.0237818131475116,
+        "min_seconds": 0.00094295,
+        "max_seconds": 0.00114765
+      },
+      "native_only": {
+        "seconds": 0.0009962999999999999,
+        "swi_over_variant": 3.288358928033725,
+        "min_seconds": 0.0009237,
+        "max_seconds": 0.00102655
+      },
+      "native_linear": {
+        "seconds": 0.000948625,
+        "swi_over_variant": 3.4536218210567924,
+        "min_seconds": 0.00092305,
+        "max_seconds": 0.00098735
+      },
+      "swi": {
+        "seconds": 0.003276192,
+        "swi_over_variant": 1.0,
+        "min_seconds": 0.003238881,
+        "max_seconds": 0.003435643
+      }
+    },
+    "reverse": {
+      "full": {
+        "seconds": 0.00997845,
+        "swi_over_variant": 1.8424892643647057,
+        "min_seconds": 0.00920565,
+        "max_seconds": 0.0102982
+      },
+      "native_only": {
+        "seconds": 0.0096038,
+        "swi_over_variant": 1.9143658760074136,
+        "min_seconds": 0.00938115,
+        "max_seconds": 0.010336
+      },
+      "native_linear": {
+        "seconds": 0.009329675,
+        "swi_over_variant": 1.9706138745454687,
+        "min_seconds": 0.00897175,
+        "max_seconds": 0.0113749
+      },
+      "swi": {
+        "seconds": 0.018385186999999997,
+        "swi_over_variant": 1.0,
+        "min_seconds": 0.01756914,
+        "max_seconds": 0.0212343
+      }
+    },
+    "qsort": {
+      "full": {
+        "seconds": 0.001000525,
+        "swi_over_variant": 3.3712011194123086,
+        "min_seconds": 0.00097165,
+        "max_seconds": 0.00104965
+      },
+      "native_only": {
+        "seconds": 0.00098525,
+        "swi_over_variant": 3.4234671403197154,
+        "min_seconds": 0.0009572,
+        "max_seconds": 0.0010487
+      },
+      "native_linear": {
+        "seconds": 0.0010264,
+        "swi_over_variant": 3.286214925954793,
+        "min_seconds": 0.0009521,
+        "max_seconds": 0.00111815
+      },
+      "swi": {
+        "seconds": 0.0033729709999999998,
+        "swi_over_variant": 1.0,
+        "min_seconds": 0.003275737,
+        "max_seconds": 0.003567203
+      }
+    },
+    "graph": {
+      "full": {
+        "seconds": 0.00017502499999999999,
+        "swi_over_variant": 1.5045050707041852,
+        "min_seconds": 0.0001563,
+        "max_seconds": 0.00019105
+      },
+      "native_only": {
+        "seconds": 0.0001548,
+        "swi_over_variant": 1.7010723514211885,
+        "min_seconds": 0.00014115,
+        "max_seconds": 0.0001628
+      },
+      "native_linear": {
+        "seconds": 0.0007779,
+        "swi_over_variant": 0.338508805759095,
+        "min_seconds": 0.00074675,
+        "max_seconds": 0.00084325
+      },
+      "swi": {
+        "seconds": 0.000263326,
+        "swi_over_variant": 1.0,
+        "min_seconds": 0.000258862,
+        "max_seconds": 0.000270112
+      }
+    },
+    "differentiate": {
+      "full": {
+        "seconds": 0.00035864999999999996,
+        "swi_over_variant": 2.1704949114735816,
+        "min_seconds": 0.00032785,
+        "max_seconds": 0.0006075
+      },
+      "native_only": {
+        "seconds": 0.000344275,
+        "swi_over_variant": 2.2611226490450944,
+        "min_seconds": 0.00034035,
+        "max_seconds": 0.0004107
+      },
+      "native_linear": {
+        "seconds": 0.000348325,
+        "swi_over_variant": 2.2348324122586662,
+        "min_seconds": 0.00032315,
+        "max_seconds": 0.000408
+      },
+      "swi": {
+        "seconds": 0.0007784479999999999,
+        "swi_over_variant": 1.0,
+        "min_seconds": 0.000766153,
+        "max_seconds": 0.000823397
+      }
+    }
+  },
+  "date": "2026-10-23 JST",
+  "comparison_base_commit": "6da5c8e4ff692fb1da887835452fd625b33f2731",
+  "selected_variant": "native_only",
+  "cpu": "AMD EPYC 9V74; 9 visible vCPUs; 8 CPU quota; single-threaded queries",
+  "memory_limit_bytes": 8589934592
+}

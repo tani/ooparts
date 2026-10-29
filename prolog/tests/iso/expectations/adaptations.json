@@ -1,0 +1,20 @@
+{
+  "license": "Bundled originals and ported cases retain Apache-2.0; the new harness/driver use the project MIT license.",
+  "selection": "All 782 iso_ definitions across 93 source files, including disabled definitions and alternate branches. Other upstream test prefixes are outside this inventory.",
+  "port": [
+    "Strip Logtalk object wrappers and lower lgtunit calls only in goal positions. Preserve data braces, lists, sharing and helpers.",
+    "Run file and stream fixtures as ordinary ISO Prolog clauses in per-case temporary directories.",
+    "Use an explicit standard exception alternative rather than permissive legacy/module variants. Both expectations are recorded per case.",
+    "Replay the two declared retract/1 predecessor chains within each fresh worker.",
+    "Correct iso_setof_3_17 to accept either implementation-dependent relative variable order; preserve both order patterns.",
+    "Correct iso_read_term_3_05 to require syntax_error without an assertion about undefined consumed input; reader behavior is unchanged.",
+    "Enable six implementation-defined bitwise examples using documented unbounded two-complement and arithmetic-shift results; retain upstream-disabled provenance and chosen values per case."
+  ],
+  "limits": [
+    "ISO-undefined STO cases, including the corresponding active branches, are SKIP and do not prescribe extension behavior.",
+    "Runtime conditions are evaluated; disabled bitwise examples explicitly document and test implementation-defined results.",
+    "The one deterministic expectation checks exactly one answer; ISO cannot portably inspect residual choice points.",
+    "Only explicit =~= expectations use approximation. Other numeric equality checks remain exact.",
+    "The corpus is not a complete ISO specification; names, counts and passing results are not conformance certification."
+  ]
+}

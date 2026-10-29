@@ -1,0 +1,4 @@
+# CSV data keeps its original CRLF encoding; preserve vendored notices/patches.
+*.csv whitespace=cr-at-eol
+*.patch whitespace=-blank-at-eol,-blank-at-eof
+continuation/docs/assets/Font-OFL.txt whitespace=-blank-at-eol

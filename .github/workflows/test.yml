@@ -1,0 +1,52 @@
+name: Common Lisp tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    runs-on: ubuntu-24.04
+    outputs:
+      include: ${{ steps.matrix.outputs.include }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v30
+      - id: matrix
+        name: Discover available implementations on each platform
+        shell: bash
+        run: |
+          set -euo pipefail
+          include='[]'
+          for target in 'x86_64-linux ubuntu-24.04' 'aarch64-linux ubuntu-24.04-arm' 'aarch64-darwin macos-15'; do
+            read -r system os <<< "$target"
+            names=$(nix eval --json ".#checks.$system" --apply builtins.attrNames)
+            include=$(jq -cn --argjson old "$include" --argjson names "$names" --arg os "$os" \
+              '$old + ($names | map({os: $os, check: .}))')
+          done
+          test "$include" != '[]'
+          echo "include=$include" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.include) }}
+    name: ${{ matrix.os }} / ${{ matrix.check }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v30
+      - name: Build library and run complete test suite
+        run: nix build -L .#checks.$(nix eval --impure --raw --expr builtins.currentSystem).${{ matrix.check }}

@@ -1,0 +1,18 @@
+(require :sb-sprof)
+(load (merge-pathnames "run.lisp" *load-truename*))
+(in-package #:ooparts/prolog/bench)
+(let* ((name (or (sb-ext:posix-getenv "BENCH_PROFILE") "waste-50k-gc4096"))
+       (mode (if (equal (sb-ext:posix-getenv "BENCH_PROFILE_MODE") "alloc") :alloc :cpu))
+       (case (find name *cases* :key #'bench-case-name :test #'equal)))
+  (unless case (error "Unknown case: ~A" name))
+  (run-case case)
+  (format t "Profile: ~A mode=~A~%" name mode)
+  ;; Query creation is included; setup and explicit full GC are outside profiling.
+  (sb-sprof:with-profiling (:max-samples (if (eq mode :alloc) 20000 1200) :sample-interval 0.003 :loop t :mode mode :reset t)
+    (let ((vm (make-query (bench-case-goals case) :gc-threshold (bench-case-gc case))))
+      (unwind-protect
+           (if (bench-case-all case)
+               (loop while (nth-value 1 (next-solution vm)))
+               (progn (ooparts/prolog/src/kernel/engine:run-machine vm) (export-answer vm)))
+        (close-query vm))))
+  (sb-sprof:report :type :flat :max 60))

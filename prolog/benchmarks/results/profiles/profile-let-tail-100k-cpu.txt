@@ -1,0 +1,44 @@
+Profile: let-tail-100k mode=CPU
+
+Number of samples:   1200
+Sample interval:     0.003 seconds
+Total sampling time: 3.6000001 seconds
+Graph cycles:        0
+Sampled threads:
+   #<THREAD "main thread" RUNNING {10013C8003}> (146448/1048576 bytes, 755 hash buckets)
+
+           Self        Total        Cumul
+  Nr  Count     %  Count     %  Count     %    Calls  Function
+------------------------------------------------------------------------
+   2    119   9.9   1185  98.8    119   9.9        -  OOPARTS/PROLOG::RUN-MACHINE
+   4     82   6.8     82   6.8    201  16.8        -  foreign function pthread_sigmask
+   6     80   6.7    371  30.9    281  23.4        -  SB-IMPL::%MAKE-HASH-TABLE
+   8     66   5.5    138  11.5    347  28.9        -  SB-IMPL::%ALLOC-HASH-TABLE
+  10     48   4.0     48   4.0    395  32.9        -  SB-KERNEL:TWO-ARG-/
+  12     44   3.7    370  30.8    439  36.6        -  OOPARTS/PROLOG::MAP-TERM
+  14     41   3.4     41   3.4    480  40.0        -  SYMBOL-FUNCTION
+  16     37   3.1     37   3.1    517  43.1        -  SB-KERNEL:%UNARY-TRUNCATE
+  18     35   2.9     72   6.0    552  46.0        -  SB-IMPL::GETHASH/EQUAL
+  20     35   2.9     43   3.6    587  48.9        -  OOPARTS/PROLOG::MAKE-CHOICE
+  22     29   2.4     45   3.8    616  51.3        -  OOPARTS/PROLOG::ENSURE-REGISTERS
+  24     29   2.4     29   2.4    645  53.8        -  SB-C::CHECK-DS-LIST
+  26     26   2.2     65   5.4    671  55.9        -  SB-IMPL::MAKE-HASH-TABLE-USING-DEFAULTS
+  28     24   2.0     24   2.0    695  57.9        -  (SB-VM::OPTIMIZED-DATA-VECTOR-REF T)
+  30     19   1.6     80   6.7    714  59.5        -  OOPARTS/PROLOG::EXECUTE-TERM-INSTRUCTION
+  32     19   1.6     19   1.6    733  61.1        -  SB-KERNEL:HAIRY-DATA-VECTOR-REF/CHECK-BOUNDS
+  34     17   1.4     17   1.4    750  62.5        -  SB-KERNEL:%SXHASH-STRING
+  36     16   1.3    104   8.7    766  63.8        -  OOPARTS/PROLOG::UNIFY
+  38     16   1.3     41   3.4    782  65.2        -  (LABELS SB-IMPL::SXHASH-RECURSE :IN SXHASH)
+  40     15   1.3     19   1.6    797  66.4        -  OOPARTS/PROLOG::MAYBE-COLLECT
+  42     13   1.1     13   1.1    810  67.5        -  (LAMBDA (?N) :IN SETUP-CASES)
+  44     13   1.1     13   1.1    823  68.6        -  (SB-VM::OPTIMIZED-DATA-VECTOR-SET T)
+  46     12   1.0     12   1.0    835  69.6        -  RESTORE-YMM
+  48     11   0.9     11   0.9    846  70.5        -  SB-IMPL::PICK-TABLE-METHODS
+  50     11   0.9     11   0.9    857  71.4        -  SB-KERNEL:%SINGLE-FLOAT
+  52     11   0.9     11   0.9    868  72.3        -  GENERIC-+
+  54     11   0.9     11   0.9    879  73.3        -  REPLACE
+  56     11   0.9     11   0.9    890  74.2        -  OOPARTS/PROLOG::DEREF
+  58     10   0.8     70   5.8    900  75.0        -  OOPARTS/PROLOG::PUSH-CHOICE
+  60     10   0.8     10   0.8    910  75.8        -  LENGTH
+------------------------------------------------------------------------
+         88   7.3                                     elsewhere

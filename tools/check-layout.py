@@ -38,6 +38,10 @@ def main():
         check(not (ROOT / library).exists(),
               f'Legacy root directory: {library}/; use the shared src/tests/docs layout')
 
+    check(not any(p.suffix.lower() in ('.html', '.htm')
+                  for p in (ROOT / 'docs').rglob('*') if p.is_file()),
+          'Write repository documentation in Markdown rather than HTML')
+
     owned = [p for prefix in ('src', 'tests', 'docs', 'examples', 'benchmarks', 'tools', '.github')
              for p in (ROOT / prefix).rglob('*') if p.is_file()
              and '__pycache__' not in p.parts and 'generated' not in p.parts]

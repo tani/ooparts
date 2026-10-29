@@ -69,7 +69,7 @@ ISO observations, FASL/core reloads and verification limits.
 | `examples/<library>/` | Executable examples |
 | `benchmarks/<library>/` | Reproducible drivers and identified historical results |
 | `tools/<library>/` | CLI launchers, generators and external validation drivers |
-| `vendor/` | Pinned upstream reference sources, test corpora and documentation assets |
+| `vendor/` | Pinned upstream reference sources and test corpora |
 | `licenses/` | Preserved license texts and attribution notices |
 | `build/` | Ignored generated files, downloaded benchmark dependencies and fresh reports |
 
@@ -103,7 +103,7 @@ Lisp package set and exports `ooparts-<component>-<implementation>` REPL wrapper
 ## Licenses and provenance
 
 Original OOPArts code is [MIT licensed](LICENSE). This does not replace the
-licenses of vendored sources or documentation assets.
+licenses of vendored sources.
 [THIRD_PARTY.md](THIRD_PARTY.md) and [third-party.json](third-party.json) record
-imports, ports, documentation assets, design references and external benchmark
+imports, ports, design references and external benchmark
 dependencies separately, with preserved notices and pinned-source checksums.

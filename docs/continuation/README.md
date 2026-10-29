@@ -124,6 +124,6 @@ subset, not transparent capture of every Common Lisp/native/FFI frame. It does
 not provide multi-prompt operators, shift0/control, or a mechanically checked
 correctness proof for the complete implementation.
 
-See [the mathematical design note](semantics.html),
+See [the mathematical design note](semantics.md),
 [historical benchmarks](../../benchmarks/continuation/README.md), and the
 [license/provenance register](../../THIRD_PARTY.md).

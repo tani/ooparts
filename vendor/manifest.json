@@ -1,8 +1,6 @@
 {
   "algorithm": "sha256",
   "files": {
-    "docs-font/OFL.txt": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9",
-    "docs-font/SCPSDocsSans-subset.woff": "837b9991c75dd0ebbfed79a68445e3147083e1675fa285713db8d27d6bc62ef4",
     "logtalk/original/LICENSE.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
     "logtalk/original/NOTICE.txt": "4a9e5b539467fc68faba512043fa9fab0ab9d193d84bc616ce5d02dd4fb37f0c",
     "logtalk/original/tests/prolog/NOTES.md": "12d0de99057de2a4429e2907e3ac5f6a2de8767cb66e2a3f98dec0724e0792c1",
@@ -196,8 +194,6 @@
     "logtalk/ported/syntax/operators/tests.pl": "3ef98812a40b1fdf0ab3d715fd7464064d9e4e30bf2cc2c1cd193ed4c7b5b802",
     "logtalk/ported/syntax/terms/tests.pl": "31f3ff86e33f204854d72bb84c05526971cd3bf7b7bc424bb20a69dcebf742d8",
     "logtalk/upstream.json": "ff66c4c5a391cb4c89e5dc52a90d8de887d4661216ca1c04a2b55055e2dd2375",
-    "mathjax/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
-    "mathjax/tex-svg.js": "d4295dc33744836935c1399feece5159577b34c5c8ffb9f1c6324cd82e03a882",
     "satch/source/LICENSE": "1abde06a538763382879ac94e6e558f42f796e983daa8b39ac7f20d25a423ed3",
     "satch/source/VERSION": "c4ea20b9f8ac6615b2a096a32283c20616b5ebc7c4514f43cd1d04b92c9c1a30",
     "satch/source/catch.c": "047f246b6af6f3f49d2e6d0217e095930cc5dc6c0c753ae7ed0f738657a5651c",

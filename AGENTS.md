@@ -7,7 +7,8 @@
 - Public entry files are `src/<library>.lisp`; matching test facades are
   `tests/<library>.lisp`. Declare imports rather than loading implementation
   files or relying on implicit load order.
-- Keep documentation, comments and docstrings in English. Update examples,
+- Write documentation in Markdown, using TeX notation for mathematics.
+  Keep documentation, comments and docstrings in English. Update examples,
   tooling paths and the root Nix flake when moving files.
 - Keep tools, examples and benchmarks under their library's common directory
   conventions. Generated/transient output belongs in ignored `build/`.

@@ -39,10 +39,10 @@
   (reset (funcall (lambda (x &optional (y (shift k (funcall k 10)))) (+ x y)) 4)))
 (case= lambda-list '(1 2 t (:other 8 :z 9) 9 t 12)
   (reset (funcall (lambda (a &optional (b 3 bp) &rest rest &key (z 8 zp) &allow-other-keys
-                            &aux (w (+ a b z))) (list a b bp rest z zp w))
+                            &aux (w (+ a b z))) (list a b (not (null bp)) rest z (not (null zp)) w))
                   1 2 :other 8 :z 9)))
 (case= key-default '(3 nil)
-  (reset (funcall (lambda (&key (x (shift k (funcall k 3)) xp)) (list x xp)))))
+  (reset (funcall (lambda (&key (x (shift k (funcall k 3)) xp)) (list x (not (null xp)))))))
 (case= apply '(1 2 3) (reset (apply #'list 1 (shift k (funcall k '(2 3))))))
 (case= flet 14 (reset (flet ((f (x) (+ x (shift k (funcall k 10))))) (f 4))))
 (case= labels 120 (reset (labels ((f (n) (if (zerop n) (shift k (funcall k 1)) (* n (f (1- n)))))) (f 5))))
@@ -302,7 +302,10 @@
     (if compiled (funcall (compile nil `(lambda () ,code))) (eval code))))
 (defun expect-condition (name type thunk)
   (handler-case (progn (funcall thunk) (check name type :no-condition))
-    (error (e) (check name t (typep e type)))))
+    (error (e)
+      (check name t (typep e type))
+      (unless (typep e type)
+        (format t "Condition mismatch: expected ~S, got ~S: ~A~%" type (type-of e) e)))))
 (defun run-tests ()
   (let ((*checks* 0) (*failures* nil))
     (dolist (case (reverse *cases*))
@@ -316,6 +319,10 @@
     (dolist (mode '(:selective :full))
       (expect-condition (list :no-prompt mode) 'missing-reset
                         (lambda () (run-form '(shift k k) mode t)))
+      (expect-condition (list :guarded-root-without-prompt mode) 'missing-reset
+                        (lambda ()
+                          (let ((ooparts/continuation/runtime:*native-call* t))
+                            (run-form '(shift k k) mode t))))
       (expect-condition (list :native-boundary mode) 'native-boundary
                         (lambda () (run-form '(reset (host-callback (lambda (x) (shift k (+ x (funcall k 1)))))) mode t)))
       (check (list :native-local-reset mode) 105

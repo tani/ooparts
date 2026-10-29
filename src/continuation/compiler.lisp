@@ -45,7 +45,7 @@
     array-dimensions array-dimension array-rank array-total-size
     make-array make-string make-list vector coerce
     symbol-name symbol-package symbol-value symbol-function boundp fboundp
-    fdefinition #-abcl makunbound fmakunbound get getf remprop
+    fdefinition #-(or abcl ecl) makunbound fmakunbound get getf remprop
     gethash remhash clrhash hash-table-count make-hash-table
     rplaca rplacd set char-name name-char
     (setf car) (setf cdr) (setf nth) (setf get) (setf getf)
@@ -290,6 +290,38 @@
             `(multiple-value-call (lambda ,(cadr normal) ,@(cddr normal)) ,protected)
             protected))))
 
+#+clozure
+(defun expand-restart-case (form)
+  ;; CCL's native expansion closes over native CATCH tags. Use virtual GO
+  ;; targets for restart exits so captured/reinstated restarts remain active.
+  (let* ((exit (gensym "RESTART-CASE")) (arguments (gensym "ARGUMENTS"))
+         (clauses (cddr form))
+         (tags (mapcar (lambda (clause) (declare (ignore clause)) (gensym "RESTART")) clauses))
+         (bindings nil) (handlers nil))
+    (loop for (name parameters . body) in clauses for tag in tags
+          do (let ((options nil) (values (gensym "VALUES")))
+               (loop while (and body (member (car body) '(:report :interactive :test)))
+                     for option = (pop body) for value = (pop body)
+                     do (setf options
+                              (append options
+                                      (list (ecase option (:report :report-function)
+                                                     (:interactive :interactive-function)
+                                                     (:test :test-function))
+                                            (if (and (eq option :report) (stringp value))
+                                                `(lambda (stream) (write-string ,value stream))
+                                                value)))))
+               (push `(,name (lambda (&rest ,values) (setq ,arguments ,values) (go ,tag))
+                             ,@options) bindings)
+               (setf handlers
+                     (append handlers
+                             (list tag `(return-from ,exit
+                                          (apply (lambda ,parameters ,@body) ,arguments)))))))
+    `(block ,exit
+       (let ((,arguments nil))
+         (tagbody
+            (return-from ,exit (restart-bind ,(nreverse bindings) ,(cadr form)))
+            ,@handlers)))))
+
 (defun normalize (form c)
   ;; Recognize operators before macroexpansion: in particular SHIFT, RESET,
   ;; MULTIPLE-VALUE-*, and dynamic constructs are semantic compiler forms.
@@ -406,6 +438,9 @@
      (node :throw (list (normalize (cadr form) c) (normalize (caddr form) c)) t))
     ((eq (car form) 'unwind-protect)
      (node :cleanup (list (normalize (cadr form) c) (normalize-seq (cddr form) c)) t))
+    #+clozure
+    ((eq (car form) 'restart-case)
+     (normalize (expand-restart-case form) c))
     #-sbcl
     ((eq (car form) 'handler-bind)
      (let* ((bindings (cadr form))

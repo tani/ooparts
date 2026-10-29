@@ -36,9 +36,10 @@
 (defvar *running* nil)
 (defvar *native-call* nil)
 (defvar *driver-tag* nil)
-(defstruct driver-context stack tag)
+(defstruct driver-context stack tag (activep t))
 (defvar *drivers* nil)
 (defvar *native-unwinding-prompts* nil)
+#+(or abcl ecl) (defvar *pending-unbindings* nil)
 
 (defclass cps-function (funcallable-standard-object)
   ((code :initarg :code :reader cps-code))
@@ -150,7 +151,8 @@
       (transfer nil
                 (lambda (ignored)
                   (declare (ignore ignored))
-                  (unless (member driver *drivers* :test #'eq)
+                  (unless (and (driver-context-activep driver)
+                               (member driver *drivers* :test #'eq))
                     (error 'inactive-control-target :name (frame-data anchor)))
                   (throw (driver-context-tag driver)
                     (bounce (driver-context-stack driver)
@@ -234,14 +236,17 @@
 (defun call-with-bindings (stack thunk)
   (unless (and stack (frame-bindings stack))
     (return-from call-with-bindings (funcall thunk)))
-  (let ((cells (visible-bindings stack)))
+  (let ((cells (visible-bindings stack))
+        #+(or abcl ecl) (*pending-unbindings* nil))
     (labels ((execute ()
                (unwind-protect (funcall thunk)
                  (dolist (cell cells)
-                   (let ((symbol (binding-cell-symbol cell)))
+                   (unless #+(or abcl ecl) (member cell *pending-unbindings* :test #'eq)
+                           #-(or abcl ecl) nil
+                    (let ((symbol (binding-cell-symbol cell)))
                      (setf (binding-cell-boundp cell) (boundp symbol))
                      (when (boundp symbol)
-                       (setf (binding-cell-value cell) (symbol-value symbol)))))))
+                       (setf (binding-cell-value cell) (symbol-value symbol))))))))
              #-sbcl
              (bind-cells (remaining)
                (if (null remaining) (execute)
@@ -276,9 +281,13 @@
     (funcall body (frame :special cells k))))
 
 (defun run (entry)
-  (let* ((*running* t) (*stack* nil) (*driver-tag* (list nil))
+  (let* ((callers (remove-if-not #'driver-context-activep *drivers*))
+         ;; A native boundary needs a suspended virtual caller. A direct
+         ;; outer region can set the guard before entering a fresh root driver.
+         (*native-call* (and *native-call* (not (null callers))))
+         (*running* t) (*stack* nil) (*driver-tag* (list nil))
          (driver (make-driver-context :tag *driver-tag*))
-         (*drivers* (cons driver *drivers*))
+         (*drivers* (cons driver callers))
          (finished nil) (current nil))
     (unwind-protect
          (loop with result = (funcall entry nil)
@@ -293,7 +302,8 @@
                                 current #+sbcl (task-thunk result)
                                         #-sbcl (lambda () (call-with-handlers current (task-thunk result))))))))
                     (t (error "CPS code did not return a trampoline task: ~S" result))))
-      (unless finished
+      (unwind-protect
+       (unless finished
         ;; Native errors/nonlocal exits still leave virtual UNWIND-PROTECTs.
         (when current
           (let ((*native-call* t)
@@ -303,7 +313,8 @@
                           *native-unwinding-prompts*)))
             (run (lambda (ignored)
                    (declare (ignore ignored))
-                   (transfer nil (lambda (target) (declare (ignore target)) (done nil)) current)))))))))
+                   (transfer nil (lambda (target) (declare (ignore target)) (done nil)) current))))))
+        (setf (driver-context-activep driver) nil)))))
 
 (defvar *adapters* (make-hash-table :test #'eq))
 
@@ -324,17 +335,20 @@ REPLACEMENT has the original argument list, usually made by LAMBDA/CPS."
   (check-type replacement function)
   (install-adapter name (lambda (k args) (invoke replacement k args)))
   name)
-#+abcl
+#+(or abcl ecl)
 (install-adapter 'makunbound
   (lambda (k arguments)
     (destructuring-bind (symbol) arguments
       (check-type symbol symbol)
-      ;; ABCL's MAKUNBOUND primitive clears the global value even when a
-      ;; dynamic binding is active. Clear the current thread's binding instead.
-      (let* ((thread (java:jstatic "currentThread" "org.armedbear.lisp.LispThread"))
-             (binding (java:jcall "getSpecialBinding" thread symbol)))
-        (if (java:jnull-ref-p binding) (makunbound symbol)
-            (java:jcall "setSpecialVariable" thread symbol java:+null+)))
+      ;; These implementations clear the global value through MAKUNBOUND.
+      ;; Update the virtual binding and install it unbound in the next task,
+      ;; without touching the global value or relying on private runtime APIs.
+      (let ((cell (find symbol (when *stack* (frame-bindings *stack*))
+                        :key #'binding-cell-symbol :test #'eq)))
+        (if cell
+            (progn (setf (binding-cell-boundp cell) nil)
+                   (push cell *pending-unbindings*))
+            (makunbound symbol)))
       (deliver (list symbol) k))))
 
 (install-adapter 'funcall (lambda (k args) (invoke (car args) k (cdr args))))

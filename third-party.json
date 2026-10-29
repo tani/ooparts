@@ -109,7 +109,8 @@
       "license": "MIT",
       "relationship": "continuation compiler environment API on non-SBCL implementations",
       "license_evidence": "cl-environments.asd and source headers",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts.",
+      "nix_modifications": "Change list-valued DEFCONSTANTs to DEFPARAMETERs to permit compiled reloads on Clasp; preserve upstream license and notices in dependency output."
     },
     {
       "name": "closer-mop",
@@ -125,7 +126,10 @@
       "license": "MIT",
       "relationship": "SAT recursive locks on non-SBCL implementations; continuation thread tests",
       "license_evidence": "LICENSE",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
+      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts.",
+      "nix_version": "0.8.8",
+      "nix_source": "https://deb.debian.org/debian/pool/main/b/bordeaux-threads/bordeaux-threads_0.8.8.orig.tar.gz",
+      "nix_source_hash": "sha256-bAEtA4UV9fpsow0LwkxNICIZhhofcIHBB37Fd9Uv+do="
     },
     {
       "name": "trivial-garbage",

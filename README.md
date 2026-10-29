@@ -96,7 +96,7 @@ nix run .#sat -- vendor/satch/test/true.cnf
 `lib-<component>-<implementation>`, `test-...` and `repl-...` follow the same
 scheme. Components are `prolog`, `continuation`, `sat` and `all`. Variants
 are exposed for implementations and portability dependencies available on the
-selected platform. MKCL currently exposes Prolog only. The default package
+selected platform. MKCL currently exposes Prolog and SAT. The default package
 selects the SBCL aggregate where available.
 
 The default overlay adds each supported library and test system to the corresponding

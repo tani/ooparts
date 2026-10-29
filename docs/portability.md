@@ -33,8 +33,9 @@ The continuation compiler recognizes portable handler and iteration syntax
 before non-SBCL macro expanders introduce private operators. Dynamic handler
 frames are reinstated on continuation invocation. Handler-case transfers leave
 protected extents before running a clause. Missing PROGV values create unbound
-bindings directly. An ABCL-specific adapter also clears the current thread's
-binding when MAKUNBOUND would otherwise clear only the global value.
+bindings directly. On ABCL and ECL, an adapter updates the virtual binding when MAKUNBOUND would
+otherwise clear only the global value. It preserves that global value and
+installs the unbound dynamic binding at the next trampoline step.
 
 ## Dependencies
 
@@ -45,13 +46,18 @@ Other implementations need the following systems in ASDF's source registry:
 - Continuations: `cl-environments` and `closer-mop`.
 - Continuation tests: also `bordeaux-threads` and `trivial-garbage`.
 
+For CLISP, CMUCL and MKCL, the flake pins Bordeaux Threads 0.8.8;
+0.9.4 rejects some of these implementations or requires unsupported atomics.
+It also patches the external environment library's list-valued DEFCONSTANTs
+to DEFPARAMETERs so compiling and loading it works on Clasp. These dependency
+patches are applied during the Nix build, outside the OOPArts source tree.
 A package manager such as Quicklisp or the root Nix flake resolves their
 transitive dependencies. See [the license ledger](../THIRD_PARTY.md) for license
 and distribution boundaries. No external C solver or FFI is used by SAT.
 
 The Nix flake exposes the aggregate on available SBCL, ECL, ABCL, CCL, CLISP,
 CMUCL and Clasp implementations. Actual availability depends on the selected
-platform and the dependency packages. MKCL retains its Prolog variants; the
+platform and the dependency packages. MKCL exposes Prolog and SAT variants; the
 current third-party environment/MOP stack does not advertise MKCL support.
 Availability of a Nix attribute is not itself evidence of a successful run.
 

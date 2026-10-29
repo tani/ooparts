@@ -96,6 +96,9 @@ def main():
             check((ROOT/license_file).is_file(), f'Missing license: {license_file}')
         for pattern in component['paths']:
             check(bool(list(ROOT.glob(pattern))), f'Empty provenance path: {pattern}')
+    for dependency in ledger.get('external_dependencies', []):
+        check(all(dependency.get(key) for key in ('source', 'license', 'relationship', 'distribution')),
+              f'Incomplete external dependency: {dependency.get("name")}')
     if errors:
         raise SystemExit('\n'.join(errors))
     print(f'Layout, inferred packages and licenses verified; {len(actual)} pinned vendor files.')

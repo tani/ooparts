@@ -20,7 +20,7 @@ portable-backend checks and external dependencies.
 ## Recorded environment
 
 The 2026-10-29 local run used SBCL 2.2.9.debian, GCC 13.3 and Linux x86-64.
-The aggregate suite ran with a 1 MiB control stack. It passed 3105 continuation,
+The aggregate suite ran with a 1 MiB control stack. It passed 3107 continuation,
 5632 Prolog and 626 SAT API/numeric/storage checks. Exact counts can depend on test
 configuration and loaded implementation packages; a printed failure is never
 accepted as a pass.
@@ -31,7 +31,7 @@ accepted as a pass.
 SBCL=sbcl bash tools/continuation/test.sh
 ```
 
-This runs the 3105 checks and fresh-process FASL/saved-core reload tests. The
+This runs the 3107 checks and fresh-process FASL/saved-core reload tests. The
 independent substitution reducer checks 1328 terms in selective and full modes.
 The suite also exercises mutation, multiple values, dynamic control, native
 boundaries, deep captures, GC and another thread. It does not mechanically prove

@@ -4,7 +4,7 @@
 (in-package #:ooparts-tests/continuation/fixture)
 (defun/cps factorial (n)
   (if (zerop n) (shift k (funcall k 1)) (* n (factorial (1- n)))))
-(defun/cps supplied (&optional (x (shift k (funcall k 7)) xp)) (list x xp))
+(defun/cps supplied (&optional (x (shift k (funcall k 7)) xp)) (list x (not (null xp))))
 (defun/cps pure-double (x) (+ x x))
 (defun opaque-native-caller (f x) (+ 100 (funcall f x)))
 (register-cps-adapter 'opaque-native-caller

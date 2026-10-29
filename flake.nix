@@ -30,6 +30,30 @@
             && lib.meta.availableOn pkgs.stdenv.hostPlatform candidate.value
             && !(candidate.value.meta.broken or false)
           ) implementations;
+          # The v0.9 API builds unsupported atomics on CMUCL and drops CLISP.
+          # OOPArts needs the stable v0.8 recursive-lock/thread API only.
+          lispFor = impl: pkgs.${impl}.withOverrides (self: super: {
+            bordeaux-threads = if builtins.elem impl [ "clisp" "cmucl_binary" "mkcl" ] then pkgs.${impl}.buildASDFSystem {
+              pname = "bordeaux-threads";
+              version = "0.8.8";
+              src = pkgs.fetchurl {
+                url = "https://deb.debian.org/debian/pool/main/b/bordeaux-threads/bordeaux-threads_0.8.8.orig.tar.gz";
+                hash = "sha256-bAEtA4UV9fpsow0LwkxNICIZhhofcIHBB37Fd9Uv+do=";
+              };
+              systems = [ "bordeaux-threads" ];
+              lispLibs = [ self.alexandria ];
+            } else super.bordeaux-threads;
+            cl-environments = super.cl-environments.overrideAttrs (old: {
+              # List-valued walker metadata is not EQL across FASL reloads.
+              postPatch = (old.postPatch or "") + ''
+                substituteInPlace src/walker/cl-environments.lisp \
+                  --replace-fail '(defconstant +walk-macros+' '(defparameter +walk-macros+'
+                substituteInPlace src/walker/environment.lisp \
+                  --replace-fail '(defconstant +optimize-qualities+' '(defparameter +optimize-qualities+' \
+                  --replace-fail '(defconstant +global-special-vars+' '(defparameter +global-special-vars+'
+              '';
+            });
+          });
           components = {
             prolog = { library = "ooparts/prolog"; tests = "ooparts-tests/prolog"; };
             continuation = { library = "ooparts/continuation"; tests = "ooparts-tests/continuation"; };
@@ -39,11 +63,11 @@
           # MKCL remains available for Prolog. The continuation environment/MOP
           # dependency stack does not advertise MKCL support.
           supported = component: impl:
-            component == "prolog" || impl != "mkcl";
+            component == "prolog" || component == "sat" || impl != "mkcl";
           recipes = lib.listToAttrs (lib.concatMap (component:
             lib.mapAttrsToList (impl: options: let
               settings = components.${component};
-              lisp = pkgs.${impl};
+              lisp = lispFor impl;
               library = lisp.buildASDFSystem {
                 pname = "ooparts-${component}";
                 version = "0.2.0";
@@ -122,7 +146,7 @@
             } // lib.optionalAttrs (recipes ? sat-sbcl) {
               sat = cliApp "sat" "ooparts/sat/cli";
             };
-          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || name == "prolog-mkcl") recipes)
+          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || (builtins.elem name [ "prolog-mkcl" "sat-mkcl" ])) recipes)
             // {
               layout = pkgs.runCommand "ooparts-layout-and-licenses" {
                 nativeBuildInputs = [ pkgs.python3 ];
@@ -134,19 +158,21 @@
             };
           devShells = {
             default = pkgs.mkShell {
-              packages = lib.mapAttrsToList (impl: _: pkgs.${impl}.withPackages (libraries:
-                lib.optionals (impl != "sbcl" && impl != "mkcl")
-                  [ libraries.bordeaux-threads libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) available
+              packages = lib.mapAttrsToList (impl: _: (lispFor impl).withPackages (libraries:
+                lib.optionals (impl != "sbcl") [ libraries.bordeaux-threads ]
+                ++ lib.optionals (impl != "sbcl" && impl != "mkcl")
+                  [ libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) available
                 ++ [ python pkgs.stdenv.cc ];
               shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
             };
           } // lib.mapAttrs (impl: _: pkgs.mkShell {
-            packages = [ (pkgs.${impl}.withPackages (libraries:
-              lib.optionals (impl != "sbcl" && impl != "mkcl")
-                [ libraries.bordeaux-threads libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) python pkgs.stdenv.cc ];
+            packages = [ ((lispFor impl).withPackages (libraries:
+              lib.optionals (impl != "sbcl") [ libraries.bordeaux-threads ]
+              ++ lib.optionals (impl != "sbcl" && impl != "mkcl")
+                [ libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) python pkgs.stdenv.cc ];
             shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
           }) available;
-          overlayAttrs = lib.mapAttrs (impl: _: pkgs.${impl}.withOverrides
+          overlayAttrs = lib.mapAttrs (impl: _: (lispFor impl).withOverrides
             (_: _: lib.listToAttrs (lib.concatMap (component:
               lib.optionals (supported component impl) [
                 (lib.nameValuePair components.${component}.library

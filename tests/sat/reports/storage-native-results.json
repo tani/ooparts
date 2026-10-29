@@ -37,7 +37,7 @@
     "eliminations": 4,
     "vivifications": 3
   },
-  "c_batch_seconds": 0.5359553099988261,
-  "lisp_batch_seconds": 7.086504341001273,
+  "c_batch_seconds": 0.6626778959907824,
+  "lisp_batch_seconds": 7.3626733669952955,
   "timing_note": "Lisp includes process startup/ASDF loading; not an isolated speed benchmark"
 }

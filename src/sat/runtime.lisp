@@ -1,6 +1,6 @@
 (uiop:define-package #:ooparts/sat/runtime
   (:use #:cl #:ooparts/sat/storage)
-  (:export #:backend-description #:call-function-handle #:u8-incf #:u16-incf #:u32-incf #:u64-incf #:s8-incf #:s16-incf #:s32-incf #:s64-incf #:*allocations* #:*free-bins* #:*function-handles* #:*functions* #:*heap* #:*heap-start* #:*heap-top* #:*next-function* #:*next-stream* #:*stack* #:*stack-start* #:*stack-top* #:*streams* #:+heap-size+ #:+stack-size+ #:allocation-size #:c-abort #:c-abs #:c-address #:c-bool #:c-calloc #:c-fclose #:c-fflush #:c-fopen #:c-format #:c-fprintf #:c-fputc #:c-fputs #:c-free #:c-fscanf #:c-getpid #:c-getrusage #:c-isatty #:c-length #:c-log #:c-log10 #:c-malloc #:c-memcpy #:c-memmove #:c-memset #:c-pow #:c-printf #:c-putc #:c-realloc #:c-s16 #:c-s32 #:c-s64 #:c-s8 #:c-size #:c-sprintf #:c-sqrt #:c-strcmp #:c-string #:c-string-literal #:c-strlen #:c-sysconf #:c-true #:c-u16 #:c-u32 #:c-u64 #:c-u8 #:c-vfprintf #:c-vprintf #:checked-address #:checked-sap #:copy-bytes #:define-integer-conversion #:define-memory-accessor #:ensure-arenas #:function-from-handle #:function-handle #:integer64-double #:lisp-string #:m-f32 #:m-f64 #:m-ptr #:m-s16 #:m-s32 #:m-s64 #:m-s8 #:m-size #:m-u16 #:m-u32 #:m-u64 #:m-u8 #:register-stream #:set-bits #:stack-alloc #:stream-value))
+  (:export #:pointer-difference #:backend-description #:call-function-handle #:u8-incf #:u16-incf #:u32-incf #:u64-incf #:s8-incf #:s16-incf #:s32-incf #:s64-incf #:*allocations* #:*free-bins* #:*function-handles* #:*functions* #:*heap* #:*heap-start* #:*heap-top* #:*next-function* #:*next-stream* #:*stack* #:*stack-start* #:*stack-top* #:*streams* #:+heap-size+ #:+stack-size+ #:allocation-size #:c-abort #:c-abs #:c-address #:c-bool #:c-calloc #:c-fclose #:c-fflush #:c-fopen #:c-format #:c-fprintf #:c-fputc #:c-fputs #:c-free #:c-fscanf #:c-getpid #:c-getrusage #:c-isatty #:c-length #:c-log #:c-log10 #:c-malloc #:c-memcpy #:c-memmove #:c-memset #:c-pow #:c-printf #:c-putc #:c-realloc #:c-s16 #:c-s32 #:c-s64 #:c-s8 #:c-size #:c-sprintf #:c-sqrt #:c-strcmp #:c-string #:c-string-literal #:c-strlen #:c-sysconf #:c-true #:c-u16 #:c-u32 #:c-u64 #:c-u8 #:c-vfprintf #:c-vprintf #:checked-address #:checked-sap #:copy-bytes #:define-integer-conversion #:define-memory-accessor #:ensure-arenas #:function-from-handle #:function-handle #:integer64-double #:lisp-string #:m-f32 #:m-f64 #:m-ptr #:m-s16 #:m-s32 #:m-s64 #:m-s8 #:m-size #:m-u16 #:m-u32 #:m-u64 #:m-u8 #:register-stream #:set-bits #:stack-alloc #:stream-value))
 (in-package #:ooparts/sat/runtime)
 
 ;;; C representation support over the selected checked storage backend.
@@ -11,6 +11,16 @@
 (defvar *free-bins* (make-hash-table :test 'eql))
 (defvar *streams* (make-hash-table :test 'eql))
 (defvar *next-stream* 16)
+
+(defmacro pointer-difference (left right width)
+  "Count elements between C pointers with the same element type.
+Valid C pointer differences are exact multiples of WIDTH, including negative
+ones. Shifts preserve that signed result without a general integer division."
+  (declare (optimize (speed 1) (safety 3)))
+  (check-type width (integer 1 *))
+  (if (zerop (logand width (1- width)))
+      `(ash (- ,left ,right) ,(- (1- (integer-length width))))
+      `(truncate (- ,left ,right) ,width)))
 
 (defmacro m-ptr (address)
   (let ((cell (gensym "CELL")) (word (gensym "POINTER")))

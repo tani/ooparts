@@ -38,6 +38,14 @@
       (check (= (ooparts/sat/runtime:integer64-double n nil) (float n 1d0))))
     (dolist (n '(-9223372036854775808 -9007199254740993 -4294967297 -1 0 1 9223372036854775807))
       (check (= (ooparts/sat/runtime:integer64-double n t) (float n 1d0))))
+    ;; Signed element distances also cover unaligned packed-array starts and
+    ;; non-power-of-two element widths; these are independent expected values.
+    (check (= 3 (ooparts/sat/runtime:pointer-difference 15 3 4)))
+    (check (= -3 (ooparts/sat/runtime:pointer-difference 3 15 4)))
+    (check (= 0 (ooparts/sat/runtime:pointer-difference 7 7 8)))
+    (check (= -5 (ooparts/sat/runtime:pointer-difference 3 8 1)))
+    (check (= 3 (ooparts/sat/runtime:pointer-difference 75 3 24)))
+    (check (= -3 (ooparts/sat/runtime:pointer-difference 3 75 24)))
     ;; Maximum uint64 is a valid sentinel, but never a physical arena size or pointer.
     (let ((cell (ooparts/sat/runtime:c-malloc 16)))
       (unwind-protect

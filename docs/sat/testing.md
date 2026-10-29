@@ -12,8 +12,8 @@ python3 tools/sat/proofs.py
 The Lisp suite checks resource/state ownership, atomic input validation, DIMACS,
 models and signed literals. Its 475 public-interface checks include 96 formulas
 checked by independent exhaustive search. Low-level API and representation tests
-add 40 checks; numeric tests cover full-width conversions, rounding, wrapping
-generalized-place updates, and invalid pointer/arena-size rejection. Arena
+add 40 checks; 51 numeric checks cover full-width conversions, rounding, wrapping
+generalized-place updates, signed pointer distances and invalid pointer/arena-size rejection. Arena
 storage adds 63 to 69 checks for cross-width byte access, signed boundaries,
 known float encodings, overlap copying, filling, arena growth and stable
 load-time string addresses that allocate no storage on repeated evaluation.
@@ -23,7 +23,7 @@ or force the portable backend on SBCL.
 The compiler audit forces all nine selected SAT/storage/CLI modules to compile with normal
 SBCL diagnostics. It fails on any NOTE, WARNING or STYLE-WARNING, without
 muffling conditions. `tests/sat/reports/compiler-diagnostics.json` records zero
-notes and warnings on SBCL 2.2.9, Linux x86-64.
+notes and warnings on SBCL 2.2.9 and 2.5.4, Linux x86-64.
 
 The differential report contains 1,105 cases: bundled upstream formulas,
 structured stress cases and 1,000 independently exhaustively checked random

@@ -21,7 +21,7 @@ portable-backend checks and external dependencies.
 
 The 2026-10-29 local run used SBCL 2.2.9.debian, GCC 13.3 and Linux x86-64.
 The aggregate suite ran with a 1 MiB control stack. It passed 3170 continuation,
-5632 Prolog and 629 SAT API/numeric/storage checks. Exact counts can depend on test
+5632 Prolog and 635 SAT API/numeric/storage checks. Exact counts can depend on test
 configuration and loaded implementation packages; a printed failure is never
 accepted as a pass.
 

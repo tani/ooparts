@@ -253,7 +253,7 @@ class Translator:
   if op in ('&&','||'):
    return (f'(if (c-true {a}) (c-bool {b}) 0)' if op=='&&' else f'(if (c-true {a}) 1 (c-bool {b}))'),I
   if op in ('+','-') and (at.kind=='ptr' or bt.kind=='ptr'):
-   if at.kind=='ptr' and bt.kind=='ptr':return f'(truncate (- {a} {b}) {at.base.size})',L
+   if at.kind=='ptr' and bt.kind=='ptr':return f'(pointer-difference {a} {b} {at.base.size})',L
    if bt.kind=='ptr':a,b,at,bt=b,a,bt,at
    scaled=str(at.base.size*int(b)) if re.fullmatch(r'-?\d+',b) else b if at.base.size==1 else f'(* {at.base.size} {b})'
    return f'({op} {a} {scaled})',at
@@ -320,7 +320,12 @@ class Translator:
    a,at=self.expr(n.left);b,bt=self.expr(n.right);return self.binop(n.op,a,at,b,bt)
   if isinstance(n,C.Assignment):
    lv=self.lval(n.lvalue);s,a,t,bit,w=lv;e,et=self.expr(n.rvalue)
-   if n.op=='=':return self.store(lv,e,et),t
+   if n.op=='=':
+    form=self.store(lv,e,et)
+    # Wide locals crossing ordinary Lisp calls must retain boxed values at
+    # assignment boundaries, just as they do at their lexical initialization.
+    if s in self.boxed_locals:form='(locally (declare (optimize (speed 1))) '+form+')'
+    return form,t
    addr=self.fresh('a');lv2=lv if s else (None,addr,t,bit,w)
    if isinstance(n.lvalue,C.StructRef):
     name,base,_,_,_,_=self.field(n.lvalue)

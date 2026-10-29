@@ -71,7 +71,10 @@
     (let ((address (ooparts/sat/runtime:c-string name)))
       (unwind-protect (ooparts/sat/engine:satch-section solver address)
         (ooparts/sat/runtime:c-free address)))))
-(defun satch-process-time () (ooparts/sat/engine:satch-process-time))
+(defun satch-process-time ()
+  ;; This public boundary returns an ordinary boxed Lisp float.
+  (declare (optimize (speed 1)))
+  (ooparts/sat/engine:satch-process-time))
 (defun satch-version () "0.5.6rc")
 (defun satch-identifier () "b4d4081f8971931399b36c8fdd92bdf4aabac005")
 (defun satch-compile ()
@@ -150,6 +153,7 @@
   (ooparts/sat/engine:satch-start-profiling-parsing solver)))
 
 (defun satch-stop-profiling-parsing (solver)
+ (declare (optimize (speed 1)))
  (api-locked (setf solver (require-solver solver))
   (ooparts/sat/engine:satch-stop-profiling-parsing solver)))
 
@@ -163,9 +167,15 @@
 (defmacro with-solver ((var) &body body)
   `(let ((,var (satch-init))) (unwind-protect (progn ,@body) (satch-release ,var))))
 (defun add-clause (solver literals)
-  (map nil (lambda (literal)
-             (when (zerop (the (signed-byte 32) literal)) (error "Zero inside a clause"))
-             (satch-add solver literal)) literals)
+  (flet ((add (literal)
+           (when (zerop (the (signed-byte 32) literal)) (error "Zero inside a clause"))
+           (satch-add solver literal)))
+    (typecase literals
+      (list (mapc #'add literals))
+      (vector (map nil #'add literals))
+      ;; Preserve implementation-specific sequence extensions at this generic
+      ;; boundary; ordinary lists and vectors take the specialized paths.
+      (t (locally (declare (optimize (speed 1))) (map nil #'add literals)))))
   (satch-add solver 0))
 (defun solve-cnf (clauses &key (conflict-limit -1) (reserve 0))
   "Return status (0/10/20), signed model vector or NIL, and number of conflicts."

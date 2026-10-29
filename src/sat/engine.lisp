@@ -109,6 +109,7 @@
                               #:watch-saved-redundant-binaries #:worse-candidate))
 
 (in-package #:ooparts/sat/engine)
+
 (declaim (optimize (speed 2) (safety 1) (debug 0) (compilation-speed 1)))
 
 (declaim (inline vivify-adjustment))
@@ -1501,7 +1502,9 @@ c
                    (setf (profiles-end address-43) (+ previous-value-44 8))
                    previous-value-44))
                   (profiles-total-address profiles))))
-      (let* ((size (the c-size (truncate (- (profiles-end profiles) (profiles-begin profiles)) 8))))
+      (let* ((size
+              (the c-size
+                   (pointer-difference (profiles-end profiles) (profiles-begin profiles) 8))))
         (declare (type c-size size)
                  (ignorable size))
         (let* ((i 0))
@@ -1989,10 +1992,8 @@ c
            (ignorable solver))
   (let* ((size
           (the c-size
-               (truncate
-                (- (unsigned-stack-end (solver-clause solver))
-                   (unsigned-stack-begin (solver-clause solver)))
-                4))))
+               (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                   (unsigned-stack-begin (solver-clause solver)) 4))))
     (declare (type c-size size)
              (ignorable size))
     (trace-and-check-addition solver size (unsigned-stack-begin (solver-clause solver))
@@ -2070,10 +2071,8 @@ c
   (u64-incf (statistics-added (solver-statistics solver)))
   (let* ((size
           (the c-size
-               (truncate
-                (- (unsigned-stack-end (solver-clause solver))
-                   (unsigned-stack-begin (solver-clause solver)))
-                4))))
+               (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                   (unsigned-stack-begin (solver-clause solver)) 4))))
     (declare (type c-size size)
              (ignorable size))
     (let* ((res (allocate-clause size)))
@@ -2105,16 +2104,12 @@ c
            (clauses-allocated (solver-irredundant solver)))
       (let* ((old-size
               (the c-size
-                   (truncate
-                    (- (clauses-end (solver-irredundant solver))
-                       (clauses-begin (solver-irredundant solver)))
-                    8)))
+                   (pointer-difference (clauses-end (solver-irredundant solver))
+                                       (clauses-begin (solver-irredundant solver)) 8)))
              (old-capacity
               (the c-size
-                   (truncate
-                    (- (clauses-allocated (solver-irredundant solver))
-                       (clauses-begin (solver-irredundant solver)))
-                    8)))
+                   (pointer-difference (clauses-allocated (solver-irredundant solver))
+                                       (clauses-begin (solver-irredundant solver)) 8)))
              (new-capacity
               (if (not (zerop old-capacity))
                   (c-u64 (* 2 old-capacity))
@@ -2153,16 +2148,12 @@ c
     (when (= (clauses-end (solver-redundant solver)) (clauses-allocated (solver-redundant solver)))
       (let* ((old-size
               (the c-size
-                   (truncate
-                    (- (clauses-end (solver-redundant solver))
-                       (clauses-begin (solver-redundant solver)))
-                    8)))
+                   (pointer-difference (clauses-end (solver-redundant solver))
+                                       (clauses-begin (solver-redundant solver)) 8)))
              (old-capacity
               (the c-size
-                   (truncate
-                    (- (clauses-allocated (solver-redundant solver))
-                       (clauses-begin (solver-redundant solver)))
-                    8)))
+                   (pointer-difference (clauses-allocated (solver-redundant solver))
+                                       (clauses-begin (solver-redundant solver)) 8)))
              (new-capacity
               (if (not (zerop old-capacity))
                   (c-u64 (* 2 old-capacity))
@@ -2226,10 +2217,12 @@ c
             (setf (header-blocking (watch-header watch)) blocking)
             (when (= (watches-end watches) (watches-allocated watches))
               (let* ((old-size
-                      (the c-size (truncate (- (watches-end watches) (watches-begin watches)) 8)))
+                      (the c-size
+                           (pointer-difference (watches-end watches) (watches-begin watches) 8)))
                      (old-capacity
                       (the c-size
-                           (truncate (- (watches-allocated watches) (watches-begin watches)) 8)))
+                           (pointer-difference (watches-allocated watches) (watches-begin watches)
+                                               8)))
                      (new-capacity
                       (if (not (zerop old-capacity))
                           (c-u64 (* 2 old-capacity))
@@ -2254,10 +2247,12 @@ c
             (setf (watch-clause-slot watch) c)
             (when (= (watches-end watches) (watches-allocated watches))
               (let* ((old-size-2
-                      (the c-size (truncate (- (watches-end watches) (watches-begin watches)) 8)))
+                      (the c-size
+                           (pointer-difference (watches-end watches) (watches-begin watches) 8)))
                      (old-capacity-2
                       (the c-size
-                           (truncate (- (watches-allocated watches) (watches-begin watches)) 8)))
+                           (pointer-difference (watches-allocated watches) (watches-begin watches)
+                                               8)))
                      (new-capacity-2
                       (if (not (zerop old-capacity-2))
                           (c-u64 (* 2 old-capacity-2))
@@ -2491,7 +2486,7 @@ c
   (let* ((score (heap-score-slot heap))
          (begin (heap-begin heap))
          (pos (heap-pos heap))
-         (size (c-u32 (the c-size (truncate (- (heap-end heap) (heap-begin heap)) 4))))
+         (size (c-u32 (the c-size (pointer-difference (heap-end heap) (heap-begin heap) 4))))
          (idx-score (m-f64 (+ score (* 8 idx))))
          (idx-pos (m-u32 (+ pos (* 4 idx)))))
     (declare (type c-address score)
@@ -2537,7 +2532,7 @@ c
            (type c-address heap)
            (type (unsigned-byte 32) idx)
            (ignorable solver heap idx))
-  (let* ((size (c-u32 (the c-size (truncate (- (heap-end heap) (heap-begin heap)) 4)))))
+  (let* ((size (c-u32 (the c-size (pointer-difference (heap-end heap) (heap-begin heap) 4)))))
     (declare (type (unsigned-byte 32) size)
              (ignorable size))
     (let* ((pos (heap-pos heap)))
@@ -2674,7 +2669,7 @@ c
            (type c-size old-capacity)
            (type c-size new-capacity)
            (ignorable heap old-capacity new-capacity))
-  (let* ((size (the c-size (truncate (- (heap-end heap) (heap-begin heap)) 4))))
+  (let* ((size (the c-size (pointer-difference (heap-end heap) (heap-begin heap) 4))))
     (declare (type c-size size)
              (ignorable size))
     (let* ((new-bytes (c-u64 (* new-capacity 4))))
@@ -2892,16 +2887,14 @@ c
                  (watches-allocated (+ (solver-watches solver) (* 24 lit))))
             (let* ((old-size
                     (the c-size
-                         (truncate
-                          (- (watches-end (+ (solver-watches solver) (* 24 lit)))
-                             (watches-begin (+ (solver-watches solver) (* 24 lit))))
-                          8)))
+                         (pointer-difference (watches-end (+ (solver-watches solver) (* 24 lit)))
+                                             (watches-begin (+ (solver-watches solver) (* 24 lit)))
+                                             8)))
                    (old-capacity
                     (the c-size
-                         (truncate
-                          (- (watches-allocated (+ (solver-watches solver) (* 24 lit)))
-                             (watches-begin (+ (solver-watches solver) (* 24 lit))))
-                          8)))
+                         (pointer-difference
+                          (watches-allocated (+ (solver-watches solver) (* 24 lit)))
+                          (watches-begin (+ (solver-watches solver) (* 24 lit))) 8)))
                    (new-capacity
                     (if (not (zerop old-capacity))
                         (c-u64 (* 2 old-capacity))
@@ -3006,16 +2999,14 @@ c
                  (watches-allocated (+ (solver-watches solver) (* 24 lit))))
             (let* ((old-size
                     (the c-size
-                         (truncate
-                          (- (watches-end (+ (solver-watches solver) (* 24 lit)))
-                             (watches-begin (+ (solver-watches solver) (* 24 lit))))
-                          8)))
+                         (pointer-difference (watches-end (+ (solver-watches solver) (* 24 lit)))
+                                             (watches-begin (+ (solver-watches solver) (* 24 lit)))
+                                             8)))
                    (old-capacity
                     (the c-size
-                         (truncate
-                          (- (watches-allocated (+ (solver-watches solver) (* 24 lit)))
-                             (watches-begin (+ (solver-watches solver) (* 24 lit))))
-                          8)))
+                         (pointer-difference
+                          (watches-allocated (+ (solver-watches solver) (* 24 lit)))
+                          (watches-begin (+ (solver-watches solver) (* 24 lit))) 8)))
                    (new-capacity
                     (if (not (zerop old-capacity))
                         (c-u64 (* 2 old-capacity))
@@ -3178,10 +3169,8 @@ c
               (setf (m-u32 (+ (solver-position solver) (* 4 idx)))
                       (c-u32
                        (the c-size
-                            (truncate
-                             (- (trail-end (solver-trail solver))
-                                (trail-begin (solver-trail solver)))
-                             4))))
+                            (pointer-difference (trail-end (solver-trail solver))
+                                                (trail-begin (solver-trail solver)) 4))))
               (setf (m-u32
                      (let* ((address-5 (solver-trail solver))
                             (previous-value-6 (trail-end address-5)))
@@ -3200,16 +3189,12 @@ c
                        (control-allocated (solver-control solver)))
                   (let* ((old-size
                           (the c-size
-                               (truncate
-                                (- (control-end (solver-control solver))
-                                   (control-begin (solver-control solver)))
-                                24)))
+                               (pointer-difference (control-end (solver-control solver))
+                                                   (control-begin (solver-control solver)) 24)))
                          (old-capacity
                           (the c-size
-                               (truncate
-                                (- (control-allocated (solver-control solver))
-                                   (control-begin (solver-control solver)))
-                                24)))
+                               (pointer-difference (control-allocated (solver-control solver))
+                                                   (control-begin (solver-control solver)) 24)))
                          (new-capacity
                           (if (not (zerop old-capacity))
                               (c-u64 (* 2 old-capacity))
@@ -3270,16 +3255,14 @@ c
                           (unsigned-stack-allocated (+ (solver-put solver) (* 24 0))))
                      (let* ((old-size
                              (the c-size
-                                  (truncate
-                                   (- (unsigned-stack-end (+ (solver-put solver) (* 24 0)))
-                                      (unsigned-stack-begin (+ (solver-put solver) (* 24 0))))
-                                   4)))
+                                  (pointer-difference
+                                   (unsigned-stack-end (+ (solver-put solver) (* 24 0)))
+                                   (unsigned-stack-begin (+ (solver-put solver) (* 24 0))) 4)))
                             (old-capacity
                              (the c-size
-                                  (truncate
-                                   (- (unsigned-stack-allocated (+ (solver-put solver) (* 24 0)))
-                                      (unsigned-stack-begin (+ (solver-put solver) (* 24 0))))
-                                   4)))
+                                  (pointer-difference
+                                   (unsigned-stack-allocated (+ (solver-put solver) (* 24 0)))
+                                   (unsigned-stack-begin (+ (solver-put solver) (* 24 0))) 4)))
                             (new-capacity
                              (if (not (zerop old-capacity))
                                  (c-u64 (* 2 old-capacity))
@@ -3313,16 +3296,14 @@ c
                           (unsigned-stack-allocated (+ (solver-put solver) (* 24 1))))
                      (let* ((old-size-2
                              (the c-size
-                                  (truncate
-                                   (- (unsigned-stack-end (+ (solver-put solver) (* 24 1)))
-                                      (unsigned-stack-begin (+ (solver-put solver) (* 24 1))))
-                                   4)))
+                                  (pointer-difference
+                                   (unsigned-stack-end (+ (solver-put solver) (* 24 1)))
+                                   (unsigned-stack-begin (+ (solver-put solver) (* 24 1))) 4)))
                             (old-capacity-2
                              (the c-size
-                                  (truncate
-                                   (- (unsigned-stack-allocated (+ (solver-put solver) (* 24 1)))
-                                      (unsigned-stack-begin (+ (solver-put solver) (* 24 1))))
-                                   4)))
+                                  (pointer-difference
+                                   (unsigned-stack-allocated (+ (solver-put solver) (* 24 1)))
+                                   (unsigned-stack-begin (+ (solver-put solver) (* 24 1))) 4)))
                             (new-capacity-2
                              (if (not (zerop old-capacity-2))
                                  (c-u64 (* 2 old-capacity-2))
@@ -3552,9 +3533,9 @@ c
   (declare (type c-address trail)
            (type c-size new-capacity)
            (ignorable trail new-capacity))
-  (let* ((size (the c-size (truncate (- (trail-end trail) (trail-begin trail)) 4)))
+  (let* ((size (the c-size (pointer-difference (trail-end trail) (trail-begin trail) 4)))
          (bytes (c-u64 (* new-capacity 4)))
-         (propagate (c-u32 (truncate (- (trail-propagate trail) (trail-begin trail)) 4))))
+         (propagate (c-u32 (pointer-difference (trail-propagate trail) (trail-begin trail) 4))))
     (declare (type c-size size)
              (type c-size bytes)
              (type (unsigned-byte 32) propagate)
@@ -3887,7 +3868,7 @@ c
            (type c-address end)
            (ignorable begin end))
   (let* ((round (c-u32 (- (c-u32 (ash 1 7)) 1)))
-         (bytes (c-u64 (truncate (- end begin) 1)))
+         (bytes (c-u64 (pointer-difference end begin 1)))
          (res (c-u64 (ash (c-u64 (+ bytes round)) (- 7)))))
     (declare (type c-size round)
              (type c-size bytes)
@@ -4040,10 +4021,9 @@ c
                                                                                                               (setf (clause-search
                                                                                                                      clause)
                                                                                                                       (c-u32
-                                                                                                                       (truncate
-                                                                                                                        (-
-                                                                                                                         r
-                                                                                                                         start-search)
+                                                                                                                       (pointer-difference
+                                                                                                                        r
+                                                                                                                        start-search
                                                                                                                         4)))
                                                                                                               (return-from
                                                                                                                   loop-end-19
@@ -4052,7 +4032,7 @@ c
                                                                                                                        4))))
                                         (t
                                          (setf (clause-search clause)
-                                                 (c-u32 (truncate (- r start-search) 4)))))
+                                                 (c-u32 (pointer-difference r start-search 4)))))
                                        (if (> replacement-value 0)
                                            (setf (header-blocking (watch-header (+ q (* 8 -2))))
                                                    replacement)
@@ -4100,7 +4080,7 @@ c
                         (m-u32
                          (+ (solver-levels solver) (* 4 (literal-variable (m-u32 new-start)))))))
             do (incf new-start 4))
-      (let* ((delta (truncate (- new-start (trail-begin trail)) 4)))
+      (let* ((delta (pointer-difference new-start (trail-begin trail) 4)))
         (declare (type (signed-byte 64) delta)
                  (ignorable delta))
         (decf (trail-propagate trail) (* 4 delta))
@@ -4148,7 +4128,7 @@ c
                     do (setf conflict (propagate-literal solver (m-u32 p) 0 ticks)) (incf p 4))
               (u64-incf (statistics-ticks (solver-statistics solver)) (m-u64 ticks))
               (setf (trail-propagate (solver-trail solver)) p)
-              (let* ((propagated (c-u32 (truncate (- p propagate) 4))))
+              (let* ((propagated (c-u32 (pointer-difference p propagate 4))))
                 (declare (type (unsigned-byte 32) propagated)
                          (ignorable propagated))
                 (u64-incf (statistics-propagations (solver-statistics solver)) propagated)
@@ -4295,7 +4275,7 @@ c
         (let* ((starting target-lit)
                (position (solver-position solver))
                (starting-position
-                (c-s32 (truncate (- target-lit (trail-begin (solver-trail solver))) 4))))
+                (c-s32 (pointer-difference target-lit (trail-begin (solver-trail solver)) 4))))
           (declare (type c-address starting)
                    (type c-address position)
                    (type (signed-byte 32) starting-position)
@@ -4477,10 +4457,8 @@ c
               (block next-iteration-2
                 (let* ((n-rank
                         (the c-size
-                             (truncate
-                              (- (unsigned-stack-end (solver-clause solver))
-                                 (unsigned-stack-begin (solver-clause solver)))
-                              4))))
+                             (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                                 (unsigned-stack-begin (solver-clause solver)) 4))))
                   (declare (type c-size n-rank)
                            (ignorable n-rank))
                   (when (<= n-rank 1) (return-from loop-end-1 nil))
@@ -4665,16 +4643,12 @@ c
          (unsigned-stack-allocated (solver-removable solver)))
     (let* ((old-size
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-end (solver-removable solver))
-                     (unsigned-stack-begin (solver-removable solver)))
-                  4)))
+                 (pointer-difference (unsigned-stack-end (solver-removable solver))
+                                     (unsigned-stack-begin (solver-removable solver)) 4)))
            (old-capacity
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-allocated (solver-removable solver))
-                     (unsigned-stack-begin (solver-removable solver)))
-                  4)))
+                 (pointer-difference (unsigned-stack-allocated (solver-removable solver))
+                                     (unsigned-stack-begin (solver-removable solver)) 4)))
            (new-capacity
             (if (not (zerop old-capacity))
                 (c-u64 (* 2 old-capacity))
@@ -4713,16 +4687,12 @@ c
          (unsigned-stack-allocated (solver-poisoned solver)))
     (let* ((old-size
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-end (solver-poisoned solver))
-                     (unsigned-stack-begin (solver-poisoned solver)))
-                  4)))
+                 (pointer-difference (unsigned-stack-end (solver-poisoned solver))
+                                     (unsigned-stack-begin (solver-poisoned solver)) 4)))
            (old-capacity
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-allocated (solver-poisoned solver))
-                     (unsigned-stack-begin (solver-poisoned solver)))
-                  4)))
+                 (pointer-difference (unsigned-stack-allocated (solver-poisoned solver))
+                                     (unsigned-stack-begin (solver-poisoned solver)) 4)))
            (new-capacity
             (if (not (zerop old-capacity))
                 (c-u64 (* 2 old-capacity))
@@ -4866,16 +4836,12 @@ c
                  (analyzed-stack-allocated (solver-analyzed solver)))
             (let* ((old-size
                     (the c-size
-                         (truncate
-                          (- (analyzed-stack-end (solver-analyzed solver))
-                             (analyzed-stack-begin (solver-analyzed solver)))
-                          8)))
+                         (pointer-difference (analyzed-stack-end (solver-analyzed solver))
+                                             (analyzed-stack-begin (solver-analyzed solver)) 8)))
                    (old-capacity
                     (the c-size
-                         (truncate
-                          (- (analyzed-stack-allocated (solver-analyzed solver))
-                             (analyzed-stack-begin (solver-analyzed solver)))
-                          8)))
+                         (pointer-difference (analyzed-stack-allocated (solver-analyzed solver))
+                                             (analyzed-stack-begin (solver-analyzed solver)) 8)))
                    (new-capacity
                     (if (not (zerop old-capacity))
                         (c-u64 (* 2 old-capacity))
@@ -4931,16 +4897,12 @@ c
          (unsigned-stack-allocated (solver-shrunken solver)))
     (let* ((old-size
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-end (solver-shrunken solver))
-                     (unsigned-stack-begin (solver-shrunken solver)))
-                  4)))
+                 (pointer-difference (unsigned-stack-end (solver-shrunken solver))
+                                     (unsigned-stack-begin (solver-shrunken solver)) 4)))
            (old-capacity
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-allocated (solver-shrunken solver))
-                     (unsigned-stack-begin (solver-shrunken solver)))
-                  4)))
+                 (pointer-difference (unsigned-stack-allocated (solver-shrunken solver))
+                                     (unsigned-stack-begin (solver-shrunken solver)) 4)))
            (new-capacity
             (if (not (zerop old-capacity))
                 (c-u64 (* 2 old-capacity))
@@ -5097,7 +5059,7 @@ c
              (type c-address p-lit)
              (type c-address end-lit)
              (ignorable lit-2 p-lit end-lit))
-    (let* ((open (c-u32 (truncate (- end begin) 4))))
+    (let* ((open (c-u32 (pointer-difference end begin 4))))
       (declare (type (unsigned-byte 32) open)
                (ignorable open))
       (when (< open 2) (return-from shrink-block 1))
@@ -5237,7 +5199,7 @@ c
                           (setf q (+ previous-value-6 4))
                           previous-value-6))
                          lit)) (incf p 4)))
-    (let* ((shrunken (c-u32 (truncate (- end-2 q) 4))))
+    (let* ((shrunken (c-u32 (pointer-difference end-2 q 4))))
       (declare (type (unsigned-byte 32) shrunken)
                (ignorable shrunken))
       (setf (unsigned-stack-end (solver-clause solver)) q)
@@ -5324,10 +5286,8 @@ c
             (block next-iteration-2
               (let* ((n-rank
                       (the c-size
-                           (truncate
-                            (- (analyzed-stack-end (solver-analyzed solver))
-                               (analyzed-stack-begin (solver-analyzed solver)))
-                            8))))
+                           (pointer-difference (analyzed-stack-end (solver-analyzed solver))
+                                               (analyzed-stack-begin (solver-analyzed solver)) 8))))
                 (declare (type c-size n-rank)
                          (ignorable n-rank))
                 (when (<= n-rank 1) (return-from loop-end-1 nil))
@@ -5780,16 +5740,12 @@ c
                    (unsigned-stack-allocated (solver-clause solver)))
               (let* ((old-size
                       (the c-size
-                           (truncate
-                            (- (unsigned-stack-end (solver-clause solver))
-                               (unsigned-stack-begin (solver-clause solver)))
-                            4)))
+                           (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                               (unsigned-stack-begin (solver-clause solver)) 4)))
                      (old-capacity
                       (the c-size
-                           (truncate
-                            (- (unsigned-stack-allocated (solver-clause solver))
-                               (unsigned-stack-begin (solver-clause solver)))
-                            4)))
+                           (pointer-difference (unsigned-stack-allocated (solver-clause solver))
+                                               (unsigned-stack-begin (solver-clause solver)) 4)))
                      (new-capacity
                       (if (not (zerop old-capacity))
                           (c-u64 (* 2 old-capacity))
@@ -5894,21 +5850,19 @@ c
                                                       (solver-blocks solver)))
                                                 (let* ((old-size-2
                                                         (the c-size
-                                                             (truncate
-                                                              (-
-                                                               (unsigned-stack-end
-                                                                (solver-blocks solver))
-                                                               (unsigned-stack-begin
-                                                                (solver-blocks solver)))
+                                                             (pointer-difference
+                                                              (unsigned-stack-end
+                                                               (solver-blocks solver))
+                                                              (unsigned-stack-begin
+                                                               (solver-blocks solver))
                                                               4)))
                                                        (old-capacity-2
                                                         (the c-size
-                                                             (truncate
-                                                              (-
-                                                               (unsigned-stack-allocated
-                                                                (solver-blocks solver))
-                                                               (unsigned-stack-begin
-                                                                (solver-blocks solver)))
+                                                             (pointer-difference
+                                                              (unsigned-stack-allocated
+                                                               (solver-blocks solver))
+                                                              (unsigned-stack-begin
+                                                               (solver-blocks solver))
                                                               4)))
                                                        (new-capacity-2
                                                         (if (not (zerop old-capacity-2))
@@ -5961,21 +5915,19 @@ c
                                                     (solver-clause solver)))
                                               (let* ((old-size-3
                                                       (the c-size
-                                                           (truncate
-                                                            (-
-                                                             (unsigned-stack-end
-                                                              (solver-clause solver))
-                                                             (unsigned-stack-begin
-                                                              (solver-clause solver)))
+                                                           (pointer-difference
+                                                            (unsigned-stack-end
+                                                             (solver-clause solver))
+                                                            (unsigned-stack-begin
+                                                             (solver-clause solver))
                                                             4)))
                                                      (old-capacity-3
                                                       (the c-size
-                                                           (truncate
-                                                            (-
-                                                             (unsigned-stack-allocated
-                                                              (solver-clause solver))
-                                                             (unsigned-stack-begin
-                                                              (solver-clause solver)))
+                                                           (pointer-difference
+                                                            (unsigned-stack-allocated
+                                                             (solver-clause solver))
+                                                            (unsigned-stack-begin
+                                                             (solver-clause solver))
                                                             4)))
                                                      (new-capacity-3
                                                       (if (not (zerop old-capacity-3))
@@ -6081,10 +6033,9 @@ c
                   (let* ((size
                           (c-u32
                            (the c-size
-                                (truncate
-                                 (- (unsigned-stack-end (solver-clause solver))
-                                    (unsigned-stack-begin (solver-clause solver)))
-                                 4)))))
+                                (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                                    (unsigned-stack-begin (solver-clause solver))
+                                                    4)))))
                     (declare (type (unsigned-byte 32) size)
                              (ignorable size))
                     (u64-incf (statistics-deduced (solver-statistics solver)) size)
@@ -6097,17 +6048,15 @@ c
                     (setf size
                             (c-u32
                              (the c-size
-                                  (truncate
-                                   (- (unsigned-stack-end (solver-clause solver))
-                                      (unsigned-stack-begin (solver-clause solver)))
-                                   4))))
+                                  (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                                      (unsigned-stack-begin (solver-clause solver))
+                                                      4))))
                     (let* ((glue
                             (c-u32
                              (the c-size
-                                  (truncate
-                                   (- (unsigned-stack-end (solver-blocks solver))
-                                      (unsigned-stack-begin (solver-blocks solver)))
-                                   4)))))
+                                  (pointer-difference (unsigned-stack-end (solver-blocks solver))
+                                                      (unsigned-stack-begin (solver-blocks solver))
+                                                      4)))))
                       (declare (type (unsigned-byte 32) glue)
                                (ignorable glue))
                       (setf (m-u32 asserting-level) 0)
@@ -6145,10 +6094,9 @@ c
                                   (percent
                                    (integer64-double
                                     (the c-size
-                                         (truncate
-                                          (- (trail-end (solver-trail solver))
-                                             (trail-begin (solver-trail solver)))
-                                          4))
+                                         (pointer-difference (trail-end (solver-trail solver))
+                                                             (trail-begin (solver-trail solver))
+                                                             4))
                                     nil)
                                    (integer64-double
                                     (statistics-remaining (solver-statistics solver)) nil))))
@@ -8468,16 +8416,18 @@ c
                          (type (unsigned-byte 64) u)
                          (type (unsigned-byte 64) v)
                          (ignorable r u v))
-                (setf interval (c-u64 (* v 1024)))
+                (locally (declare (optimize (speed 1))) (setf interval (c-u64 (* v 1024))))
                 (cond ((= (logand u (c-u64 (- u))) v) (u64-incf u) (setf v 1))
                       (t (setf v (c-u64 (* v 2)))))
                 (setf (reluctant-u r) u)
                 (setf (reluctant-v r) v))
-              (setf interval
-                      (values
-                       (the (unsigned-byte 64)
-                            (truncate
-                             (float (+ (float (c-s32 (- 1 1)) 1.0d0) (logn restarts)) 1.0d0))))))
+              (locally
+               (declare (optimize (speed 1)))
+               (setf interval
+                       (values
+                        (the (unsigned-byte 64)
+                             (truncate
+                              (float (+ (float (c-s32 (- 1 1)) 1.0d0) (logn restarts)) 1.0d0)))))))
           (setf (limits-restart (solver-limits solver))
                   (c-u64 (+ (statistics-conflicts (solver-statistics solver)) interval)))
           (when (>= (m-u32 (+ solver 884)) 4)
@@ -8715,16 +8665,14 @@ c
                         (unsigned-stack-allocated (solver-clause solver)))
                    (let* ((old-size
                            (the c-size
-                                (truncate
-                                 (- (unsigned-stack-end (solver-clause solver))
-                                    (unsigned-stack-begin (solver-clause solver)))
-                                 4)))
+                                (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                                    (unsigned-stack-begin (solver-clause solver))
+                                                    4)))
                           (old-capacity
                            (the c-size
-                                (truncate
-                                 (- (unsigned-stack-allocated (solver-clause solver))
-                                    (unsigned-stack-begin (solver-clause solver)))
-                                 4)))
+                                (pointer-difference
+                                 (unsigned-stack-allocated (solver-clause solver))
+                                 (unsigned-stack-begin (solver-clause solver)) 4)))
                           (new-capacity
                            (if (not (zerop old-capacity))
                                (c-u64 (* 2 old-capacity))
@@ -8767,10 +8715,8 @@ c
           (unwatch-literal solver (m-u32 (+ old-lits (* 4 1))) c)
           (let* ((size
                   (the c-size
-                       (truncate
-                        (- (unsigned-stack-end (solver-clause solver))
-                           (unsigned-stack-begin (solver-clause solver)))
-                        4))))
+                       (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                           (unsigned-stack-begin (solver-clause solver)) 4))))
             (declare (type c-size size)
                      (ignorable size))
             (cond
@@ -8864,12 +8810,12 @@ c
                (when (= (clauses-end candidates) (clauses-allocated candidates))
                  (let* ((old-size
                          (the c-size
-                              (truncate (- (clauses-end candidates) (clauses-begin candidates))
-                                        8)))
+                              (pointer-difference (clauses-end candidates)
+                                                  (clauses-begin candidates) 8)))
                         (old-capacity
                          (the c-size
-                              (truncate
-                               (- (clauses-allocated candidates) (clauses-begin candidates)) 8)))
+                              (pointer-difference (clauses-allocated candidates)
+                                                  (clauses-begin candidates) 8)))
                         (new-capacity
                          (if (not (zerop old-capacity))
                              (c-u64 (* 2 old-capacity))
@@ -8895,13 +8841,12 @@ c
                        c)))
     (when (< (options-verbose (solver-options solver)) 2) (return-from gather-reduce-candidates 0))
     (let* ((size-candidates
-            (the c-size (truncate (- (clauses-end candidates) (clauses-begin candidates)) 8)))
+            (the c-size
+                 (pointer-difference (clauses-end candidates) (clauses-begin candidates) 8)))
            (redundant
             (the c-size
-                 (truncate
-                  (- (clauses-end (solver-redundant solver))
-                     (clauses-begin (solver-redundant solver)))
-                  8))))
+                 (pointer-difference (clauses-end (solver-redundant solver))
+                                     (clauses-begin (solver-redundant solver)) 8))))
       (declare (type c-size size-candidates)
                (type c-size redundant)
                (ignorable size-candidates redundant))
@@ -9066,7 +9011,8 @@ c
             (block next-iteration-2
               (let* ((n-rank
                       (the c-size
-                           (truncate (- (clauses-end candidates) (clauses-begin candidates)) 8))))
+                           (pointer-difference (clauses-end candidates) (clauses-begin candidates)
+                                               8))))
                 (declare (type c-size n-rank)
                          (ignorable n-rank))
                 (when (<= n-rank 1) (return-from loop-end-1 nil))
@@ -9164,12 +9110,16 @@ c
                                                      (m-size (+ count-rank (* 8 m-rank)))))) (incf
                                                                                               p-rank
                                                                                               8)))
-                                     (setf mlower-rank
-                                             (logand (c-u64 (ash lower-rank (- i-rank)))
-                                                     mask-rank))
-                                     (setf mupper-rank
-                                             (logand (c-u64 (ash upper-rank (- i-rank)))
-                                                     mask-rank))
+                                     (locally
+                                      (declare (optimize (speed 1)))
+                                      (setf mlower-rank
+                                              (logand (c-u64 (ash lower-rank (- i-rank)))
+                                                      mask-rank)))
+                                     (locally
+                                      (declare (optimize (speed 1)))
+                                      (setf mupper-rank
+                                              (logand (c-u64 (ash upper-rank (- i-rank)))
+                                                      mask-rank)))
                                      (when (zerop bounded-rank)
                                        (setf bounded-rank 1)
                                        (when
@@ -9253,7 +9203,8 @@ c
   (declare (type c-address solver)
            (type c-address candidates)
            (ignorable solver candidates))
-  (let* ((size (the c-size (truncate (- (clauses-end candidates) (clauses-begin candidates)) 8))))
+  (let* ((size
+          (the c-size (pointer-difference (clauses-end candidates) (clauses-begin candidates) 8))))
     (declare (type c-size size)
              (ignorable size))
     (let* ((reduce
@@ -9279,7 +9230,8 @@ c
                  (ignorable keep-fraction keep reduced))
         (loop while (>
                      (the c-size
-                          (truncate (- (clauses-end candidates) (clauses-begin candidates)) 8))
+                          (pointer-difference (clauses-end candidates) (clauses-begin candidates)
+                                              8))
                      keep)
               do (let* ((c
                          (m-ptr
@@ -9673,26 +9625,24 @@ c
                                                                                          (let* ((old-size
                                                                                                  (the
                                                                                                   c-size
-                                                                                                  (truncate
-                                                                                                   (-
-                                                                                                    (unsigned-stack-end
-                                                                                                     (solver-binaries
-                                                                                                      solver))
-                                                                                                    (unsigned-stack-begin
-                                                                                                     (solver-binaries
-                                                                                                      solver)))
+                                                                                                  (pointer-difference
+                                                                                                   (unsigned-stack-end
+                                                                                                    (solver-binaries
+                                                                                                     solver))
+                                                                                                   (unsigned-stack-begin
+                                                                                                    (solver-binaries
+                                                                                                     solver))
                                                                                                    4)))
                                                                                                 (old-capacity
                                                                                                  (the
                                                                                                   c-size
-                                                                                                  (truncate
-                                                                                                   (-
-                                                                                                    (unsigned-stack-allocated
-                                                                                                     (solver-binaries
-                                                                                                      solver))
-                                                                                                    (unsigned-stack-begin
-                                                                                                     (solver-binaries
-                                                                                                      solver)))
+                                                                                                  (pointer-difference
+                                                                                                   (unsigned-stack-allocated
+                                                                                                    (solver-binaries
+                                                                                                     solver))
+                                                                                                   (unsigned-stack-begin
+                                                                                                    (solver-binaries
+                                                                                                     solver))
                                                                                                    4)))
                                                                                                 (new-capacity
                                                                                                  (if (not
@@ -9788,26 +9738,24 @@ c
                                                                                          (let* ((old-size-2
                                                                                                  (the
                                                                                                   c-size
-                                                                                                  (truncate
-                                                                                                   (-
-                                                                                                    (unsigned-stack-end
-                                                                                                     (solver-binaries
-                                                                                                      solver))
-                                                                                                    (unsigned-stack-begin
-                                                                                                     (solver-binaries
-                                                                                                      solver)))
+                                                                                                  (pointer-difference
+                                                                                                   (unsigned-stack-end
+                                                                                                    (solver-binaries
+                                                                                                     solver))
+                                                                                                   (unsigned-stack-begin
+                                                                                                    (solver-binaries
+                                                                                                     solver))
                                                                                                    4)))
                                                                                                 (old-capacity-2
                                                                                                  (the
                                                                                                   c-size
-                                                                                                  (truncate
-                                                                                                   (-
-                                                                                                    (unsigned-stack-allocated
-                                                                                                     (solver-binaries
-                                                                                                      solver))
-                                                                                                    (unsigned-stack-begin
-                                                                                                     (solver-binaries
-                                                                                                      solver)))
+                                                                                                  (pointer-difference
+                                                                                                   (unsigned-stack-allocated
+                                                                                                    (solver-binaries
+                                                                                                     solver))
+                                                                                                   (unsigned-stack-begin
+                                                                                                    (solver-binaries
+                                                                                                     solver))
                                                                                                    4)))
                                                                                                 (new-capacity-2
                                                                                                  (if (not
@@ -10423,12 +10371,11 @@ c
                                     ((not (zerop clashed))
                                      (let* ((occs
                                              (the c-size
-                                                  (truncate
-                                                   (-
-                                                    (watches-end
-                                                     (+ (solver-watches solver) (* 24 clashing)))
-                                                    (watches-begin
-                                                     (+ (solver-watches solver) (* 24 clashing))))
+                                                  (pointer-difference
+                                                   (watches-end
+                                                    (+ (solver-watches solver) (* 24 clashing)))
+                                                   (watches-begin
+                                                    (+ (solver-watches solver) (* 24 clashing)))
                                                    8))))
                                        (declare (type c-size occs)
                                                 (ignorable occs))
@@ -10579,10 +10526,8 @@ c
                        (u64-incf ticks)
                        (let* ((pos-occs
                                (the c-size
-                                    (truncate
-                                     (- (watches-end (+ watches (* 24 lit)))
-                                        (watches-begin (+ watches (* 24 lit))))
-                                     8))))
+                                    (pointer-difference (watches-end (+ watches (* 24 lit)))
+                                                        (watches-begin (+ watches (* 24 lit))) 8))))
                          (declare (type c-size pos-occs)
                                   (ignorable pos-occs))
                          (when (< pos-occs min-pos-occs)
@@ -10591,10 +10536,10 @@ c
                          (let* ((not-lit (negate-literal lit))
                                 (neg-occs
                                  (the c-size
-                                      (truncate
-                                       (- (watches-end (+ watches (* 24 not-lit)))
-                                          (watches-begin (+ watches (* 24 not-lit))))
-                                       8))))
+                                      (pointer-difference (watches-end (+ watches (* 24 not-lit)))
+                                                          (watches-begin
+                                                           (+ watches (* 24 not-lit)))
+                                                          8))))
                            (declare (type (unsigned-byte 32) not-lit)
                                     (type c-size neg-occs)
                                     (ignorable not-lit neg-occs))
@@ -10673,7 +10618,7 @@ c
                    (if (>
                         (integer64-double
                          (the c-size
-                              (truncate (- (watches-end watches) (watches-begin watches)) 8))
+                              (pointer-difference (watches-end watches) (watches-begin watches) 8))
                          nil)
                         1000.0d0)
                        1
@@ -10985,12 +10930,14 @@ c
                                                       (ignorable subsumed))
                                              (locally
                                               (declare (optimize (speed 2)))
-                                              (setf strengthened
-                                                      (c-u64
-                                                       (-
-                                                        (statistics-strengthened
-                                                         (solver-statistics solver))
-                                                        strengthened-before)))
+                                              (locally
+                                               (declare (optimize (speed 1)))
+                                               (setf strengthened
+                                                       (c-u64
+                                                        (-
+                                                         (statistics-strengthened
+                                                          (solver-statistics solver))
+                                                         strengthened-before))))
                                               (u64-incf total-subsumed subsumed)
                                               (u64-incf total-strengthened strengthened)
                                               (when (>= (m-u32 (+ solver 884)) 3)
@@ -11232,10 +11179,12 @@ c
                        (ignorable pivot not-pivot pos-watches neg-watches))
               (let* ((pos-count
                       (the c-size
-                           (truncate (- (watches-end pos-watches) (watches-begin pos-watches)) 8)))
+                           (pointer-difference (watches-end pos-watches)
+                                               (watches-begin pos-watches) 8)))
                      (neg-count
                       (the c-size
-                           (truncate (- (watches-end neg-watches) (watches-begin neg-watches)) 8)))
+                           (pointer-difference (watches-end neg-watches)
+                                               (watches-begin neg-watches) 8)))
                      (limit
                       (locally (declare (optimize (speed 1))) (c-u64 (+ pos-count neg-count))))
                      (resolvents (locally (declare (optimize (speed 1))) 0))
@@ -11347,25 +11296,23 @@ c
                                                                    (solver-resolvents solver)))
                                                                (let* ((old-size
                                                                        (the c-size
-                                                                            (truncate
-                                                                             (-
-                                                                              (unsigned-stack-end
-                                                                               (solver-resolvents
-                                                                                solver))
-                                                                              (unsigned-stack-begin
-                                                                               (solver-resolvents
-                                                                                solver)))
+                                                                            (pointer-difference
+                                                                             (unsigned-stack-end
+                                                                              (solver-resolvents
+                                                                               solver))
+                                                                             (unsigned-stack-begin
+                                                                              (solver-resolvents
+                                                                               solver))
                                                                              4)))
                                                                       (old-capacity
                                                                        (the c-size
-                                                                            (truncate
-                                                                             (-
-                                                                              (unsigned-stack-allocated
-                                                                               (solver-resolvents
-                                                                                solver))
-                                                                              (unsigned-stack-begin
-                                                                               (solver-resolvents
-                                                                                solver)))
+                                                                            (pointer-difference
+                                                                             (unsigned-stack-allocated
+                                                                              (solver-resolvents
+                                                                               solver))
+                                                                             (unsigned-stack-begin
+                                                                              (solver-resolvents
+                                                                               solver))
                                                                              4)))
                                                                       (new-capacity
                                                                        (if (not
@@ -11448,25 +11395,23 @@ c
                                                                    (solver-resolvents solver)))
                                                                (let* ((old-size-2
                                                                        (the c-size
-                                                                            (truncate
-                                                                             (-
-                                                                              (unsigned-stack-end
-                                                                               (solver-resolvents
-                                                                                solver))
-                                                                              (unsigned-stack-begin
-                                                                               (solver-resolvents
-                                                                                solver)))
+                                                                            (pointer-difference
+                                                                             (unsigned-stack-end
+                                                                              (solver-resolvents
+                                                                               solver))
+                                                                             (unsigned-stack-begin
+                                                                              (solver-resolvents
+                                                                               solver))
                                                                              4)))
                                                                       (old-capacity-2
                                                                        (the c-size
-                                                                            (truncate
-                                                                             (-
-                                                                              (unsigned-stack-allocated
-                                                                               (solver-resolvents
-                                                                                solver))
-                                                                              (unsigned-stack-begin
-                                                                               (solver-resolvents
-                                                                                solver)))
+                                                                            (pointer-difference
+                                                                             (unsigned-stack-allocated
+                                                                              (solver-resolvents
+                                                                               solver))
+                                                                             (unsigned-stack-begin
+                                                                              (solver-resolvents
+                                                                               solver))
                                                                              4)))
                                                                       (new-capacity-2
                                                                        (if (not
@@ -11537,21 +11482,19 @@ c
                                                         (solver-resolvents solver)))
                                                     (let* ((old-size-3
                                                             (the c-size
-                                                                 (truncate
-                                                                  (-
-                                                                   (unsigned-stack-end
-                                                                    (solver-resolvents solver))
-                                                                   (unsigned-stack-begin
-                                                                    (solver-resolvents solver)))
+                                                                 (pointer-difference
+                                                                  (unsigned-stack-end
+                                                                   (solver-resolvents solver))
+                                                                  (unsigned-stack-begin
+                                                                   (solver-resolvents solver))
                                                                   4)))
                                                            (old-capacity-3
                                                             (the c-size
-                                                                 (truncate
-                                                                  (-
-                                                                   (unsigned-stack-allocated
-                                                                    (solver-resolvents solver))
-                                                                   (unsigned-stack-begin
-                                                                    (solver-resolvents solver)))
+                                                                 (pointer-difference
+                                                                  (unsigned-stack-allocated
+                                                                   (solver-resolvents solver))
+                                                                  (unsigned-stack-begin
+                                                                   (solver-resolvents solver))
                                                                   4)))
                                                            (new-capacity-3
                                                             (if (not (zerop old-capacity-3))
@@ -11630,10 +11573,8 @@ c
              (ignorable lit-2 ptr-lit end-lit))
     (let* ((size
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-end (solver-clause solver))
-                     (unsigned-stack-begin (solver-clause solver)))
-                  4))))
+                 (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                     (unsigned-stack-begin (solver-clause solver)) 4))))
       (declare (type c-size size)
                (ignorable size))
       (if (zerop size)
@@ -11679,16 +11620,12 @@ c
            (unsigned-stack-allocated (solver-extend solver)))
       (let* ((old-size
               (the c-size
-                   (truncate
-                    (- (unsigned-stack-end (solver-extend solver))
-                       (unsigned-stack-begin (solver-extend solver)))
-                    4)))
+                   (pointer-difference (unsigned-stack-end (solver-extend solver))
+                                       (unsigned-stack-begin (solver-extend solver)) 4)))
              (old-capacity
               (the c-size
-                   (truncate
-                    (- (unsigned-stack-allocated (solver-extend solver))
-                       (unsigned-stack-begin (solver-extend solver)))
-                    4)))
+                   (pointer-difference (unsigned-stack-allocated (solver-extend solver))
+                                       (unsigned-stack-begin (solver-extend solver)) 4)))
              (new-capacity
               (if (not (zerop old-capacity))
                   (c-u64 (* 2 old-capacity))
@@ -11718,16 +11655,12 @@ c
            (unsigned-stack-allocated (solver-extend solver)))
       (let* ((old-size-2
               (the c-size
-                   (truncate
-                    (- (unsigned-stack-end (solver-extend solver))
-                       (unsigned-stack-begin (solver-extend solver)))
-                    4)))
+                   (pointer-difference (unsigned-stack-end (solver-extend solver))
+                                       (unsigned-stack-begin (solver-extend solver)) 4)))
              (old-capacity-2
               (the c-size
-                   (truncate
-                    (- (unsigned-stack-allocated (solver-extend solver))
-                       (unsigned-stack-begin (solver-extend solver)))
-                    4)))
+                   (pointer-difference (unsigned-stack-allocated (solver-extend solver))
+                                       (unsigned-stack-begin (solver-extend solver)) 4)))
              (new-capacity-2
               (if (not (zerop old-capacity-2))
                   (c-u64 (* 2 old-capacity-2))
@@ -11761,16 +11694,14 @@ c
                       (unsigned-stack-allocated (solver-extend solver)))
                  (let* ((old-size-3
                          (the c-size
-                              (truncate
-                               (- (unsigned-stack-end (solver-extend solver))
-                                  (unsigned-stack-begin (solver-extend solver)))
-                               4)))
+                              (pointer-difference (unsigned-stack-end (solver-extend solver))
+                                                  (unsigned-stack-begin (solver-extend solver))
+                                                  4)))
                         (old-capacity-3
                          (the c-size
-                              (truncate
-                               (- (unsigned-stack-allocated (solver-extend solver))
-                                  (unsigned-stack-begin (solver-extend solver)))
-                               4)))
+                              (pointer-difference (unsigned-stack-allocated (solver-extend solver))
+                                                  (unsigned-stack-begin (solver-extend solver))
+                                                  4)))
                         (new-capacity-3
                          (if (not (zerop old-capacity-3))
                              (c-u64 (* 2 old-capacity-3))
@@ -11809,16 +11740,12 @@ c
          (unsigned-stack-allocated (solver-extend solver)))
     (let* ((old-size
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-end (solver-extend solver))
-                     (unsigned-stack-begin (solver-extend solver)))
-                  4)))
+                 (pointer-difference (unsigned-stack-end (solver-extend solver))
+                                     (unsigned-stack-begin (solver-extend solver)) 4)))
            (old-capacity
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-allocated (solver-extend solver))
-                     (unsigned-stack-begin (solver-extend solver)))
-                  4)))
+                 (pointer-difference (unsigned-stack-allocated (solver-extend solver))
+                                     (unsigned-stack-begin (solver-extend solver)) 4)))
            (new-capacity
             (if (not (zerop old-capacity))
                 (c-u64 (* 2 old-capacity))
@@ -11848,16 +11775,12 @@ c
          (unsigned-stack-allocated (solver-extend solver)))
     (let* ((old-size-2
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-end (solver-extend solver))
-                     (unsigned-stack-begin (solver-extend solver)))
-                  4)))
+                 (pointer-difference (unsigned-stack-end (solver-extend solver))
+                                     (unsigned-stack-begin (solver-extend solver)) 4)))
            (old-capacity-2
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-allocated (solver-extend solver))
-                     (unsigned-stack-begin (solver-extend solver)))
-                  4)))
+                 (pointer-difference (unsigned-stack-allocated (solver-extend solver))
+                                     (unsigned-stack-begin (solver-extend solver)) 4)))
            (new-capacity-2
             (if (not (zerop old-capacity-2))
                 (c-u64 (* 2 old-capacity-2))
@@ -12003,17 +11926,14 @@ c
                                         (unsigned-stack-allocated (solver-clause solver)))
                                    (let* ((old-size
                                            (the c-size
-                                                (truncate
-                                                 (- (unsigned-stack-end (solver-clause solver))
-                                                    (unsigned-stack-begin (solver-clause solver)))
-                                                 4)))
+                                                (pointer-difference
+                                                 (unsigned-stack-end (solver-clause solver))
+                                                 (unsigned-stack-begin (solver-clause solver)) 4)))
                                           (old-capacity
                                            (the c-size
-                                                (truncate
-                                                 (-
-                                                  (unsigned-stack-allocated (solver-clause solver))
-                                                  (unsigned-stack-begin (solver-clause solver)))
-                                                 4)))
+                                                (pointer-difference
+                                                 (unsigned-stack-allocated (solver-clause solver))
+                                                 (unsigned-stack-begin (solver-clause solver)) 4)))
                                           (new-capacity
                                            (if (not (zerop old-capacity))
                                                (c-u64 (* 2 old-capacity))
@@ -12055,10 +11975,9 @@ c
                            (add-and-connect-resolvent solver)
                            (u64-incf ticks
                                      (the c-size
-                                          (truncate
-                                           (- (unsigned-stack-end (solver-clause solver))
-                                              (unsigned-stack-begin (solver-clause solver)))
-                                           4)))
+                                          (pointer-difference
+                                           (unsigned-stack-end (solver-clause solver))
+                                           (unsigned-stack-begin (solver-clause solver)) 4)))
                            (setf (unsigned-stack-end (solver-clause solver))
                                    (unsigned-stack-begin (solver-clause solver)))
                            (u64-incf ticks)
@@ -12079,8 +11998,11 @@ c
                    (type c-size neg-lines)
                    (ignorable pos-watches neg-watches pos-lines neg-lines))
           (cond
-           ((< (the c-size (truncate (- (watches-end pos-watches) (watches-begin pos-watches)) 8))
-               (the c-size (truncate (- (watches-end neg-watches) (watches-begin neg-watches)) 8)))
+           ((<
+             (the c-size
+                  (pointer-difference (watches-end pos-watches) (watches-begin pos-watches) 8))
+             (the c-size
+                  (pointer-difference (watches-end neg-watches) (watches-begin neg-watches) 8)))
             (u64-incf ticks (c-u64 (+ 1 pos-lines)))
             (push-clauses-on-extension-stack solver pivot pos-watches)
             (push-unit-on-extension-stack solver not-pivot))
@@ -12525,7 +12447,7 @@ c
             (block next-iteration-2
               (let* ((n-rank
                       (the c-size
-                           (truncate (- (unsigned-stack-end c) (unsigned-stack-begin c)) 4))))
+                           (pointer-difference (unsigned-stack-end c) (unsigned-stack-begin c) 4))))
                 (declare (type c-size n-rank)
                          (ignorable n-rank))
                 (when (<= n-rank 1) (return-from loop-end-1 nil))
@@ -12785,7 +12707,7 @@ c
           do (vivify-sort-clause-by-counts solver counts c) (incf ptr-c 8))
     (block loop-end-3
       (let* ((n-sort-stack
-              (the c-size (truncate (- (clauses-end schedule) (clauses-begin schedule)) 8))))
+              (the c-size (pointer-difference (clauses-end schedule) (clauses-begin schedule) 8))))
         (declare (type c-size n-sort-stack)
                  (ignorable n-sort-stack))
         (when (<= n-sort-stack 1) (return-from loop-end-3 nil))
@@ -12982,20 +12904,18 @@ c
                                               (unsigned-stack-allocated (solver-sorter solver)))
                                          (let* ((old-size
                                                  (the c-size
-                                                      (truncate
-                                                       (-
-                                                        (unsigned-stack-end (solver-sorter solver))
-                                                        (unsigned-stack-begin
-                                                         (solver-sorter solver)))
+                                                      (pointer-difference
+                                                       (unsigned-stack-end (solver-sorter solver))
+                                                       (unsigned-stack-begin
+                                                        (solver-sorter solver))
                                                        4)))
                                                 (old-capacity
                                                  (the c-size
-                                                      (truncate
-                                                       (-
-                                                        (unsigned-stack-allocated
-                                                         (solver-sorter solver))
-                                                        (unsigned-stack-begin
-                                                         (solver-sorter solver)))
+                                                      (pointer-difference
+                                                       (unsigned-stack-allocated
+                                                        (solver-sorter solver))
+                                                       (unsigned-stack-begin
+                                                        (solver-sorter solver))
                                                        4)))
                                                 (new-capacity
                                                  (if (not (zerop old-capacity))
@@ -13038,20 +12958,18 @@ c
                                               (unsigned-stack-allocated (solver-sorter solver)))
                                          (let* ((old-size-2
                                                  (the c-size
-                                                      (truncate
-                                                       (-
-                                                        (unsigned-stack-end (solver-sorter solver))
-                                                        (unsigned-stack-begin
-                                                         (solver-sorter solver)))
+                                                      (pointer-difference
+                                                       (unsigned-stack-end (solver-sorter solver))
+                                                       (unsigned-stack-begin
+                                                        (solver-sorter solver))
                                                        4)))
                                                 (old-capacity-2
                                                  (the c-size
-                                                      (truncate
-                                                       (-
-                                                        (unsigned-stack-allocated
-                                                         (solver-sorter solver))
-                                                        (unsigned-stack-begin
-                                                         (solver-sorter solver)))
+                                                      (pointer-difference
+                                                       (unsigned-stack-allocated
+                                                        (solver-sorter solver))
+                                                       (unsigned-stack-begin
+                                                        (solver-sorter solver))
                                                        4)))
                                                 (new-capacity-2
                                                  (if (not (zerop old-capacity-2))
@@ -13340,7 +13258,7 @@ c
                                                                                                4))
               (u64-incf (statistics-probing-ticks (solver-statistics solver)) (m-u64 ticks))
               (setf (trail-propagate (solver-trail solver)) p)
-              (let* ((propagated (c-u32 (truncate (- p propagate) 4))))
+              (let* ((propagated (c-u32 (pointer-difference p propagate 4))))
                 (declare (type (unsigned-byte 32) propagated)
                          (ignorable propagated))
                 (u64-incf (statistics-vivify-propagations (solver-statistics solver)) propagated)
@@ -13412,10 +13330,8 @@ c
     (let* ((res 0)
            (size
             (the c-size
-                 (truncate
-                  (- (unsigned-stack-end (solver-clause solver))
-                     (unsigned-stack-begin (solver-clause solver)))
-                  4))))
+                 (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                     (unsigned-stack-begin (solver-clause solver)) 4))))
       (declare (type (integer 0 1) res)
                (type c-size size)
                (ignorable res size))
@@ -13536,17 +13452,14 @@ c
                                         (unsigned-stack-allocated (solver-clause solver)))
                                    (let* ((old-size-2
                                            (the c-size
-                                                (truncate
-                                                 (- (unsigned-stack-end (solver-clause solver))
-                                                    (unsigned-stack-begin (solver-clause solver)))
-                                                 4)))
+                                                (pointer-difference
+                                                 (unsigned-stack-end (solver-clause solver))
+                                                 (unsigned-stack-begin (solver-clause solver)) 4)))
                                           (old-capacity
                                            (the c-size
-                                                (truncate
-                                                 (-
-                                                  (unsigned-stack-allocated (solver-clause solver))
-                                                  (unsigned-stack-begin (solver-clause solver)))
-                                                 4)))
+                                                (pointer-difference
+                                                 (unsigned-stack-allocated (solver-clause solver))
+                                                 (unsigned-stack-begin (solver-clause solver)) 4)))
                                           (new-capacity
                                            (if (not (zerop old-capacity))
                                                (c-u64 (* 2 old-capacity))
@@ -13614,10 +13527,8 @@ c
                     (trace-and-check-clause-addition solver c 4294967295)
                     (trace-and-check-deletion solver
                      (the c-size
-                          (truncate
-                           (- (unsigned-stack-end (solver-clause solver))
-                              (unsigned-stack-begin (solver-clause solver)))
-                           4))
+                          (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                              (unsigned-stack-begin (solver-clause solver)) 4))
                      (unsigned-stack-begin (solver-clause solver)))
                     (setf (unsigned-stack-end (solver-clause solver))
                             (unsigned-stack-begin (solver-clause solver)))
@@ -13632,16 +13543,14 @@ c
                              (unsigned-stack-allocated (solver-clause solver)))
                         (let* ((old-size-3
                                 (the c-size
-                                     (truncate
-                                      (- (unsigned-stack-end (solver-clause solver))
-                                         (unsigned-stack-begin (solver-clause solver)))
-                                      4)))
+                                     (pointer-difference
+                                      (unsigned-stack-end (solver-clause solver))
+                                      (unsigned-stack-begin (solver-clause solver)) 4)))
                                (old-capacity-2
                                 (the c-size
-                                     (truncate
-                                      (- (unsigned-stack-allocated (solver-clause solver))
-                                         (unsigned-stack-begin (solver-clause solver)))
-                                      4)))
+                                     (pointer-difference
+                                      (unsigned-stack-allocated (solver-clause solver))
+                                      (unsigned-stack-begin (solver-clause solver)) 4)))
                                (new-capacity-2
                                 (if (not (zerop old-capacity-2))
                                     (c-u64 (* 2 old-capacity-2))
@@ -13677,16 +13586,14 @@ c
                              (unsigned-stack-allocated (solver-clause solver)))
                         (let* ((old-size-4
                                 (the c-size
-                                     (truncate
-                                      (- (unsigned-stack-end (solver-clause solver))
-                                         (unsigned-stack-begin (solver-clause solver)))
-                                      4)))
+                                     (pointer-difference
+                                      (unsigned-stack-end (solver-clause solver))
+                                      (unsigned-stack-begin (solver-clause solver)) 4)))
                                (old-capacity-3
                                 (the c-size
-                                     (truncate
-                                      (- (unsigned-stack-allocated (solver-clause solver))
-                                         (unsigned-stack-begin (solver-clause solver)))
-                                      4)))
+                                     (pointer-difference
+                                      (unsigned-stack-allocated (solver-clause solver))
+                                      (unsigned-stack-begin (solver-clause solver)) 4)))
                                (new-capacity-3
                                 (if (not (zerop old-capacity-3))
                                     (c-u64 (* 2 old-capacity-3))
@@ -13811,10 +13718,9 @@ c
                    (ignorable analyzed irredundant levels values reasons))
           (loop while (< analyzed
                          (the c-size
-                              (truncate
-                               (- (analyzed-stack-end (solver-analyzed solver))
-                                  (analyzed-stack-begin (solver-analyzed solver)))
-                               8)))
+                              (pointer-difference (analyzed-stack-end (solver-analyzed solver))
+                                                  (analyzed-stack-begin (solver-analyzed solver))
+                                                  8)))
                 do (block next-iteration-12
                      (let* ((idx
                              (analyzed-idx
@@ -13839,16 +13745,14 @@ c
                                   (unsigned-stack-allocated (solver-clause solver)))
                              (let* ((old-size
                                      (the c-size
-                                          (truncate
-                                           (- (unsigned-stack-end (solver-clause solver))
-                                              (unsigned-stack-begin (solver-clause solver)))
-                                           4)))
+                                          (pointer-difference
+                                           (unsigned-stack-end (solver-clause solver))
+                                           (unsigned-stack-begin (solver-clause solver)) 4)))
                                     (old-capacity
                                      (the c-size
-                                          (truncate
-                                           (- (unsigned-stack-allocated (solver-clause solver))
-                                              (unsigned-stack-begin (solver-clause solver)))
-                                           4)))
+                                          (pointer-difference
+                                           (unsigned-stack-allocated (solver-clause solver))
+                                           (unsigned-stack-begin (solver-clause solver)) 4)))
                                     (new-capacity
                                      (if (not (zerop old-capacity))
                                          (c-u64 (* 2 old-capacity))
@@ -13938,10 +13842,8 @@ c
                 do (unmark-literal vivify-marks lit-4) (incf p-lit-3 4))
           (let* ((size
                   (the c-size
-                       (truncate
-                        (- (unsigned-stack-end (solver-clause solver))
-                           (unsigned-stack-begin (solver-clause solver)))
-                        4))))
+                       (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                           (unsigned-stack-begin (solver-clause solver)) 4))))
             (declare (type c-size size)
                      (ignorable size))
             (when (not (zerop subsumed)) (when (= size 1) (setf subsumed 0)))
@@ -14003,16 +13905,12 @@ c
              (unsigned-stack-allocated (solver-clause solver)))
         (let* ((old-size
                 (the c-size
-                     (truncate
-                      (- (unsigned-stack-end (solver-clause solver))
-                         (unsigned-stack-begin (solver-clause solver)))
-                      4)))
+                     (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                         (unsigned-stack-begin (solver-clause solver)) 4)))
                (old-capacity
                 (the c-size
-                     (truncate
-                      (- (unsigned-stack-allocated (solver-clause solver))
-                         (unsigned-stack-begin (solver-clause solver)))
-                      4)))
+                     (pointer-difference (unsigned-stack-allocated (solver-clause solver))
+                                         (unsigned-stack-begin (solver-clause solver)) 4)))
                (new-capacity
                 (if (not (zerop old-capacity))
                     (c-u64 (* 2 old-capacity))
@@ -14101,16 +13999,12 @@ c
                                  (= (unsigned-stack-end sorted) (unsigned-stack-allocated sorted))
                                (let* ((old-size
                                        (the c-size
-                                            (truncate
-                                             (- (unsigned-stack-end sorted)
-                                                (unsigned-stack-begin sorted))
-                                             4)))
+                                            (pointer-difference (unsigned-stack-end sorted)
+                                                                (unsigned-stack-begin sorted) 4)))
                                       (old-capacity
                                        (the c-size
-                                            (truncate
-                                             (- (unsigned-stack-allocated sorted)
-                                                (unsigned-stack-begin sorted))
-                                             4)))
+                                            (pointer-difference (unsigned-stack-allocated sorted)
+                                                                (unsigned-stack-begin sorted) 4)))
                                       (new-capacity
                                        (if (not (zerop old-capacity))
                                            (c-u64 (* 2 old-capacity))
@@ -14142,8 +14036,8 @@ c
               (let* ((non-false
                       (c-u32
                        (the c-size
-                            (truncate (- (unsigned-stack-end sorted) (unsigned-stack-begin sorted))
-                                      4)))))
+                            (pointer-difference (unsigned-stack-end sorted)
+                                                (unsigned-stack-begin sorted) 4)))))
                 (declare (type (unsigned-byte 32) non-false)
                          (ignorable non-false))
                 (when (= non-false 2) (return-from vivify-clause 0))
@@ -14281,21 +14175,19 @@ c
                                                    (solver-clause solver)))
                                              (let* ((old-size-2
                                                      (the c-size
-                                                          (truncate
-                                                           (-
-                                                            (unsigned-stack-end
-                                                             (solver-clause solver))
-                                                            (unsigned-stack-begin
-                                                             (solver-clause solver)))
+                                                          (pointer-difference
+                                                           (unsigned-stack-end
+                                                            (solver-clause solver))
+                                                           (unsigned-stack-begin
+                                                            (solver-clause solver))
                                                            4)))
                                                     (old-capacity-2
                                                      (the c-size
-                                                          (truncate
-                                                           (-
-                                                            (unsigned-stack-allocated
-                                                             (solver-clause solver))
-                                                            (unsigned-stack-begin
-                                                             (solver-clause solver)))
+                                                          (pointer-difference
+                                                           (unsigned-stack-allocated
+                                                            (solver-clause solver))
+                                                           (unsigned-stack-begin
+                                                            (solver-clause solver))
                                                            4)))
                                                     (new-capacity-2
                                                      (if (not (zerop old-capacity-2))
@@ -14380,16 +14272,14 @@ c
                               (unsigned-stack-allocated (solver-clause solver)))
                          (let* ((old-size
                                  (the c-size
-                                      (truncate
-                                       (- (unsigned-stack-end (solver-clause solver))
-                                          (unsigned-stack-begin (solver-clause solver)))
-                                       4)))
+                                      (pointer-difference
+                                       (unsigned-stack-end (solver-clause solver))
+                                       (unsigned-stack-begin (solver-clause solver)) 4)))
                                 (old-capacity
                                  (the c-size
-                                      (truncate
-                                       (- (unsigned-stack-allocated (solver-clause solver))
-                                          (unsigned-stack-begin (solver-clause solver)))
-                                       4)))
+                                      (pointer-difference
+                                       (unsigned-stack-allocated (solver-clause solver))
+                                       (unsigned-stack-begin (solver-clause solver)) 4)))
                                 (new-capacity
                                  (if (not (zerop old-capacity))
                                      (c-u64 (* 2 old-capacity))
@@ -14422,10 +14312,8 @@ c
         (let* ((non-false
                 (c-u32
                  (the c-size
-                      (truncate
-                       (- (unsigned-stack-end (solver-clause solver))
-                          (unsigned-stack-begin (solver-clause solver)))
-                       4)))))
+                      (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                          (unsigned-stack-begin (solver-clause solver)) 4)))))
           (declare (type (unsigned-byte 32) non-false)
                    (ignorable non-false))
           (when (not (zerop satisfied))
@@ -14461,16 +14349,14 @@ c
                                     (unsigned-stack-allocated (solver-clause solver)))
                                (let* ((old-size-3
                                        (the c-size
-                                            (truncate
-                                             (- (unsigned-stack-end (solver-clause solver))
-                                                (unsigned-stack-begin (solver-clause solver)))
-                                             4)))
+                                            (pointer-difference
+                                             (unsigned-stack-end (solver-clause solver))
+                                             (unsigned-stack-begin (solver-clause solver)) 4)))
                                       (old-capacity-2
                                        (the c-size
-                                            (truncate
-                                             (- (unsigned-stack-allocated (solver-clause solver))
-                                                (unsigned-stack-begin (solver-clause solver)))
-                                             4)))
+                                            (pointer-difference
+                                             (unsigned-stack-allocated (solver-clause solver))
+                                             (unsigned-stack-begin (solver-clause solver)) 4)))
                                       (new-capacity-2
                                        (if (not (zerop old-capacity-2))
                                            (c-u64 (* 2 old-capacity-2))
@@ -14531,10 +14417,8 @@ c
               (trace-and-check-clause-addition solver c 4294967295)
               (trace-and-check-deletion solver
                (the c-size
-                    (truncate
-                     (- (unsigned-stack-end (solver-clause solver))
-                        (unsigned-stack-begin (solver-clause solver)))
-                     4))
+                    (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                        (unsigned-stack-begin (solver-clause solver)) 4))
                (unsigned-stack-begin (solver-clause solver))))))
           (setf (unsigned-stack-end (solver-clause solver))
                   (unsigned-stack-begin (solver-clause solver)))
@@ -14596,21 +14480,19 @@ c
                                          (clauses-allocated (solver-vivification-schedule solver)))
                                     (let* ((old-size
                                             (the c-size
-                                                 (truncate
-                                                  (-
-                                                   (clauses-end
-                                                    (solver-vivification-schedule solver))
-                                                   (clauses-begin
-                                                    (solver-vivification-schedule solver)))
+                                                 (pointer-difference
+                                                  (clauses-end
+                                                   (solver-vivification-schedule solver))
+                                                  (clauses-begin
+                                                   (solver-vivification-schedule solver))
                                                   8)))
                                            (old-capacity
                                             (the c-size
-                                                 (truncate
-                                                  (-
-                                                   (clauses-allocated
-                                                    (solver-vivification-schedule solver))
-                                                   (clauses-begin
-                                                    (solver-vivification-schedule solver)))
+                                                 (pointer-difference
+                                                  (clauses-allocated
+                                                   (solver-vivification-schedule solver))
+                                                  (clauses-begin
+                                                   (solver-vivification-schedule solver))
                                                   8)))
                                            (new-capacity
                                             (if (not (zerop old-capacity))
@@ -14676,21 +14558,19 @@ c
                                          (clauses-allocated (solver-vivification-schedule solver)))
                                     (let* ((old-size-2
                                             (the c-size
-                                                 (truncate
-                                                  (-
-                                                   (clauses-end
-                                                    (solver-vivification-schedule solver))
-                                                   (clauses-begin
-                                                    (solver-vivification-schedule solver)))
+                                                 (pointer-difference
+                                                  (clauses-end
+                                                   (solver-vivification-schedule solver))
+                                                  (clauses-begin
+                                                   (solver-vivification-schedule solver))
                                                   8)))
                                            (old-capacity-2
                                             (the c-size
-                                                 (truncate
-                                                  (-
-                                                   (clauses-allocated
-                                                    (solver-vivification-schedule solver))
-                                                   (clauses-begin
-                                                    (solver-vivification-schedule solver)))
+                                                 (pointer-difference
+                                                  (clauses-allocated
+                                                   (solver-vivification-schedule solver))
+                                                  (clauses-begin
+                                                   (solver-vivification-schedule solver))
                                                   8)))
                                            (new-capacity-2
                                             (if (not (zerop old-capacity-2))
@@ -14789,7 +14669,8 @@ c
                    (ignorable schedule))
           (schedule-vivification-candidates solver counts redundant tier2)
           (let* ((scheduled
-                  (the c-size (truncate (- (clauses-end schedule) (clauses-begin schedule)) 8))))
+                  (the c-size
+                       (pointer-difference (clauses-end schedule) (clauses-begin schedule) 8))))
             (declare (type c-size scheduled)
                      (ignorable scheduled))
             (let* ((vivified 0) (tried 0))
@@ -14825,7 +14706,8 @@ c
               (when (zerop (solver-inconsistent solver))
                 (let* ((remain
                         (the c-size
-                             (truncate (- (clauses-end schedule) (clauses-begin schedule)) 8)))
+                             (pointer-difference (clauses-end schedule) (clauses-begin schedule)
+                                                 8)))
                        (keep 1)
                        (prioritized 0))
                   (declare (type c-size remain)
@@ -15331,16 +15213,12 @@ c
                  (unsigned-stack-allocated (solver-clause solver)))
             (let* ((old-size
                     (the c-size
-                         (truncate
-                          (- (unsigned-stack-end (solver-clause solver))
-                             (unsigned-stack-begin (solver-clause solver)))
-                          4)))
+                         (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                             (unsigned-stack-begin (solver-clause solver)) 4)))
                    (old-capacity
                     (the c-size
-                         (truncate
-                          (- (unsigned-stack-allocated (solver-clause solver))
-                             (unsigned-stack-begin (solver-clause solver)))
-                          4)))
+                         (pointer-difference (unsigned-stack-allocated (solver-clause solver))
+                                             (unsigned-stack-begin (solver-clause solver)) 4)))
                    (new-capacity
                     (if (not (zerop old-capacity))
                         (c-u64 (* 2 old-capacity))
@@ -15370,16 +15248,12 @@ c
               (= (int-stack-end (solver-added solver)) (int-stack-allocated (solver-added solver)))
             (let* ((old-size-2
                     (the c-size
-                         (truncate
-                          (- (int-stack-end (solver-added solver))
-                             (int-stack-begin (solver-added solver)))
-                          4)))
+                         (pointer-difference (int-stack-end (solver-added solver))
+                                             (int-stack-begin (solver-added solver)) 4)))
                    (old-capacity-2
                     (the c-size
-                         (truncate
-                          (- (int-stack-allocated (solver-added solver))
-                             (int-stack-begin (solver-added solver)))
-                          4)))
+                         (pointer-difference (int-stack-allocated (solver-added solver))
+                                             (int-stack-begin (solver-added solver)) 4)))
                    (new-capacity-2
                     (if (not (zerop old-capacity-2))
                         (c-u64 (* 2 old-capacity-2))
@@ -15412,10 +15286,8 @@ c
            ((zerop (imported-clause-trivial-or-satisfied solver)) (activate-literals solver)
             (let* ((size
                     (the c-size
-                         (truncate
-                          (- (unsigned-stack-end (solver-clause solver))
-                             (unsigned-stack-begin (solver-clause solver)))
-                          4))))
+                         (pointer-difference (unsigned-stack-end (solver-clause solver))
+                                             (unsigned-stack-begin (solver-clause solver)) 4))))
               (declare (type c-size size)
                        (ignorable size))
               (if (zerop size)
@@ -15438,10 +15310,8 @@ c
                             (watch-clause solver clause)))))
               (let* ((added
                       (the c-size
-                           (truncate
-                            (- (int-stack-end (solver-added solver))
-                               (int-stack-begin (solver-added solver)))
-                            4))))
+                           (pointer-difference (int-stack-end (solver-added solver))
+                                               (int-stack-begin (solver-added solver)) 4))))
                 (declare (type c-size added)
                          (ignorable added))
                 (cond

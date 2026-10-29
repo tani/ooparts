@@ -10,6 +10,12 @@ storage. Both use the same checked LP64 layout. See
 [portability](../portability.md) for dependencies, host float requirements and
 backend selection.
 
+Pointer differences count elements rather than bytes. Power-of-two strides
+expand to signed shifts, preserving negative distances for valid C pointers;
+other strides use exact integer division. Wide local assignments and the
+public float-return boundaries retain ordinary Lisp values without changing
+the numeric policy of the search loop.
+
 ## Generated constants and literals
 
 The engine has two numeric `defconstant` values, `+slow-beta+` and

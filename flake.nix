@@ -53,6 +53,10 @@
                 lispLibs = [];
                 nativeLibs = [];
                 preBuild = ''export XDG_CACHE_HOME="$TMPDIR/asdf-cache"'';
+                # Nixpkgs filters ASD filenames against the compiled system names.
+                # Inferred children need both primary definitions at runtime, while
+                # compiling those primaries would load unsupported sibling libraries.
+                postInstall = ''cp ooparts.asd ooparts-tests.asd "$out/"'';
               };
               runtime = lisp.withPackages (_: [ library ]);
               testPackage = if component == "all" then "ooparts-tests/all" else settings.tests;

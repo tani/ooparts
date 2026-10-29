@@ -47,6 +47,10 @@ packages/apps for available implementations. `nix run .#prolog` starts the SBCL
 text CLI; `nix run .#test-prolog-sbcl` runs its Lisp suite. Component and platform
 restrictions are documented in the [project README](../../README.md).
 
+Nix builds only the selected inferred component and restores both primary ASD
+files after Nixpkgs' installation filter. Keeping the parent definitions permits
+runtime inference without compiling unsupported sibling libraries.
+
 ## Source responsibilities and portability
 
 | Directory | Responsibility |

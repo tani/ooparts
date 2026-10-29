@@ -30,65 +30,15 @@
             && lib.meta.availableOn pkgs.stdenv.hostPlatform candidate.value
             && !(candidate.value.meta.broken or false)
           ) implementations;
-          # The v0.9 API builds unsupported atomics on CMUCL and drops CLISP.
-          # OOPArts needs the stable v0.8 recursive-lock/thread API only.
-          lispFor = impl: pkgs.${impl}.withOverrides (self: super: {
-            alexandria = if impl == "ecl" && pkgs.stdenv.isDarwin then super.alexandria.overrideLispAttrs {
-              # ECL/macOS fails while expanding the optional-argument CDR5
-              # generator. Fixed arity preserves every generated definition.
-              src = pkgs.runCommand "alexandria-ecl-fixed-arity-source" {} ''
-                cp -R ${super.alexandria.src} "$out"
-                chmod -R u+w "$out"
-                substituteInPlace "$out/alexandria-1/types.lisp" \
-                  --replace-fail '(frob (type &optional (base-type type))' '(frob (type base-type)' \
-                  --replace-fail '(frob integer)' '(frob integer integer)' \
-                  --replace-fail '(frob rational)' '(frob rational rational)' \
-                  --replace-fail '(frob real)' '(frob real real)' \
-                  --replace-fail '(frob float)' '(frob float float)' \
-                  --replace-fail '(frob short-float)' '(frob short-float short-float)' \
-                  --replace-fail '(frob single-float)' '(frob single-float single-float)' \
-                  --replace-fail '(frob double-float)' '(frob double-float double-float)' \
-                  --replace-fail '(frob long-float)' '(frob long-float long-float)'
-              '';
-            } else super.alexandria;
-            bordeaux-threads = if builtins.elem impl [ "clisp" "cmucl_binary" "mkcl" ] then pkgs.${impl}.buildASDFSystem {
-              pname = "bordeaux-threads";
-              version = "0.8.8";
-              # ASDF's source registry needs an immutable directory, not the
-              # archive filename supplied to a conventional unpack phase.
-              src = pkgs.runCommand "bordeaux-threads-0.8.8-source" {
-                nativeBuildInputs = [ pkgs.gnutar pkgs.gzip ];
-              } ''
-                mkdir -p "$out"
-                tar -xzf ${pkgs.fetchurl {
-                  url = "https://deb.debian.org/debian/pool/main/b/bordeaux-threads/bordeaux-threads_0.8.8.orig.tar.gz";
-                  hash = "sha256-bAEtA4UV9fpsow0LwkxNICIZhhofcIHBB37Fd9Uv+do=";
-                }} --strip-components=1 -C "$out"
-              '';
-              systems = [ "bordeaux-threads" ];
-              lispLibs = [ self.alexandria ];
-            } else super.bordeaux-threads;
-            cl-environments = super.cl-environments.overrideLispAttrs {
-              # ASDF reads immutable SRC paths, so patch the source derivation.
-              src = pkgs.runCommand "cl-environments-portable-source" {} ''
-                cp -R ${super.cl-environments.src} "$out"
-                chmod -R u+w "$out"
-                substituteInPlace "$out/src/walker/cl-environments.lisp" \
-                  --replace-fail '(defconstant +walk-macros+' '(defparameter +walk-macros+'
-                substituteInPlace "$out/src/walker/environment.lisp" \
-                  --replace-fail '(defconstant +optimize-qualities+' '(defparameter +optimize-qualities+' \
-                  --replace-fail '(defconstant +global-special-vars+' '(defparameter +global-special-vars+'
-              '';
-            };
-          });
+          lispFor = impl: pkgs.${impl};
           components = {
             prolog = { library = "ooparts/prolog"; tests = "ooparts-tests/prolog"; };
             continuation = { library = "ooparts/continuation"; tests = "ooparts-tests/continuation"; };
             sat = { library = "ooparts/sat"; tests = "ooparts-tests/sat"; };
             all = { library = "ooparts"; tests = "ooparts-tests"; };
           };
-          # MKCL remains available for Prolog. The continuation environment/MOP
-          # dependency stack does not advertise MKCL support.
+          # MKCL exposes Prolog and SAT. Its continuation environment adapter
+          # has not been implemented and validated yet.
           supported = component: impl:
             component == "prolog" || component == "sat" || impl != "mkcl";
           recipes = lib.listToAttrs (lib.concatMap (component:
@@ -102,11 +52,7 @@
                 systems = [ settings.library settings.tests ]
                   ++ lib.optionals (component == "prolog" || component == "all") [ "ooparts/prolog/text/cli" ]
                   ++ lib.optionals (component == "sat" || component == "all") [ "ooparts/sat/cli" ];
-                lispLibs = lib.optionals (component != "prolog") (
-                  [ lisp.pkgs.bordeaux-threads ]
-                  ++ lib.optionals (component == "continuation" || component == "all")
-                    [ lisp.pkgs.cl-environments lisp.pkgs.closer-mop lisp.pkgs.trivial-garbage ]
-                );
+                lispLibs = [];
                 nativeLibs = [];
                 preBuild = ''export XDG_CACHE_HOME="$TMPDIR/asdf-cache"'';
                 # Nixpkgs filters ASD filenames against the compiled system names.
@@ -186,18 +132,12 @@
             };
           devShells = {
             default = pkgs.mkShell {
-              packages = lib.mapAttrsToList (impl: _: (lispFor impl).withPackages (libraries:
-                [ libraries.bordeaux-threads ]
-                ++ lib.optionals (impl != "mkcl")
-                  [ libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) available
+              packages = lib.mapAttrsToList (impl: _: (lispFor impl).withPackages (_: [])) available
                 ++ [ python pkgs.stdenv.cc ];
               shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
             };
           } // lib.mapAttrs (impl: _: pkgs.mkShell {
-            packages = [ ((lispFor impl).withPackages (libraries:
-              [ libraries.bordeaux-threads ]
-              ++ lib.optionals (impl != "mkcl")
-                [ libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) python pkgs.stdenv.cc ];
+            packages = [ ((lispFor impl).withPackages (_: [])) python pkgs.stdenv.cc ];
             shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
           }) available;
           overlayAttrs = lib.mapAttrs (impl: _: (lispFor impl).withOverrides

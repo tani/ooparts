@@ -20,4 +20,8 @@
   proof comparison. Continuation changes require FASL/core reload checks.
 - Keep all libraries portable. Use reader conditionals for native fast paths
   and retain the portable SAT backend as an independently tested implementation.
-  Declare portability dependencies in packages and the unified Nix flake.
+  Prefer implementation-specific reader conditionals over external Lisp library
+  dependencies. Apart from the ASDF/UIOP system manager, libraries and regression
+  suites use only the host implementation. Do not patch external software or vendor portability
+  libraries to reduce the number of reader conditionals. Keep host differences
+  in small internal adapters and declare their imports explicitly.

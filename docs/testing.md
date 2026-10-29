@@ -15,12 +15,13 @@ use `tools/test.lisp continuation`, `prolog` or `sat`, or load the matching
 `ooparts-tests/<component>` and call its exported `run-tests`.
 
 See [portability](portability.md) for implementation-neutral launchers,
-portable-backend checks and external dependencies.
+portable-backend checks and native host adapters. Library and regression systems
+require no external Lisp libraries or dependency patches.
 
 ## Recorded environment
 
-The 2026-10-29 local run used SBCL 2.2.9.debian, GCC 13.3 and Linux x86-64.
-The aggregate suite ran with a 1 MiB control stack. It passed 3178 continuation,
+The 2026-10-30 local run used SBCL 2.5.4, GCC 13.3 and Linux x86-64.
+The aggregate suite ran with a 1 MiB control stack. It passed 3190 continuation,
 5632 Prolog and 635 SAT API/numeric/storage checks. Exact counts can depend on test
 configuration and loaded implementation packages; a printed failure is never
 accepted as a pass.
@@ -31,7 +32,7 @@ accepted as a pass.
 SBCL=sbcl bash tools/continuation/test.sh
 ```
 
-This runs the 3178 checks and fresh-process FASL/saved-core reload tests. The
+This runs the 3190 checks and fresh-process FASL/saved-core reload tests. The
 independent substitution reducer checks 1328 terms in selective and full modes.
 The suite also exercises mutation, multiple values, dynamic control, native
 boundaries, deep captures, GC and another thread. It does not mechanically prove

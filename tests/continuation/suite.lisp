@@ -1,7 +1,6 @@
 (uiop:define-package #:ooparts-tests/continuation/suite
   (:use #:cl #:ooparts/continuation #:ooparts-tests/continuation/reference)
-  (:import-from #:bordeaux-threads)
-  (:import-from #:trivial-garbage)
+  (:import-from #:ooparts/host #:collect-garbage #:threads-supported-p #:call-in-thread)
   (:import-from #:ooparts-tests/continuation/adapters #:with-error-adapter)
   (:export #:run-tests))
 (in-package #:ooparts-tests/continuation/suite)
@@ -74,6 +73,19 @@
 (case= symbol-macro 4
   (reset (let ((x (list 1))) (symbol-macrolet ((a (car x))) (setf a (shift k (funcall k 4))) a))))
 (case= macrolet 8 (reset (macrolet ((twice (x) `(+ ,x ,x))) (twice (shift k (funcall k 4))))))
+(case= macro-destructuring-and-whole '(m 1 2 4)
+  (reset (macrolet ((m (&whole whole (a b) &optional (c 4))
+                     `(list ',(car whole) ,a ,b ,c)))
+           (m ((shift k (funcall k 1)) 2)))))
+(case= macro-environment-expansion 12
+  (reset (macrolet ((outer (x) `(+ 10 ,x)))
+           (macrolet ((inner (x &environment environment)
+                        (macroexpand `(outer ,x) environment)))
+             (inner (shift k (funcall k 2)))))))
+(case= macro-body-symbol-macro 15
+  (reset (symbol-macrolet ((expansion '(+ 10 2)))
+           (macrolet ((m () expansion))
+             (+ (m) (shift k (funcall k 3)))))))
 (case= macro-shadow 5 (reset (macrolet ((m () 100)) (flet ((m () 5)) (m)))))
 (case= macro-over-function 9
   (reset (flet ((m () 5)) (macrolet ((m () 9)) (m)))))
@@ -556,14 +568,12 @@
                                           (if (zerop n) (shift k (list (funcall k 1) (funcall k 2)))
                                               (+ 1 (walk (1- n)))))) (walk 2000))) mode t)))
     (let ((k (reset (+ 10 (shift k k)))))
-      (trivial-garbage:gc :full t)
+      (collect-garbage)
       (check :after-full-gc 12 (funcall k 2))
-      (if bordeaux-threads:*supports-threads-p*
+      (if (threads-supported-p)
           (let ((result nil))
-            ;; JOIN-THREAD's return convention differs across older backends.
-            ;; Test the continuation result, using JOIN only as a barrier.
-            (bordeaux-threads:join-thread
-             (bordeaux-threads:make-thread (lambda () (setf result (funcall k 3)))))
+            ;; Use the join only as a barrier; host return conventions differ.
+            (call-in-thread (lambda () (setf result (funcall k 3))))
             (check :other-thread 13 result))
           (format t "Thread check skipped: this Lisp has no thread support.~%")))
     (expect-condition :pending-expired-block 'inactive-control-target

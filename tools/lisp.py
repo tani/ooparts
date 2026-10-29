@@ -30,7 +30,7 @@ def add_lisp_arguments(parser):
     parser.add_argument('--sbcl', help='Compatibility alias for --lisp with SBCL')
     parser.add_argument('--portable-sat', action='store_true', help='Force the octet-vector SAT backend')
     parser.add_argument('--bootstrap', default=os.environ.get('OOPARTS_LISP_INIT'),
-                        help='Optional Lisp initialization file for external dependencies')
+                        help='Optional Lisp initialization file for a local toolchain')
 
 
 @contextmanager
@@ -44,9 +44,9 @@ def lisp_command(script, arguments=(), *, implementation='sbcl', lisp=None,
     cache = ROOT / 'build' / 'lisp-cache' / mode
     cache.mkdir(parents=True, exist_ok=True)
     source = '(pushnew :ooparts-portable-sat *features*)\n' if portable_sat else ''
-    source += '(require "asdf")\n'
     if bootstrap:
         source += f'(load {lisp_string(Path(bootstrap).resolve())})\n'
+    source += '(require "asdf")\n'
     source += f'''(asdf:initialize-output-translations
  '(:output-translations (t ({lisp_string(str(cache) + '/')} :implementation))
    :ignore-inherited-configuration))

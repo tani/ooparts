@@ -12,7 +12,7 @@
    #:with-solver #:add-clause #:solve-cnf #:read-dimacs #:solve-file #:api-locked #:*live-solvers*)
   (:import-from #:ooparts/sat/runtime)
   (:import-from #:ooparts/sat/engine)
-  (:import-from #:bordeaux-threads))
+  (:import-from #:ooparts/host #:make-recursive-lock #:with-recursive-lock-held))
 (in-package #:ooparts/sat/low-level)
 (declaim (optimize (speed 3) (safety 3) (debug 1)))
 (defconstant +unknown+ 0)
@@ -20,7 +20,7 @@
 (defconstant +unsatisfiable+ 20)
 (declaim (type hash-table *live-solvers* *proof-handles*))
 (defvar *api-lock*
-  (bordeaux-threads:make-recursive-lock "ooparts/sat/low-level API"))
+  (make-recursive-lock "ooparts/sat/low-level API"))
 (defvar *live-solvers* (make-hash-table :test 'eql))
 (defvar *proof-handles* (make-hash-table :test 'eql))
 (defmacro api-locked (&body body)
@@ -28,7 +28,7 @@
     ;; Keep the API's multiple values independent of the lock macro's return
     ;; convention, including older native thread backends.
     `(let ((,results nil))
-       (bordeaux-threads:with-recursive-lock-held (*api-lock*)
+       (with-recursive-lock-held (*api-lock*)
          (setf ,results (multiple-value-list (progn ,@body))))
        (values-list ,results))))
 (declaim (ftype (function (t) (values ooparts/sat/runtime:c-address &optional)) require-solver))

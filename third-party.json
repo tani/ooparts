@@ -76,6 +76,34 @@
       "relationship": "continuation reference and optional benchmark baseline; no source distributed",
       "license": "LicenseRef-LLGPL",
       "license_evidence": "cl-cont.asd version 0.3.8 declares :licence LLGPL"
+    },
+    {
+      "name": "cl-environments",
+      "source": "https://github.com/alex-gutev/cl-environments",
+      "license": "MIT",
+      "license_evidence": "cl-environments.asd and source headers",
+      "relationship": "Native interface reference only; not loaded, patched, vendored or distributed."
+    },
+    {
+      "name": "closer-mop",
+      "source": "https://github.com/pcostanza/closer-mop",
+      "license": "MIT",
+      "license_evidence": "LICENSE.md",
+      "relationship": "Native interface reference only; not loaded, patched, vendored or distributed."
+    },
+    {
+      "name": "bordeaux-threads",
+      "source": "https://github.com/sionescu/bordeaux-threads",
+      "license": "MIT",
+      "license_evidence": "LICENSE",
+      "relationship": "Native interface reference only; not loaded, patched, vendored or distributed."
+    },
+    {
+      "name": "trivial-garbage",
+      "source": "https://github.com/trivial-garbage/trivial-garbage",
+      "license": "LicenseRef-Public-Domain",
+      "license_evidence": "trivial-garbage.asd and source headers",
+      "relationship": "Native interface reference only; not loaded, patched, vendored or distributed."
     }
   ],
   "optional_external_tools": [
@@ -87,7 +115,7 @@
         "Alexandria",
         "closer-mop"
       ],
-      "relationship": "explicit development-only download; not distributed; Alexandria and closer-mop are also portability dependencies when selected by the runtime",
+      "relationship": "Explicit development-only download for comparisons; not distributed or required by the libraries or test suites.",
       "license_policy": "Retain each downloaded upstream license; archive hashes and commit are pinned in the downloader.",
       "download_directory": "build/continuation/vendor/"
     },
@@ -102,118 +130,5 @@
       "relationship": "development-only translator and C reference compiler; not Lisp runtime dependencies"
     }
   ],
-  "external_dependencies": [
-    {
-      "name": "cl-environments",
-      "source": "https://github.com/alex-gutev/cl-environments",
-      "license": "MIT",
-      "relationship": "continuation compiler environment API on every implementation, including SBCL",
-      "license_evidence": "cl-environments.asd and source headers",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts.",
-      "nix_modifications": "Change list-valued DEFCONSTANTs to DEFPARAMETERs to permit compiled reloads on Clasp; preserve upstream license and notices in dependency output."
-    },
-    {
-      "name": "closer-mop",
-      "source": "https://github.com/pcostanza/closer-mop",
-      "license": "MIT",
-      "relationship": "continuation funcallable objects on supported implementations, including SBCL; MKCL retains its native MOP path",
-      "license_evidence": "LICENSE.md",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
-    },
-    {
-      "name": "bordeaux-threads",
-      "source": "https://github.com/sionescu/bordeaux-threads",
-      "license": "MIT",
-      "relationship": "SAT recursive locks and continuation thread tests on every implementation",
-      "license_evidence": "LICENSE",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts.",
-      "nix_version": "0.8.8",
-      "nix_source": "https://deb.debian.org/debian/pool/main/b/bordeaux-threads/bordeaux-threads_0.8.8.orig.tar.gz",
-      "nix_source_hash": "sha256-bAEtA4UV9fpsow0LwkxNICIZhhofcIHBB37Fd9Uv+do="
-    },
-    {
-      "name": "trivial-garbage",
-      "source": "https://github.com/trivial-garbage/trivial-garbage",
-      "license": "LicenseRef-Public-Domain",
-      "relationship": "continuation GC tests on every implementation",
-      "license_evidence": "trivial-garbage.asd and source headers",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
-    },
-    {
-      "name": "Alexandria",
-      "source": "https://gitlab.common-lisp.net/alexandria/alexandria",
-      "license": "LicenseRef-Public-Domain-OR-MIT-0",
-      "relationship": "transitive cl-environments and bordeaux-threads dependency",
-      "license_evidence": "LICENCE",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts.",
-      "nix_modifications": "On ECL/macOS only, make the private CDR5 type generator fixed-arity to avoid a macro-expansion arity failure; all generated definitions remain identical. Preserve the upstream license and notices in the dependency output."
-    },
-    {
-      "name": "Anaphora",
-      "source": "https://github.com/tokenrove/anaphora",
-      "license": "LicenseRef-Public-Domain",
-      "relationship": "transitive cl-environments dependency",
-      "license_evidence": "anaphora.asd",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
-    },
-    {
-      "name": "Optima",
-      "source": "https://github.com/m2ym/optima",
-      "license": "LicenseRef-LLGPL",
-      "relationship": "transitive cl-environments dependency",
-      "license_evidence": "optima.asd",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
-    },
-    {
-      "name": "Collectors",
-      "source": "https://github.com/AccelerationNet/collectors",
-      "license": "BSD-3-Clause",
-      "relationship": "transitive cl-environments dependency",
-      "license_evidence": "collectors.asd",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
-    },
-    {
-      "name": "symbol-munger",
-      "source": "https://github.com/AccelerationNet/symbol-munger",
-      "license": "MIT",
-      "relationship": "transitive Collectors dependency",
-      "license_evidence": "symbol-munger.asd",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
-    },
-    {
-      "name": "Iterate",
-      "source": "https://gitlab.common-lisp.net/iterate/iterate",
-      "license": "MIT-CMU",
-      "relationship": "transitive symbol-munger dependency",
-      "license_evidence": "iterate.lisp copyright and permission notice",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
-    },
-    {
-      "name": "global-vars",
-      "source": "https://beta.quicklisp.org/archive/global-vars/2014-11-06/global-vars-20141106-git.tgz",
-      "license": "MIT",
-      "relationship": "transitive Bordeaux Threads 0.9 dependency",
-      "license_evidence": "global-vars.asd copyright and MIT permission notice",
-      "nix_version": "20141106-git",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
-    },
-    {
-      "name": "trivial-features",
-      "source": "https://beta.quicklisp.org/archive/trivial-features/2023-06-18/trivial-features-20230618-git.tgz",
-      "license": "MIT",
-      "relationship": "transitive Bordeaux Threads 0.9 dependency",
-      "license_evidence": "trivial-features.asd copyright and MIT permission notice",
-      "nix_version": "20230618-git",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
-    },
-    {
-      "name": "parse-declarations-1.0",
-      "source": "https://beta.quicklisp.org/archive/parse-declarations/2010-10-06/parse-declarations-20101006-darcs.tgz",
-      "license": "MIT",
-      "relationship": "SBCL cl-environments backend dependency, included by the pinned Nix package metadata",
-      "license_evidence": "LICENSE and parse-declarations-1.0.asd",
-      "nix_version": "20101006-darcs",
-      "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
-    }
-  ]
+  "external_dependencies": []
 }

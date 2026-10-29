@@ -2,9 +2,10 @@
 
 Single-prompt Danvy–Filinski `shift`/`reset` for Common Lisp, implemented by source
 transformation and heap continuations. Continuations are composable, support
-multiple invocations, and can outlive the `reset` that captured them. Native stacks and C helpers are not used. Reader conditionals select bundled
-SBCL facilities or external environment/MOP portability libraries; see
-[portability](../portability.md) for dependencies and validation.
+multiple invocations, and can outlive the `reset` that captured them. Native
+stacks and C helpers are not used. Reader conditionals select the implementation's
+own environment and MOP interfaces; no external Lisp libraries are required.
+See [portability](../portability.md) for host adapters and validation.
 
 The compiler conservatively adapts the direct-versus-CPS idea of Asai and Uehara
 (PEPM 2018). It does not implement their polymorphic answer-type inference.
@@ -114,7 +115,7 @@ sbcl --script tools/test.lisp continuation
 SBCL=sbcl bash tools/continuation/test.sh
 ```
 
-The regression suite has 3178 checks, including 1328 independently reduced core
+The regression suite has 3190 checks, including 1328 independently reduced core
 terms in both transformation modes. The shell driver also checks fresh-process
 FASL and saved-core reloads. A captured restart is invoked after loading
 a compiled fixture and again after restoring a saved core. Restart tests also

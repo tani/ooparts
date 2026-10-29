@@ -1,0 +1,61 @@
+(uiop:define-package #:ooparts/host
+  (:use #:cl)
+  (:export #:make-recursive-lock #:with-recursive-lock-held
+           #:threads-supported-p #:call-in-thread #:collect-garbage))
+(in-package #:ooparts/host)
+
+(defun threads-supported-p ()
+  #+(or sb-thread ccl abcl mkcl (and ecl threads) (and clasp threads)
+        (and clisp mt) (and cmucl mp)) t
+  #-(or sb-thread ccl abcl mkcl (and ecl threads) (and clasp threads)
+        (and clisp mt) (and cmucl mp)) nil)
+
+(defun make-recursive-lock (name)
+  "Use the host's recursive lock, or NIL on a single-threaded host."
+  (declare (ignorable name))
+  #+sb-thread (sb-thread:make-mutex :name name)
+  #+ccl (ccl:make-lock name)
+  #+abcl (java:jnew "java.lang.Object")
+  #+(and ecl threads) (mp:make-lock :name name :recursive t)
+  #+(and clasp threads) (mp:make-recursive-mutex name)
+  #+mkcl (mt:make-lock :name name :recursive t)
+  #+(and clisp mt) (mt:make-mutex :name name :recursive-p t)
+  #+(and cmucl mp) (mp:make-lock name :kind :recursive)
+  #-(or sb-thread ccl abcl mkcl (and ecl threads) (and clasp threads)
+        (and clisp mt) (and cmucl mp)) nil)
+
+(defmacro with-recursive-lock-held ((lock) &body body)
+  #+sb-thread `(sb-thread:with-recursive-lock (,lock) ,@body)
+  #+ccl `(ccl:with-lock-grabbed (,lock) ,@body)
+  #+abcl `(threads:synchronized-on ,lock ,@body)
+  #+(or (and ecl threads) (and clasp threads)) `(mp:with-lock (,lock) ,@body)
+  #+mkcl `(mt:with-lock (,lock) ,@body)
+  #+(and clisp mt) `(mt:with-mutex-lock (,lock) ,@body)
+  #+(and cmucl mp) `(mp:with-lock-held (,lock "OOPArts lock") ,@body)
+  #-(or sb-thread ccl abcl mkcl (and ecl threads) (and clasp threads)
+        (and clisp mt) (and cmucl mp))
+  `(progn ,lock ,@body))
+
+(defun call-in-thread (function)
+  "Run FUNCTION in a new thread and wait for completion."
+  (declare (ignorable function))
+  #+sb-thread (sb-thread:join-thread (sb-thread:make-thread function))
+  #+ccl (ccl:join-process (ccl:process-run-function "OOPArts test" function))
+  #+abcl (threads:thread-join (threads:make-thread function))
+  #+(or (and ecl threads) (and clasp threads))
+  (mp:process-join (mp:process-run-function "OOPArts test" function))
+  #+mkcl (mt:thread-join (mt:make-thread function))
+  #+(and clisp mt) (mt:thread-join (mt:make-thread function))
+  #+(and cmucl mp) (mp:process-join (mp:make-process function :name "OOPArts test"))
+  #-(or sb-thread ccl abcl mkcl (and ecl threads) (and clasp threads)
+        (and clisp mt) (and cmucl mp))
+  (error "This Lisp has no thread support."))
+
+(defun collect-garbage ()
+  "Request a full collection through the implementation's own GC interface."
+  #+sbcl (sb-ext:gc :full t)
+  #+ccl (ccl:gc)
+  #+cmucl (ext:gc :full t)
+  #+(or clisp abcl) (ext:gc)
+  #+(or ecl mkcl) (si:gc t)
+  #+clasp (gctools:garbage-collect))

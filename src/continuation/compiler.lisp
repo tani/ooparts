@@ -2,7 +2,7 @@
   (:use #:cl)
   (:import-from #:ooparts/continuation/environment
                 #:augment-context #:variable-information #:function-information
-                #:parse-macro #:enclose #:expand-once #:constant-form-p #:place-expansion)
+                #:expand-once #:constant-form-p #:place-expansion)
   (:import-from #:ooparts/continuation/conditions #:cps-error #:missing-reset #:native-boundary #:unsupported-form #:inactive-control-target #:unsupported-form-form #:unsupported-form-reason)
   (:import-from #:ooparts/continuation/runtime #:push-restart-condition #:*native-call* #:run #:bounce #:deliver #:frame #:perform-shift #:push-specials #:invoke #:control-return #:control-go #:make-cps-function #:shift #:dynamic-wind #:register-cps-adapter #:cps-function-p #:continuation-p)
   (:export #:reset #:with-cps #:lambda/cps #:defun/cps #:transform #:analyze #:*transformation-mode*))
@@ -532,16 +532,10 @@
              (remove-if (lambda (entry) (assoc (car entry) (cadr form))) (context-vars inner)))
        (normalize `(locally ,@(cddr form)) inner)))
     ((eq (car form) 'macrolet)
-     (let* ((inner (copy-ctx c))
-            (macros (mapcar (lambda (def)
-                              (list (car def)
-                                    (enclose
-                                     (parse-macro (car def) (cadr def) (cddr def)
-                                                           (context-env c))
-                                     (context-env c)))) (cadr form))))
-       (setf (context-env inner) (augment-context (context-env c) :macro macros)
+     (let ((inner (copy-ctx c)))
+       (setf (context-env inner) (augment-context (context-env c) :macro-definitions (cadr form))
              (context-funcs inner)
-             (remove-if (lambda (entry) (assoc (car entry) macros)) (context-funcs inner)))
+             (remove-if (lambda (entry) (assoc (car entry) (cadr form))) (context-funcs inner)))
        (normalize `(locally ,@(cddr form)) inner)))
     ((eq (car form) 'eval-when)
      (normalize-seq (when (intersection (cadr form) '(:execute eval)) (cddr form)) c))

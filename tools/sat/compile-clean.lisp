@@ -6,9 +6,7 @@
 (defvar *compile-audit-diagnostics* nil)
 (defparameter *compile-audit-root* (truename (merge-pathnames "../../" (uiop:pathname-directory-pathname *load-truename*))))
 (asdf:load-asd (merge-pathnames "ooparts.asd" *compile-audit-root*))
-;; External dependencies retain their own compiler policies. Audit every SAT
-;; module, including the selected storage backend, without rebuilding them.
-(asdf:load-system "bordeaux-threads")
+;; Audit every SAT module, including its host adapter and selected backend.
 (sb-int:encapsulate 'compile-file 'ooparts/sat/low-level-compile-audit
  (lambda (original &rest args)
   (let ((notes 0) (warnings 0) (results nil))

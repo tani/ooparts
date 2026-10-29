@@ -1,12 +1,13 @@
 (uiop:define-package #:ooparts/continuation/runtime
   (:use #:cl)
   (:import-from
-   #+mkcl #:clos
-   #-mkcl #:closer-mop
+   #+sbcl #:sb-mop
+   #+ccl #:ccl
+   #+cmucl #:pcl
+   #+abcl #:mop
+   #+(or clisp ecl clasp mkcl) #:clos
    #:funcallable-standard-object #:funcallable-standard-class
    #:set-funcallable-instance-function)
-  #-mkcl
-  (:shadowing-import-from #:closer-mop #:defclass)
   (:import-from #:ooparts/continuation/conditions #:cps-error #:missing-reset #:native-boundary #:unsupported-form #:inactive-control-target #:unsupported-form-form #:unsupported-form-reason)
   (:export #:push-restart-condition #:restart-condition #:*native-call* #:run #:bounce #:deliver #:frame #:perform-shift #:push-specials #:invoke #:control-return #:control-go #:make-cps-function #:shift #:dynamic-wind #:register-cps-adapter #:cps-function-p #:continuation-p))
 (in-package #:ooparts/continuation/runtime)

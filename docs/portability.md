@@ -4,21 +4,20 @@ All three libraries use package-inferred systems. The public continuation
 system remains `ooparts/continuation` (singular). No compatibility nicknames or
 additional explicit systems are introduced.
 
-The library uses 26 reader conditionals, down from 64; tests and primary ASDF
-definitions use none (previously six and two). Remaining guards select storage
-providers, protect native environment operations, or handle demonstrated ABI,
-binding and OS differences. Standard syntax and shared runtime algorithms do
-not branch by implementation.
+Libraries and regression suites require no external Lisp libraries or patches
+to external software. ASDF/UIOP manages the systems; implementation modules such
+as SBCL's SB-CLTL2 come with the selected Lisp. Reader conditionals are preferred
+when they avoid an external dependency, even when that increases their count.
 
 ## Reader-selected implementations
 
 | Component | Native path | Portable path |
 |---|---|---|
 | SAT storage | `#+(and sbcl x86-64 (not ooparts-portable-sat))`: checked system-area pointers | Growable octet vectors, integer virtual addresses and explicit little-endian words |
-| SAT locking | Bordeaux Threads recursive lock on every implementation | Its single-thread fallback is permitted |
-| Continuation environments | CL-ENVIRONMENTS.CLTL2 on every implementation | Native SB-CLTL2 is used through its SBCL backend |
-| Callable continuations | Closer to MOP funcallable objects | MKCL retains its native CLOS MOP path |
-| GC/thread regression checks | Trivial Garbage and Bordeaux Threads on every implementation | Thread checks depend on actual thread support |
+| SAT locking | Host recursive lock through `ooparts/host` | No lock on a single-threaded host |
+| Continuation environments | Bundled SB-CLTL2, CCL, CMUCL or Clasp CLTL2 interfaces | Native interpreter environments on ECL, ABCL and CLISP |
+| Callable continuations | Host MOP funcallable objects | Same public calling convention on every supported host |
+| GC/thread regression checks | Host GC and thread operations | Thread checks depend on actual thread support |
 
 The SAT storage facade selects `ooparts/sat/storage/native` or
 `ooparts/sat/storage/portable` once. Shared address state lives in
@@ -64,45 +63,42 @@ On CMUCL, augmenting an empty macro environment first creates a native empty
 environment object. Callable continuation closures use `kernel:instance-lambda`
 to follow CMUCL's funcallable-instance calling convention.
 
-## Dependencies
+## Host adapters
 
-Install the following systems through ASDF/Quicklisp or the root Nix flake,
-including on SBCL:
+`ooparts/continuation/environment` contains the compiler's small environment
+interface. SBCL, CCL, CMUCL and Clasp use their bundled CLTL2 operations. On ECL,
+ABCL and CLISP, synthetic LET/FLET/MACROLET/SYMBOL-MACROLET forms extend a native
+interpreter environment. The dummy bindings never evaluate user initializers
+or CPS bodies. Macro definitions are enclosed by the host, preserving macro
+lambda-list parsing and the outer lexical macro environment. The adapter passes
+native environments to macro expanders, SETF expanders and CONSTANTP.
 
-- SAT: `bordeaux-threads`.
-- Continuations: `cl-environments` and `closer-mop`.
-- Continuation tests: also `bordeaux-threads` and `trivial-garbage`.
+ABCL calls its own Lisp evaluator through its bundled Java interface. CLISP's
+evaluator needs five environment slots while its macro interface exposes two;
+the adapter supplies empty block, tagbody and declaration slots. CMUCL expands
+macro-function bodies with its built-in walker before compiling them.
 
-SBCL's environment backend additionally uses `parse-declarations-1.0` through
-CL-ENVIRONMENTS. Prolog retains no external runtime dependency. Nix development
-shells include the selected implementation's dependencies; the dedicated SBCL
-CI job uses that same shell. Compiler auditing rebuilds all OOPArts SAT modules
-with diagnostics enabled, leaving external dependency compiler policies intact.
-
-For CLISP, CMUCL and MKCL, the flake pins Bordeaux Threads 0.8.8;
-0.9.4 rejects some of these implementations or requires unsupported atomics.
-It also patches the external environment library's list-valued DEFCONSTANTs
-to DEFPARAMETERs so compiling and loading it works on Clasp. These dependency
-patches are applied during the Nix build, outside the OOPArts source tree.
-For ECL/macOS, the flake also gives Alexandria's private CDR5 type generator
-a fixed argument count to avoid an observed macro-expansion arity failure.
-The generated type/predicate definitions are unchanged.
-A package manager such as Quicklisp or the root Nix flake resolves their
-transitive dependencies. See [the license ledger](../THIRD_PARTY.md) for license
-and distribution boundaries. No external C solver or FFI is used by SAT.
+`ooparts/host` selects native recursive locks, thread joins and full-GC requests.
+It uses a no-op lock only when the implementation has no thread support.
+Callable continuations directly use the implementation's MOP; no compatibility
+library patches host classes or generic functions.
 
 The Nix flake exposes the aggregate on available SBCL, ECL, ABCL, CCL, CLISP,
-CMUCL and Clasp implementations. Actual availability depends on the selected
-platform and the dependency packages. MKCL exposes Prolog and SAT variants; the
-current third-party environment/MOP stack does not advertise MKCL support.
-Availability of a Nix attribute is not itself evidence of a successful run.
+CMUCL and Clasp implementations. Availability depends on the selected platform.
+MKCL exposes Prolog and SAT; its continuation environment adapter has not yet
+been implemented and validated. Availability of a Nix attribute is not itself
+evidence of a successful run.
+
+The license ledger retains previously consulted libraries as references, not
+runtime dependencies. Optional comparison programs and translator tools remain
+development-only requirements; see [the license ledger](../THIRD_PARTY.md).
 
 ## Reproduce validation
 
 `tools/lisp.py` selects implementation flags, forwards script arguments and
 separates native/portable ASDF caches. Use `--lisp /path/to/executable` for a
-custom binary. `--bootstrap setup.lisp` can initialize an existing dependency
-installation before loading OOPArts.
+custom binary. `--bootstrap setup.lisp` can initialize a local
+toolchain before loading OOPArts.
 
 ```sh
 python3 tools/lisp.py --implementation sbcl tools/test.lisp

@@ -8,6 +8,7 @@
     {"file": "src/sat/runtime.lisp", "notes": 0, "warnings": 0},
     {"file": "src/sat/layout.lisp", "notes": 0, "warnings": 0},
     {"file": "src/sat/engine.lisp", "notes": 0, "warnings": 0},
+    {"file": "src/host.lisp", "notes": 0, "warnings": 0},
     {"file": "src/sat/low-level.lisp", "notes": 0, "warnings": 0},
     {"file": "src/sat.lisp", "notes": 0, "warnings": 0},
     {"file": "src/sat/cli.lisp", "notes": 0, "warnings": 0}

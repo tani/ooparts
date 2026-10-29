@@ -90,6 +90,8 @@ def main():
     for category in ('original', 'ported'):
         check(corpus['files'][category] == inventory(VENDOR/'logtalk'/category), f'Logtalk {category} inventory differs')
     ledger = json.loads((ROOT/'third-party.json').read_text())
+    check(not ledger.get('external_dependencies'),
+          'Library and regression systems must not add external Lisp library dependencies')
     for component in ledger['distributed']:
         check(bool(component['license']) and bool(component['source']), f'Incomplete provenance: {component["name"]}')
         for license_file in component['license_files']:

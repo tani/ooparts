@@ -61,7 +61,7 @@ Dynamic control is conservatively placed in CPS when needed. Captured/nonlocal B
 | Selective translation using pure/impure annotations | Regions classified as direct are emitted as native Lisp. |
 | Latent effects on function types | Local named functions carry latent effects; unknown dynamic function values use conservative CPS calls. |
 | Polymorphic answer-type inference | Not implemented. Dynamic typing is retained, with a common native/CPS calling interface. |
-| Consistent function representations | CPS functions are MOP funcallable objects, using SB-MOP or Closer to MOP sharing a calling interface with native functions. |
+| Consistent function representations | CPS functions use the host MOP's funcallable objects and share a calling interface with native functions. |
 | Correctness theorem and Agda verification | Design references, without claiming that their theorems directly prove this Common Lisp extension. |
 
 ## 3. Heap continuations and fresh prompts

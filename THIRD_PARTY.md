@@ -3,7 +3,8 @@
 OOPArts' original code is MIT licensed; see [LICENSE](LICENSE). Imported source,
 ports and their notices retain their own licenses. The machine-readable
 [ledger](third-party.json) distinguishes distributed material
-from external ASDF dependencies, design references and optional external tools. A reference does not imply
+from native-interface references, design references and optional external tools.
+A reference does not imply
 that its implementation was copied or that its license applies to OOPArts.
 
 | Distributed material | Source/version | License and retained notices |
@@ -29,23 +30,18 @@ The original cons-prolog import did not record a separate upstream commit ID.
 Its version and OOPArts import commit are recorded in the ledger; a current
 upstream HEAD must not be represented as the revision used for that import.
 
-## External portability dependencies
+## Native portability interfaces
 
-All supported implementations, including SBCL, load the selected portable APIs:
-[cl-environments](https://github.com/alex-gutev/cl-environments) (MIT),
-[closer-mop](https://github.com/pcostanza/closer-mop) (MIT) and
-[bordeaux-threads](https://github.com/sionescu/bordeaux-threads) (MIT) as needed.
-GC tests use [trivial-garbage](https://github.com/trivial-garbage/trivial-garbage)
-(public domain). Dependencies are installed separately; their source is not
-copied into this repository. Nix pins them through the root flake lock.
+The library and regression systems require no external Lisp libraries. They use
+only the selected implementation and the ASDF/UIOP system manager. Nix installs no
+portability libraries and applies no patches to external source packages.
 
-The ledger also records the inspected transitive environment dependencies:
-Alexandria (public domain with an MIT-0 fallback), Anaphora (public domain),
-Optima (LLGPL), Collectors (BSD-3-Clause), symbol-munger (MIT), and Iterate
-(MIT-CMU). Package managers retain each dependency's own notices; OOPArts' MIT
-license does not relicense these dependencies. The ledger also includes global-vars, trivial-features and parse-declarations
-(all MIT), as selected by the pinned Nix dependency graph. The installed graph
-can vary by version and implementation.
+The ledger retains cl-environments (MIT), closer-mop (MIT), Bordeaux Threads
+(MIT) and trivial-garbage (public domain) as native-interface references. These
+libraries are not loaded, patched, vendored or distributed by OOPArts. Their
+previously selected transitive dependencies are no longer runtime dependencies.
+Implementation-specific environment, MOP, thread and GC calls live in small
+OOPArts adapters; see [portability](docs/portability.md).
 
 ## References and optional dependencies
 

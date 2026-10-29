@@ -44,7 +44,7 @@
   #+abcl (threads:thread-join (threads:make-thread function))
   #+(or (and ecl threads) (and clasp threads))
   (mp:process-join (mp:process-run-function "OOPArts test" function))
-  #+mkcl (mt:thread-join (mt:make-thread function))
+  #+mkcl (mt:thread-join (mt:thread-run-function "OOPArts test" function))
   #+(and clisp mt) (mt:thread-join (mt:make-thread function))
   #+(and cmucl mp) (mp:process-join (mp:make-process function :name "OOPArts test"))
   #-(or sb-thread ccl abcl mkcl (and ecl threads) (and clasp threads)

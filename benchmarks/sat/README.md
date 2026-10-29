@@ -3,8 +3,8 @@
 ## Lisp-style refactor (2026-10-29)
 
 [refactor-results.json](refactor-results.json) compares the optimized pre-refactor
-OOPArts port with the current source on eleven identical formulas. Five
-alternating warm-process groups are pinned to one CPU. Median solve CPU time
+OOPArts port with the recorded refactor snapshot (`bdabfc3`) on eleven identical
+formulas. Five alternating warm-process groups are pinned to one CPU. Median solve CPU time
 excludes startup, compilation, input insertion, model queries and statistics;
 GC during solving is included. Every Lisp iteration is checked against its
 own matched-allocator C server, including model and trace digests. C is built
@@ -30,6 +30,8 @@ for the recorded comparison. The report records the indexed tree and exact file
 hashes; working files must correspond to that snapshot. New outputs default
 to ignored `build/sat/benchmark/`, including C binaries and subprocess logs.
 The baseline is loaded in a separate Lisp process. No baseline source is bundled.
+Later source cleanup, including removal of redundant `progn`, is outside this
+recorded measurement. Run the driver to measure another source snapshot.
 
 ## Earlier type-declaration optimization
 

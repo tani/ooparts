@@ -131,6 +131,13 @@ wrapping word updates evaluate their place and increment once. Integer widths,
 full-width sentinels and evaluation order remain explicit where C semantics
 require them. Standard Lisp pretty printing is part of regeneration.
 
+Sequence bodies are emitted directly in `defun`, `let*`, `locally`,
+`when`, `unless` and `loop do`. Multiple-statement alternatives use `cond`;
+comma expressions in statement position become ordinary consecutive forms.
+Explicit `progn` remains where a value-producing expression needs a sequence,
+including conditions and conditional expressions. Declaration scopes, cleanup
+boundaries and evaluation order are preserved.
+
 The implementation is split into inferred packages:
 
 - [runtime](../../src/sat/runtime.lisp): checked arenas, typed memory operations

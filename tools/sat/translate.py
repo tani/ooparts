@@ -441,8 +441,8 @@ class Translator:
   if len(forms)==1 and forms[0].startswith(prefix):
    return '(locally (declare (optimize (speed 1))) '+forms[0][len(prefix):-2]+')'
   raise ValueError(('non-scalar initializer',name,forms))
- def bind_lexically(self,bindings,body):
-  if not bindings:return body
+ def bind_lexically(self,bindings,forms):
+  body=' '.join(forms)
   declarations=['(type '+self.ltype(t)+' '+name+')' for name,t,_ in bindings if name!='ap']
   declarations+=['(ignorable '+' '.join(name for name,_,_ in bindings)+')']
   boxed=any(name in self.boxed_locals for name,_,_ in bindings)
@@ -451,6 +451,10 @@ class Translator:
   # Only the binding/boxing boundary uses the general Lisp value policy. The
   # numerical body immediately restores this function's original speed policy.
   return '(locally (declare (optimize (speed 1))) '+form+')' if boxed else form
+ def bind_sequence(self,bindings,forms):
+  # A statement body already accepts a sequence; only a real lexical scope
+  # needs a wrapping form. LET* and LOCALLY have implicit sequence bodies.
+  return [self.bind_lexically(bindings,forms)] if bindings else forms
  def lexical_sequence(self,items,br,co,tail):
   if not items:return []
   bindings=[];position=0
@@ -460,11 +464,11 @@ class Translator:
    name,t,mem=self.locals[-1]
    if mem:
     remainder=forms+self.lexical_sequence(items[position:],br,co,tail)
-    return [self.bind_lexically(bindings,self.progn(remainder))] if bindings else remainder
+    return self.bind_sequence(bindings,remainder)
    self.lexical_locals.add(name)
    bindings.append((name,t,self.local_binding(name,t,forms)))
   if bindings:
-   return [self.bind_lexically(bindings,self.progn(self.lexical_sequence(items[position:],br,co,tail)))]
+   return self.bind_sequence(bindings,self.lexical_sequence(items[position:],br,co,tail))
   if position:return self.lexical_sequence(items[position:],br,co,tail)
   first=items[0];forms=self.stmt(first,br,co,tail and len(items)==1)
   return forms if self.terminal(first) else forms+self.lexical_sequence(items[1:],br,co,tail)
@@ -496,9 +500,11 @@ class Translator:
     yes=self.stmt(n.iftrue,br,co,tail);no=self.stmt(n.iffalse,br,co,tail)
     if not yes and not no:
      return [condition] if self.effectful(n.cond) else []
-    if not no:return ['(when '+condition+' '+self.progn(yes)+')']
-    if not yes:return ['(unless '+condition+' '+self.progn(no)+')']
-    return ['(if '+condition+' '+self.progn(yes)+' '+self.progn(no)+')']
+    if not no:return ['(when '+condition+' '+' '.join(yes)+')']
+    if not yes:return ['(unless '+condition+' '+' '.join(no)+')']
+    if len(yes)>1 or len(no)>1:
+     return ['(cond ('+condition+' '+' '.join(yes)+') (t '+' '.join(no)+'))']
+    return ['(if '+condition+' '+yes[0]+' '+no[0]+')']
    el=self.fresh('ELSE');en=self.fresh('ENDIF');e,_=self.expr(n.cond)
    return [f'(unless (c-true {e}) (go {el}))']+self.stmt(n.iftrue,br,co)+[f'(go {en})',el]+self.stmt(n.iffalse,br,co)+[en]
   if isinstance(n,(C.For,C.While,C.DoWhile)):
@@ -515,22 +521,24 @@ class Translator:
       initial=[]
     constant=True if n.cond is None else self.constant_condition(n.cond)
     if constant is False and not isinstance(n,C.DoWhile):
-     self.scope.pop();return [self.bind_lexically(bindings,self.progn(initial))] if bindings else initial
+     self.scope.pop();return self.bind_sequence(bindings,initial)
     condition='t' if n.cond is None else self.condition(n.cond)
     body=self.stmt(n.stmt,'(return-from '+end+' nil)','(return-from '+cont+' nil)')
-    if self.contains(n.stmt,C.Continue):body=['(block '+cont+' '+self.progn(body)+')']
+    if self.contains(n.stmt,C.Continue):body=['(block '+cont+' '+' '.join(body)+')']
     update=self.stmt(n.next,br,co) if isinstance(n,C.For) and n.next else []
     if isinstance(n,C.DoWhile) and constant is False:
-     if not body:self.scope.pop();return initial
-     iteration=self.progn(body)
+     # The one-shot body of a C do/while(0) macro is already a sequence.
+     if self.contains(n.stmt,C.Break):body=['(block '+end+' '+' '.join(body)+')']
+     self.scope.pop();return self.bind_sequence(bindings,initial+body)
     else:
      iteration='(loop'+(' while '+condition if not isinstance(n,C.DoWhile) and condition!='t' else '')
-     if body:iteration+=' do '+self.progn(body)
-     if update:iteration+=' do '+self.progn(update)
+     if body or update:
+      assert all(form.startswith('(') for form in body+update), 'LOOP DO requires compound forms'
+      iteration+=' do '+' '.join(body+update)
      if isinstance(n,C.DoWhile) and condition!='t':iteration+=' while '+condition
      iteration+=')'
     if self.contains(n.stmt,C.Break):iteration='(block '+end+' '+iteration+')'
-    self.scope.pop();return [self.bind_lexically(bindings,self.progn(initial+[iteration]))]
+    self.scope.pop();return self.bind_sequence(bindings,initial+[iteration])
    self.scope.append({});start=self.fresh('LOOP');end=self.fresh('ENDLOOP');cont=self.fresh('CONTINUE');out=[]
    if isinstance(n,C.For):out+=self.stmt(n.init,br,co)
    out+=[start]
@@ -558,6 +566,10 @@ class Translator:
     for item in case.stmts or []:bodies+=self.stmt(item,f'(go {end})',co)
    return out+[f'(go {default})']+bodies+[end]
   if isinstance(n,C.EmptyStatement):return []
+  if isinstance(n,C.ExprList):
+   # Comma expressions used as statements discard their value. Emit their
+   # effects directly into the surrounding body, retaining evaluation order.
+   return [form for expression in n.exprs for form in self.stmt(expression,br,co)]
   if isinstance(n,C.UnaryOp) and n.op in ('p++','p--','++','--'):
    lv=self.lval(n.expr);local,address,t,bit,width=lv
    place=local or getattr(lv,'expression',None) or self.load(address,t,bit,width)
@@ -664,23 +676,21 @@ class Translator:
   declaration='(declare '+' '.join(declarations)+')' if declarations else ''
   if self.structured:
    forms=body+([] if tail else ['0'])
-   block=self.progn(forms)
-  else:block='(tagbody\n'+'\n'.join('    '+form for form in body)+'\n)\n0'
-  if scalars or declarations:block='(let* ('+bindings+')\n '+declaration+'\n '+block+')'
-  elif not self.structured:block='(progn '+block+')'
+  else:forms=['(tagbody\n'+'\n'.join('    '+form for form in body)+'\n)','0']
+  if scalars or declarations:forms=['(let* ('+bindings+')\n '+declaration+'\n '+' '.join(forms)+')']
   if memory:
    declarations='(declare '+' '.join('(type c-address '+name+')' for name,_,_ in memory)+' (ignorable '+' '.join(name for name,_,_ in memory)+'))'
-   block='(let* ('+' '.join('('+name+' (stack-alloc '+str(t.size)+'))' for name,t,_ in memory)+') '+declarations+' '+block+')'
+   forms=['(let* ('+' '.join('('+name+' (stack-alloc '+str(t.size)+'))' for name,t,_ in memory)+') '+declarations+' '+' '.join(forms)+')']
   if self.has_frame:
    mark=self.local_name('stack-mark')
-   block='(let (('+mark+' *stack-top*)) (unwind-protect '+block+' (setf *stack-top* '+mark+')))'
+   forms=['(let (('+mark+' *stack-top*)) (unwind-protect '+self.progn(forms)+' (setf *stack-top* '+mark+')))']
   coord=str(f.decl.coord).replace(str(ROOT)+'/', '')
   if self.current in {'analyze_conflict','sort_analyzed','sort_reduce_candidates','vivify_sort_lits_by_counts','sort_vivification_candidates','schedule_vivification_candidates','vivify_clause','vivify_learn','produces_few_resolvents','backward_subsume_marked','backward_subsume_with_clause'} or len(body)>450:
    policy+=' (notinline checked-address)'
   declarations=([policy] if policy else [])+argdecls
   if params:declarations.append('(ignorable '+' '.join(p for p in params if p!='&rest')+')')
   declaration='(declare '+' '.join(declarations)+')' if declarations else ''
-  code=f';;; {coord}\n(defun {sym(self.current)} ({" ".join(params)})\n {declaration}\n {block})\n'
+  code=f';;; {coord}\n(defun {sym(self.current)} ({" ".join(params)})\n {declaration}\n '+ '\n '.join(forms)+')\n'
   self.mapping.append({'c_function':self.current,'lisp_function':sym(self.current),'source':coord,'frame':self.has_frame,'structured':self.structured})
   return code
  def generate(self):

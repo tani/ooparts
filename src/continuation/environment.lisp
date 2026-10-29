@@ -57,6 +57,31 @@
                   ((clasp-information-p information "SPECIAL-OPERATOR-INFO" "SPECIAL-OPERATOR-INFO") :special-form))
             (or local-function local-macro))))
 
+#+clasp
+(defun clasp-macro-context (environment)
+  (let* ((package (find-package "CLEAVIR-ENV"))
+         (converter (and package (find-symbol "COMPILE-TIME" package))))
+    (if (and converter (fboundp converter)) (funcall converter environment) environment)))
+
+#+clasp
+(defun clasp-augment-environment (environment &rest arguments)
+  (let* ((definitions (getf arguments :symbol-macro))
+         (package (find-package "CLEAVIR-ENV"))
+         (constructor (and package (find-symbol "ADD-LOCAL-SYMBOL-MACRO" package))))
+    (if (and definitions constructor (fboundp constructor))
+        ;; Clasp 2.7's CLTL2 symbol-macro helper rejects ordinary unbound and
+        ;; lexical names. Use its native persistent constructor directly.
+        (let ((options (copy-list arguments)))
+          (remf options :symbol-macro)
+          (setf environment (apply #'augment-environment environment options))
+          (dolist (definition definitions environment)
+            (destructuring-bind (name expansion) definition
+              (check-type name symbol)
+              (when (member (variable-information name environment) '(:constant :special))
+                (error "Cannot bind ~S as a symbol macro." name))
+              (setf environment (funcall constructor environment name expansion)))))
+        (apply #'augment-environment environment arguments))))
+
 #+cmucl
 (defun enclose (expression environment)
   ;; The native walker removes lexical macro and symbol-macro dependencies
@@ -153,7 +178,7 @@
       (augment-environment environment :variable variable :function function
                            :symbol-macro symbol-macro :macro macros :declare declare))
     #-sbcl
-    (augment-environment environment
+    (#+clasp clasp-augment-environment #-clasp augment-environment environment
                          :variable #+clasp (union variable
                                                  (loop for declaration in declare
                                                        when (eq (car declaration) 'special)
@@ -174,10 +199,10 @@
    environment))
 
 (defun expand-once (form environment)
-  (macroexpand-1 form environment))
+  (macroexpand-1 form #+clasp (clasp-macro-context environment) #-clasp environment))
 
 (defun constant-form-p (form environment)
-  (constantp form environment))
+  (constantp form #+clasp (clasp-macro-context environment) #-clasp environment))
 
 (defun place-expansion (place environment)
-  (get-setf-expansion place environment))
+  (get-setf-expansion place #+clasp (clasp-macro-context environment) #-clasp environment))

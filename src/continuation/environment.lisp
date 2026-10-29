@@ -17,14 +17,15 @@
 
 #+clasp
 (defun clasp-binding-information (name environment variablep)
-  (let* ((package (find-package "CMP"))
-         (accessor (and package (find-symbol (if variablep "VAR-INFO" "FUN-INFO") package)))
-         (modern-class (and package (find-symbol "GLOBAL-FUN-INFO" package))))
-    (if (and accessor (fboundp accessor) modern-class (find-class modern-class nil))
-        (funcall accessor name environment)
-        (uiop:symbol-call :cleavir-env (if variablep :variable-info :function-info)
-                          (symbol-value (find-symbol "*CLASP-SYSTEM*" "CLASP-CLEAVIR"))
-                          environment name))))
+  ;; Clasp 2.7 also exposes bytecode CMP queries, but its CLTL2 environments
+  ;; use the Cleavir protocol. Prefer that protocol whenever it is present.
+  (let* ((package (find-package "CLEAVIR-ENV"))
+         (accessor (and package (find-symbol (if variablep "VARIABLE-INFO" "FUNCTION-INFO") package))))
+    (if (and accessor (fboundp accessor))
+        (funcall accessor
+                 (symbol-value (find-symbol "*CLASP-SYSTEM*" "CLASP-CLEAVIR"))
+                 environment name)
+        (uiop:symbol-call :cmp (if variablep :var-info :fun-info) name environment))))
 
 #+clasp
 (defun clasp-information-p (information modern legacy)

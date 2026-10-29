@@ -7,8 +7,6 @@
   :depends-on ("ooparts/all")
   :in-order-to ((asdf:test-op (asdf:test-op "ooparts-tests"))))
 
-#+sbcl
 (asdf:register-system-packages "sb-cltl2" '("SB-CLTL2"))
 
-#-sbcl
 (asdf:register-system-packages "cl-environments" '("CL-ENVIRONMENTS.CLTL2"))

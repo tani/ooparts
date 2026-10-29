@@ -107,7 +107,7 @@
       "name": "cl-environments",
       "source": "https://github.com/alex-gutev/cl-environments",
       "license": "MIT",
-      "relationship": "continuation compiler environment API on non-SBCL implementations",
+      "relationship": "continuation compiler environment API on every implementation, including SBCL",
       "license_evidence": "cl-environments.asd and source headers",
       "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts.",
       "nix_modifications": "Change list-valued DEFCONSTANTs to DEFPARAMETERs to permit compiled reloads on Clasp; preserve upstream license and notices in dependency output."
@@ -116,7 +116,7 @@
       "name": "closer-mop",
       "source": "https://github.com/pcostanza/closer-mop",
       "license": "MIT",
-      "relationship": "continuation funcallable objects on non-SBCL implementations; also a cl-environments dependency",
+      "relationship": "continuation funcallable objects on supported implementations, including SBCL; MKCL retains its native MOP path",
       "license_evidence": "LICENSE.md",
       "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
     },
@@ -124,7 +124,7 @@
       "name": "bordeaux-threads",
       "source": "https://github.com/sionescu/bordeaux-threads",
       "license": "MIT",
-      "relationship": "SAT recursive locks on non-SBCL implementations; continuation thread tests",
+      "relationship": "SAT recursive locks and continuation thread tests on every implementation",
       "license_evidence": "LICENSE",
       "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts.",
       "nix_version": "0.8.8",
@@ -135,7 +135,7 @@
       "name": "trivial-garbage",
       "source": "https://github.com/trivial-garbage/trivial-garbage",
       "license": "LicenseRef-Public-Domain",
-      "relationship": "non-SBCL continuation GC tests",
+      "relationship": "continuation GC tests on every implementation",
       "license_evidence": "trivial-garbage.asd and source headers",
       "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."
     },
@@ -209,7 +209,7 @@
       "name": "parse-declarations-1.0",
       "source": "https://beta.quicklisp.org/archive/parse-declarations/2010-10-06/parse-declarations-20101006-darcs.tgz",
       "license": "MIT",
-      "relationship": "cl-environments dependency included by the pinned Nix package metadata",
+      "relationship": "SBCL cl-environments backend dependency, included by the pinned Nix package metadata",
       "license_evidence": "LICENSE and parse-declarations-1.0.asd",
       "nix_version": "20101006-darcs",
       "distribution": "Installed separately through ASDF/Quicklisp or Nix; no dependency source is copied into OOPArts."

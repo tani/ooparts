@@ -2,6 +2,9 @@
   "notes": 0,
   "warnings": 0,
   "files": [
+    {"file": "src/sat/storage/state.lisp", "notes": 0, "warnings": 0},
+    {"file": "src/sat/storage/native.lisp", "notes": 0, "warnings": 0},
+    {"file": "src/sat/storage.lisp", "notes": 0, "warnings": 0},
     {"file": "src/sat/runtime.lisp", "notes": 0, "warnings": 0},
     {"file": "src/sat/layout.lisp", "notes": 0, "warnings": 0},
     {"file": "src/sat/engine.lisp", "notes": 0, "warnings": 0},

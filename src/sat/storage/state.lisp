@@ -1,0 +1,32 @@
+(uiop:define-package #:ooparts/sat/storage/state
+  (:use #:cl)
+  (:export #:c-address #:c-size #:c-length #:+heap-size+ #:+stack-size+ #:*heap* #:*stack* #:*heap-start* #:*stack-start* #:*heap-top* #:*stack-top* #:checked-address))
+(in-package #:ooparts/sat/storage/state)
+
+;;; Shared address limits and live arena state. Backends declare their own
+;;; storage representation without changing the translated LP64 address model.
+(declaim (optimize (speed 3) (safety 1) (debug 1)))
+(deftype c-address () '(signed-byte 58))
+(deftype c-size () '(integer 0 268435456))
+(deftype c-length () '(or c-size (eql 18446744073709551615)))
+(declaim (type c-size *heap-top* *stack-top*)
+         (type (unsigned-byte 57) *heap-start* *stack-start*))
+(defvar *heap-start* 0)
+(defvar *stack-start* 0)
+(defconstant +heap-size+ (* 256 1024 1024))
+(defconstant +stack-size+ (* 16 1024 1024))
+(defvar *heap* nil)
+(defvar *heap-top* 0)
+(defvar *stack* nil)
+(defvar *stack-top* 0)
+
+(declaim (inline checked-address))
+(declaim (ftype (function (c-address c-size) (values (unsigned-byte 57) &optional)) checked-address))
+(defun checked-address (address width)
+  (declare (type c-address address) (type c-size width))
+  (let ((h *heap-start*)
+        (s *stack-start*))
+    (unless (or (<= h address (- (+ h *heap-top*) width))
+                (<= s address (- (+ s *stack-top*) width)))
+      (error "Invalid translated C memory access: ~X (~D bytes)" address width))
+    (the (unsigned-byte 57) address)))

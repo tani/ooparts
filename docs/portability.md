@@ -4,17 +4,28 @@ All three libraries use package-inferred systems. The public continuation
 system remains `ooparts/continuation` (singular). No compatibility nicknames or
 additional explicit systems are introduced.
 
+The library uses 26 reader conditionals, down from 64; tests and primary ASDF
+definitions use none (previously six and two). Remaining guards select storage
+providers, protect native environment operations, or handle demonstrated ABI,
+binding and OS differences. Standard syntax and shared runtime algorithms do
+not branch by implementation.
+
 ## Reader-selected implementations
 
 | Component | Native path | Portable path |
 |---|---|---|
 | SAT storage | `#+(and sbcl x86-64 (not ooparts-portable-sat))`: checked system-area pointers | Growable octet vectors, integer virtual addresses and explicit little-endian words |
-| SAT locking | `#+(and sbcl sb-thread)`: recursive SB-THREAD mutex | Bordeaux Threads recursive lock; its single-thread fallback is permitted |
-| Continuation environments | `#+sbcl`: SB-CLTL2 | CL-ENVIRONMENTS.CLTL2 augmented environments |
-| Callable continuations | `#+sbcl`: SB-MOP; `#+mkcl`: native CLOS MOP | Closer to MOP funcallable objects |
-| GC/thread regression checks | SBCL APIs | Trivial Garbage and Bordeaux Threads |
+| SAT locking | Bordeaux Threads recursive lock on every implementation | Its single-thread fallback is permitted |
+| Continuation environments | CL-ENVIRONMENTS.CLTL2 on every implementation | Native SB-CLTL2 is used through its SBCL backend |
+| Callable continuations | Closer to MOP funcallable objects | MKCL retains its native CLOS MOP path |
+| GC/thread regression checks | Trivial Garbage and Bordeaux Threads on every implementation | Thread checks depend on actual thread support |
 
-The SAT engine and public API are shared by both storage paths. The portable
+The SAT storage facade selects `ooparts/sat/storage/native` or
+`ooparts/sat/storage/portable` once. Shared address state lives in
+`ooparts/sat/storage/state`; allocation bookkeeping, C arithmetic and streams
+remain in the common runtime. Backend accessors retain their inline native
+operations and their existing compiler policies. The engine and public API
+are shared by both storage paths. The portable
 backend retains the translated LP64 layout even on a 32-bit or big-endian host;
 it does not reinterpret the host's pointers or object representation. Both
 paths enforce the existing 256 MiB heap and 16 MiB automatic-storage limits.
@@ -31,9 +42,15 @@ used for optional process information, not solving.
 
 The continuation compiler normalizes `incf`, `decf`, `dotimes`, `dolist`,
 `handler-bind` and `handler-case` on every implementation before host macro
-expanders introduce private operators. Dynamic handler frames use the same
-representation and reinstatement path on SBCL and other implementations.
-The driver skips handler installation when a frame has no handlers.
+expanders introduce private operators. Dynamic handler and restart frames use native installers on every implementation.
+Their parameters and condition associations are retained as Lisp data; host
+handler/restart clusters and short-lived native objects are never captured.
+The installers reconstruct the native dynamic context for each trampoline step.
+The driver skips native context installation when a frame has no handlers or restarts.
+`restart-case` is normalized on every implementation as well. Its virtual
+exits survive capture and reinstatement. Signaling forms, including lexical
+macro expansions, associate every new restart with the signaled condition;
+duplicate names, anonymous restarts and condition-sensitive tests are retained.
 Handler-case transfers leave
 protected extents before running a clause. Missing PROGV values create unbound
 bindings directly. On ABCL and ECL, an adapter updates the virtual binding when MAKUNBOUND would
@@ -46,12 +63,18 @@ to follow CMUCL's funcallable-instance calling convention.
 
 ## Dependencies
 
-SBCL needs only its bundled ASDF/UIOP, SB-CLTL2, MOP and thread facilities.
-Other implementations need the following systems in ASDF's source registry:
+Install the following systems through ASDF/Quicklisp or the root Nix flake,
+including on SBCL:
 
 - SAT: `bordeaux-threads`.
 - Continuations: `cl-environments` and `closer-mop`.
 - Continuation tests: also `bordeaux-threads` and `trivial-garbage`.
+
+SBCL's environment backend additionally uses `parse-declarations-1.0` through
+CL-ENVIRONMENTS. Prolog retains no external runtime dependency. Nix development
+shells include the selected implementation's dependencies; the dedicated SBCL
+CI job uses that same shell. Compiler auditing rebuilds all OOPArts SAT modules
+with diagnostics enabled, leaving external dependency compiler policies intact.
 
 For CLISP, CMUCL and MKCL, the flake pins Bordeaux Threads 0.8.8;
 0.9.4 rejects some of these implementations or requires unsupported atomics.

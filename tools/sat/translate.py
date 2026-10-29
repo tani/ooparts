@@ -715,7 +715,7 @@ class Translator:
     if name.startswith('+'):globals_.append('(defconstant '+name+' '+value+')')
     else:globals_.append('(declaim (type '+self.ltype(t)+' '+name+'))\n(defvar '+name+' '+value+')')
   package='(uiop:define-package #:ooparts/sat/engine\n (:use #:cl #:ooparts/sat/runtime #:ooparts/sat/layout)\n (:export '+' '.join('#:'+sym(name) for name in sorted(self.defined_funcs))+'))\n(in-package #:ooparts/sat/engine)\n'
-  return package+'#+sbcl\n(declaim (sb-ext:unmuffle-conditions sb-ext:compiler-note))\n(declaim (optimize (speed 2) (safety 1) (debug 0) (compilation-speed 1)))\n'+ '\n'.join(ftypes+globals_)+'\n\n'+'\n'.join(code)
+  return package+'(declaim (optimize (speed 2) (safety 1) (debug 0) (compilation-speed 1)))\n'+ '\n'.join(ftypes+globals_)+'\n\n'+'\n'.join(code)
  def layout_source(self):
   exports=[];definitions=[]
   for name,(t,offset,bit,width) in sorted(self.field_accessors.items()):

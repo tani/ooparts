@@ -1,7 +1,7 @@
 (uiop:define-package #:ooparts-tests/continuation/suite
   (:use #:cl #:ooparts/continuation #:ooparts-tests/continuation/reference)
-  #-sbcl (:import-from #:bordeaux-threads)
-  #-sbcl (:import-from #:trivial-garbage)
+  (:import-from #:bordeaux-threads)
+  (:import-from #:trivial-garbage)
   (:export #:run-tests))
 (in-package #:ooparts-tests/continuation/suite)
 (defvar *cases* nil)
@@ -140,6 +140,17 @@
     (let ((*test-special* :caller)) (funcall k 0))))
 (case= progv '(4 5)
   (reset (progv '(*test-special*) '(4) (shift k (funcall k 0)) (list *test-special* (incf *test-special*)))))
+
+(case= progv-mixed-preserves-outer '((1 nil 3) (10 20 30))
+  (let ((symbols (list (gensym "FIRST") (gensym "SECOND") (gensym "THIRD"))))
+    (progv symbols '(10 20 30)
+      (list
+       (reset
+         (progv (list (first symbols) (third symbols) (second symbols)) '(1 3)
+           (shift k (funcall k nil))
+           (list (symbol-value (first symbols)) (boundp (second symbols))
+                 (symbol-value (third symbols)))))
+       (mapcar #'symbol-value symbols)))))
 (case= cleanup '(:leave :after :leave)
   (let ((log nil))
     (reset (unwind-protect (shift k (push :after log) (funcall k 0)) (push :leave log)))
@@ -179,6 +190,132 @@
   (let ((k (reset (restart-case (let ((x (shift k k))) (invoke-restart 'r x))
                    (r (x) x)))))
     (list (funcall k 4) (funcall k 5))))
+
+(case= restart-condition-association '(t t)
+  (reset
+    (let ((other (make-condition 'simple-error)))
+      (handler-bind
+          ((simple-error
+             (lambda (condition)
+               (invoke-restart 'recover
+                               (list (not (null (find-restart 'recover condition)))
+                                     (null (find-restart 'recover other)))))))
+        (restart-case (error "Associated error")
+          (recover (answer) answer))))))
+
+(case= restart-signal-association '(t t)
+  (reset
+    (let ((other (make-condition 'simple-condition)))
+      (handler-bind
+          ((simple-condition
+             (lambda (condition)
+               (invoke-restart 'recover
+                               (list (not (null (find-restart 'recover condition)))
+                                     (null (find-restart 'recover other)))))))
+        (restart-case (signal "Associated signal")
+          (recover (answer) answer))))))
+
+(case= restart-warning-association '(t t)
+  (reset
+    (let ((other (make-condition 'simple-warning)))
+      (handler-bind
+          ((simple-warning
+             (lambda (condition)
+               (invoke-restart 'recover
+                               (list (not (null (find-restart 'recover condition)))
+                                     (null (find-restart 'recover other)))))))
+        (restart-case (warn "Associated warning")
+          (recover (answer) answer))))))
+
+(case= restart-correctable-association '(t t (7))
+  (reset
+    (let ((other (make-condition 'simple-error)))
+      (handler-bind
+          ((simple-error
+             (lambda (condition)
+               (invoke-restart 'recover
+                               (list (not (null (find-restart 'recover condition)))
+                                     (null (find-restart 'recover other))
+                                     (simple-condition-format-arguments condition))))))
+        (restart-case (cerror "Continue with ~D" "Associated error ~D" 7)
+          (recover (answer) answer))))))
+
+(case= restart-duplicate-names '(:second 2 0)
+  (reset
+    (let ((other (make-condition 'simple-error)))
+      (handler-bind
+          ((simple-error
+             (lambda (condition)
+               (let ((matching
+                       (remove-if-not (lambda (restart) (eq (restart-name restart) 'recover))
+                                      (compute-restarts condition))))
+                 (invoke-restart (second matching) (length matching)
+                                 (count 'recover (compute-restarts other) :key #'restart-name))))))
+        (restart-case (error "Duplicate names")
+          (recover (count others) :test (lambda (condition) (or (null condition) (typep condition 'simple-error)))
+            (list :first count others))
+          (recover (count others) :test (lambda (condition) (or (null condition) (typep condition 'simple-error)))
+            (list :second count others)))))))
+
+(case= restart-unnamed-associated 23
+  (reset
+    (handler-bind
+        ((simple-error
+           (lambda (condition)
+             (invoke-restart
+              (find-if (lambda (restart) (null (restart-name restart)))
+                       (compute-restarts condition)) 23))))
+      (restart-case (error "Unnamed restart")
+        (nil (answer) :report "An anonymous recovery"
+             :test (lambda (condition) (or (null condition) (typep condition 'simple-error)))
+          answer)))))
+
+(case= restart-condition-only-test '(t t)
+  (reset
+    (block answer
+      (let ((other (make-condition 'simple-error)))
+        (handler-bind
+            ((simple-error
+               (lambda (condition)
+                 (return-from answer
+                   (list (not (null (find-restart 'recover condition)))
+                         (null (find-restart 'recover other)))))))
+          (restart-case (error "A restart visible only for conditions")
+            (recover () :test (lambda (condition) (typep condition 'simple-error))
+              :unused)))))))
+
+(case= restart-macro-association '(t t)
+  (reset
+    (let ((other (make-condition 'simple-error)))
+      (macrolet ((fail () '(error "Expanded failure")))
+        (handler-bind
+            ((simple-error
+               (lambda (condition)
+                 (invoke-restart 'recover
+                                 (list (not (null (find-restart 'recover condition)))
+                                       (null (find-restart 'recover other)))))))
+          (restart-case (fail) (recover (answer) answer)))))))
+
+(defun restart-test (condition) (declare (ignore condition)) t)
+(defun restart-report (stream) (write-string "A named recovery" stream))
+(defun restart-arguments () (list 29))
+(case= restart-named-options 29
+  (reset
+    (restart-case (invoke-restart-interactively 'recover)
+      (recover (answer) :test restart-test :report restart-report
+               :interactive restart-arguments
+        answer))))
+
+(case= restart-association-after-capture '(4 5)
+  (let ((saved nil))
+    (reset
+      (handler-bind
+          ((simple-error
+             (lambda (condition)
+               (invoke-restart 'recover (first (simple-condition-format-arguments condition))))))
+        (restart-case (error "Captured value ~D" (shift k (setq saved k) :captured))
+          (recover (answer) answer))))
+    (list (funcall saved 4) (funcall saved 5))))
 (case= error-cleanup '(:cleanup :handled)
   (let ((log nil))
     (handler-case (reset (unwind-protect (error "x") (push :cleanup log)))
@@ -389,13 +526,8 @@
                                           (if (zerop n) (shift k (list (funcall k 1) (funcall k 2)))
                                               (+ 1 (walk (1- n)))))) (walk 2000))) mode t)))
     (let ((k (reset (+ 10 (shift k k)))))
-      #+sbcl (sb-ext:gc :full t)
-      #-sbcl (trivial-garbage:gc :full t)
+      (trivial-garbage:gc :full t)
       (check :after-full-gc 12 (funcall k 2))
-      #+sb-thread
-      (check :other-thread 13
-             (sb-thread:join-thread (sb-thread:make-thread (lambda () (funcall k 3)))))
-      #-sbcl
       (if bordeaux-threads:*supports-threads-p*
           (let ((result nil))
             ;; JOIN-THREAD's return convention differs across older backends.

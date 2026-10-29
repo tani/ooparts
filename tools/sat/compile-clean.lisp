@@ -6,6 +6,9 @@
 (defvar *compile-audit-diagnostics* nil)
 (defparameter *compile-audit-root* (truename (merge-pathnames "../../" (uiop:pathname-directory-pathname *load-truename*))))
 (asdf:load-asd (merge-pathnames "ooparts.asd" *compile-audit-root*))
+;; External dependencies retain their own compiler policies. Audit every SAT
+;; module, including the selected storage backend, without rebuilding them.
+(asdf:load-system "bordeaux-threads")
 (sb-int:encapsulate 'compile-file 'ooparts/sat/low-level-compile-audit
  (lambda (original &rest args)
   (let ((notes 0) (warnings 0) (results nil))
@@ -24,7 +27,8 @@
    (push (list (enough-namestring (pathname (first args)) *compile-audit-root*) notes warnings)
          *compile-audit-rows*)
    (values-list results))))
-(unwind-protect (asdf:load-system "ooparts/sat/cli" :force :all)
+(unwind-protect (asdf:load-system "ooparts/sat/cli"
+                                 :force (lambda (name) (uiop:string-prefix-p "ooparts/" name)))
  (sb-int:unencapsulate 'compile-file 'ooparts/sat/low-level-compile-audit))
 (let ((notes (reduce #'+ *compile-audit-rows* :key #'second))
       (warnings (reduce #'+ *compile-audit-rows* :key #'third)))

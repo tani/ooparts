@@ -109,10 +109,6 @@
                               #:watch-saved-redundant-binaries #:worse-candidate))
 
 (in-package #:ooparts/sat/engine)
-#+sbcl
-
-(declaim (sb-ext:unmuffle-conditions sb-ext:compiler-note))
-
 (declaim (optimize (speed 2) (safety 1) (debug 0) (compilation-speed 1)))
 
 (declaim (inline vivify-adjustment))

@@ -16,33 +16,33 @@ permissions:
 jobs:
   sbcl:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update && sudo apt-get install -y sbcl gcc
+      - uses: cachix/install-nix-action@v30
       - name: Check inferred layout and license inventories
-        run: python3 tools/check-layout.py
+        run: nix develop .#sbcl --command python3 tools/check-layout.py
       - name: Compile SAT with zero notes and warnings
-        run: sbcl --non-interactive --load tools/sat/compile-clean.lisp
+        run: nix develop .#sbcl --command sbcl --non-interactive --load tools/sat/compile-clean.lisp
       - name: Run all library suites with a 1 MiB control stack
-        run: sbcl --dynamic-space-size 2048 --control-stack-size 1 --script tools/test.lisp
+        run: nix develop .#sbcl --command sbcl --dynamic-space-size 2048 --control-stack-size 1 --script tools/test.lisp
       - name: Verify continuation FASL and saved-core reloads
-        run: bash tools/continuation/test.sh
+        run: nix develop .#sbcl --command bash tools/continuation/test.sh
       - name: Compare SAT with C and exhaustive search
-        run: python3 tools/sat/differential.py --random 1000
+        run: nix develop .#sbcl --command python3 tools/sat/differential.py --random 1000
       - name: Compare proof bytes and independently check RUP
-        run: python3 tools/sat/proofs.py
+        run: nix develop .#sbcl --command python3 tools/sat/proofs.py
       - name: Run portable SAT backend and independent comparisons
         run: |
-          python3 tools/lisp.py --portable-sat tools/test.lisp sat
-          python3 tools/sat/differential.py --portable-sat --random 1000 --build-dir build/sat-portable --report build/sat-portable/results.json
-          python3 tools/sat/proofs.py --portable-sat --build-dir build/sat-portable --report build/sat-portable/proofs.json
+          nix develop .#sbcl --command python3 tools/lisp.py --portable-sat tools/test.lisp sat
+          nix develop .#sbcl --command python3 tools/sat/differential.py --portable-sat --random 1000 --build-dir build/sat-portable --report build/sat-portable/results.json
+          nix develop .#sbcl --command python3 tools/sat/proofs.py --portable-sat --build-dir build/sat-portable --report build/sat-portable/proofs.json
       - name: Test ISO driver isolation and classification
-        run: ISO_SBCL=sbcl python3 -m unittest discover -s tests/prolog/iso -p 'test_*.py' -v
+        run: nix develop .#sbcl --command env ISO_SBCL=sbcl python3 -m unittest discover -s tests/prolog/iso -p 'test_*.py' -v
       - name: Validate native-model ISO observations
-        run: python3 tools/prolog/iso/run.py --baseline tests/prolog/iso/expectations/baseline.json --strict --jobs 2
+        run: nix develop .#sbcl --command python3 tools/prolog/iso/run.py --baseline tests/prolog/iso/expectations/baseline.json --strict --jobs 2
       - name: Validate strict term-model ISO observations
-        run: python3 tools/prolog/iso/run.py --term-model iso --strict --jobs 2 --output build/prolog/iso-strict
+        run: nix develop .#sbcl --command python3 tools/prolog/iso/run.py --term-model iso --strict --jobs 2 --output build/prolog/iso-strict
       - uses: actions/upload-artifact@v4
         if: always()
         with:

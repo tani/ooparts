@@ -7,8 +7,6 @@
 
 ;; The public boundary validates Lisp objects; the translated search engine has
 ;; its own typed, speed-oriented policy. Keep ordinary compiler diagnostics on.
-#+sbcl
-(declaim (sb-ext:unmuffle-conditions sb-ext:compiler-note))
 (declaim (optimize (speed 1) (safety 3) (debug 2)))
 ;; Preserve dynamic replacement of the engine boundary on native compilers.
 (declaim (notinline ooparts/sat/low-level:satch-solve))

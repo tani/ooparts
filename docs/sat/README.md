@@ -1,8 +1,8 @@
 # ooparts/sat
 
 The default production SATCH 0.5.6rc solver translated to Common Lisp,
-with a resource-managed Lisp API. SBCL uses its bundled ASDF/UIOP and native
-facilities; other implementations use Bordeaux Threads for API locking. A C solver, CFFI, GCC and Python are not needed to use the library.
+with a resource-managed Lisp API. All implementations use Bordeaux Threads
+for recursive API locking. SBCL x86-64 retains its native arena backend. A C solver, CFFI, GCC and Python are not needed to use the library.
 
 The system and public package are `ooparts/sat`; no package nickname is defined.
 Reader conditionals select native SBCL x86-64 storage or portable octet-vector

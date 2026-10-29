@@ -27,6 +27,14 @@
 (defparameter *special* :outside)
 (defparameter *saved-special*
   (reset (let ((*special* 10)) (shift k k) (incf *special*))))
+(defparameter *saved-restart*
+  (reset
+    (handler-bind
+        ((simple-error
+           (lambda (condition)
+             (invoke-restart 'recover (first (simple-condition-format-arguments condition))))))
+      (restart-case (error "Reloaded restart ~D" (shift k k))
+        (recover (answer) answer)))))
 (defun outer-macro-environment ()
   (let ((x 5))
     (macrolet ((twice (v) `(+ ,v ,v)))
@@ -62,4 +70,5 @@
     (assert (= (+ calls 2) *handler-calls*)))
   (assert (equal '(11 12 :outside)
                  (list (funcall *saved-special* 0) (funcall *saved-special* 0) *special*)))
+  (assert (equal '(31 43) (list (funcall *saved-restart* 31) (funcall *saved-restart* 43))))
   (format t "Fresh FASL/core checks passed.~%"))

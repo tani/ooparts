@@ -20,7 +20,7 @@ portable-backend checks and external dependencies.
 ## Recorded environment
 
 The 2026-10-29 local run used SBCL 2.2.9.debian, GCC 13.3 and Linux x86-64.
-The aggregate suite ran with a 1 MiB control stack. It passed 3126 continuation,
+The aggregate suite ran with a 1 MiB control stack. It passed 3170 continuation,
 5632 Prolog and 629 SAT API/numeric/storage checks. Exact counts can depend on test
 configuration and loaded implementation packages; a printed failure is never
 accepted as a pass.
@@ -31,7 +31,7 @@ accepted as a pass.
 SBCL=sbcl bash tools/continuation/test.sh
 ```
 
-This runs the 3126 checks and fresh-process FASL/saved-core reload tests. The
+This runs the 3170 checks and fresh-process FASL/saved-core reload tests. The
 independent substitution reducer checks 1328 terms in selective and full modes.
 The suite also exercises mutation, multiple values, dynamic control, native
 boundaries, deep captures, GC and another thread. It does not mechanically prove
@@ -67,7 +67,7 @@ python3 tools/sat/proofs.py
 
 The compiler audit forces a fresh compile with ordinary compiler conditions
 visible and fails on any NOTE, WARNING or STYLE-WARNING. It does not muffle
-conditions. All six implementation/CLI modules compiled with zero notes and warnings.
+conditions. All nine selected storage/implementation/CLI modules compiled with zero notes and warnings.
 The recorded reports are in `tests/sat/reports/`.
 
 The differential suite compares 1105 formulas against the pinned C source,

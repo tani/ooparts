@@ -4,7 +4,7 @@
                 #:augment-context #:variable-information #:function-information
                 #:parse-macro #:enclose #:expand-once #:constant-form-p #:place-expansion)
   (:import-from #:ooparts/continuation/conditions #:cps-error #:missing-reset #:native-boundary #:unsupported-form #:inactive-control-target #:unsupported-form-form #:unsupported-form-reason)
-  (:import-from #:ooparts/continuation/runtime #:*native-call* #:run #:bounce #:deliver #:frame #:perform-shift #:push-specials #:invoke #:control-return #:control-go #:make-cps-function #:shift #:dynamic-wind #:register-cps-adapter #:cps-function-p #:continuation-p)
+  (:import-from #:ooparts/continuation/runtime #:push-restart-condition #:*native-call* #:run #:bounce #:deliver #:frame #:perform-shift #:push-specials #:invoke #:control-return #:control-go #:make-cps-function #:shift #:dynamic-wind #:register-cps-adapter #:cps-function-p #:continuation-p)
   (:export #:reset #:with-cps #:lambda/cps #:defun/cps #:transform #:analyze #:*transformation-mode*))
 (in-package #:ooparts/continuation/compiler)
 
@@ -289,36 +289,64 @@
             `(multiple-value-call (lambda ,(cadr normal) ,@(cddr normal)) ,protected)
             protected))))
 
-#+clozure
-(defun expand-restart-case (form)
-  ;; CCL's native expansion closes over native CATCH tags. Use virtual GO
-  ;; targets for restart exits so captured/reinstated restarts remain active.
+(defun expand-restart-case (form environment)
+  ;; Use virtual GO targets, so reinstated restarts never retain native CATCHs.
+  ;; Standard condition association also applies through lexical macro forms.
   (let* ((exit (gensym "RESTART-CASE")) (arguments (gensym "ARGUMENTS"))
          (clauses (cddr form))
          (tags (mapcar (lambda (clause) (declare (ignore clause)) (gensym "RESTART")) clauses))
-         (bindings nil) (handlers nil))
+         (bindings nil) (handlers nil) (protected (cadr form)))
+    (unless clauses (return-from expand-restart-case protected))
     (loop for (name parameters . body) in clauses for tag in tags
           do (let ((options nil) (values (gensym "VALUES")))
                (loop while (and body (member (car body) '(:report :interactive :test)))
-                     for option = (pop body) for value = (pop body)
-                     do (setf options
+                     do (let ((option (pop body)) (value (pop body)))
+                          (setf options
                               (append options
                                       (list (ecase option (:report :report-function)
                                                      (:interactive :interactive-function)
                                                      (:test :test-function))
-                                            (if (and (eq option :report) (stringp value))
-                                                `(lambda (stream) (write-string ,value stream))
-                                                value)))))
+                                            (cond
+                                              ((and (eq option :report) (stringp value))
+                                               `(function (lambda (stream) (write-string ,value stream))))
+                                              (t `(function ,value))))))))
                (push `(,name (lambda (&rest ,values) (setq ,arguments ,values) (go ,tag))
                              ,@options) bindings)
                (setf handlers
                      (append handlers
                              (list tag `(return-from ,exit
                                           (apply (lambda ,parameters ,@body) ,arguments)))))))
+    (let ((expanded protected))
+      (loop
+        (multiple-value-bind (next expandedp) (expand-once expanded environment)
+          (unless expandedp (return))
+          (setf expanded next)))
+      (when (and (consp expanded) (member (car expanded) '(signal error cerror warn)))
+        (let* ((operator (car expanded))
+               (temporaries (mapcar (lambda (arg) (declare (ignore arg)) (gensym "ARG")) (cdr expanded)))
+               (correctable (eq operator 'cerror))
+               (datum (nth (if correctable 1 0) temporaries))
+               (format-arguments (nthcdr (if correctable 2 1) temporaries))
+               (condition (gensym "CONDITION")))
+          (setf protected
+                `(let* (,@(mapcar #'list temporaries (cdr expanded))
+                         (,condition
+                           (ooparts/continuation/runtime:restart-condition
+                            ,datum (list ,@format-arguments)
+                            ',(case operator (signal 'simple-condition) (warn 'simple-warning)
+                                             (otherwise 'simple-error)))))
+                   (%with-restart-condition ,condition
+                     ,(if correctable
+                          `(restart-case (error ,condition)
+                             (continue ()
+                               :report (lambda (stream)
+                                         (format stream ,(first temporaries) ,@format-arguments))
+                               nil))
+                          `(,operator ,condition))))))))
     `(block ,exit
        (let ((,arguments nil))
          (tagbody
-            (return-from ,exit (restart-bind ,(nreverse bindings) ,(cadr form)))
+            (return-from ,exit (restart-bind ,(nreverse bindings) ,protected))
             ,@handlers)))))
 
 (defun normalize (form c)
@@ -436,9 +464,24 @@
      (node :throw (list (normalize (cadr form) c) (normalize (caddr form) c)) t))
     ((eq (car form) 'unwind-protect)
      (node :cleanup (list (normalize (cadr form) c) (normalize-seq (cddr form) c)) t))
-    #+clozure
     ((eq (car form) 'restart-case)
-     (normalize (expand-restart-case form) c))
+     (normalize (expand-restart-case form (context-env c)) c))
+    ((eq (car form) 'restart-bind)
+     (let* ((bindings (cadr form))
+            (specifications
+              (mapcar (lambda (binding)
+                        (cons (car binding) (loop for (key value) on (cddr binding) by #'cddr
+                                                collect key))) bindings))
+            (functions
+              (loop for binding in bindings append
+                    (mapcar (lambda (value) (normalize value c))
+                            (cons (cadr binding)
+                                  (loop for (key value) on (cddr binding) by #'cddr collect value)))))
+            (body (normalize-seq (cddr form) c)))
+       (node :restarts (list specifications functions body) t)))
+    ((eq (car form) '%with-restart-condition)
+     (let ((condition (normalize (cadr form) c)) (body (normalize-seq (cddr form) c)))
+       (node :restart-condition (list condition body) t)))
     ((eq (car form) 'handler-bind)
      (let* ((bindings (cadr form))
             (functions (mapcar (lambda (binding) (normalize (cadr binding) c)) bindings))
@@ -793,6 +836,49 @@
                                            (funcall ,thunk))))
                                      (,stack (frame :handlers ,installer ,next)))
                                 ,(emit-cps (caddr a) stack))))))
+          (:restarts
+           (emit-singles
+            (cadr a) k
+            (lambda (functions next)
+              (let* ((installer (gensym "INSTALL-RESTARTS")) (thunk (gensym "THUNK"))
+                     (condition (gensym "CONDITION")) (collecting (gensym "COLLECTING"))
+                     (restarts (gensym "RESTARTS")) (stack (gensym "RESTART-STACK"))
+                     (bindings
+                       (loop for specification in (car a)
+                             collect
+                             `(,(car specification) ,(pop functions)
+                               ,@(loop for key in (cdr specification) for value = (pop functions)
+                                       append
+                                       (list key
+                                             (if (eq key :test-function)
+                                                 (let ((tested (gensym "TESTED")))
+                                                   `(lambda (,tested)
+                                                      (or ,collecting (funcall ,value ,tested))))
+                                                 value)))))))
+                ;; Only these native installers see host restart objects and
+                ;; clusters. Neither survives a trampoline step or is captured.
+                `(let* ((,installer
+                          (lambda (,thunk ,condition)
+                            (let ((,collecting nil))
+                              (declare (ignorable ,collecting))
+                              (restart-bind ,bindings
+                                (if ,condition
+                                    (let ((,restarts
+                                            (unwind-protect
+                                                 (progn (setq ,collecting t)
+                                                        (subseq (compute-restarts) 0 ,(length bindings)))
+                                              (setq ,collecting nil))))
+                                      (with-condition-restarts ,condition ,restarts (funcall ,thunk)))
+                                    (funcall ,thunk))))))
+                        (,stack (frame :restarts ,installer ,next)))
+                   ,(emit-cps (caddr a) stack))))))
+          (:restart-condition
+           (emit-single
+            (car a) k
+            (lambda (condition next)
+              (let ((stack (gensym "ASSOCIATED-RESTARTS")))
+                `(push-restart-condition ,condition ,next
+                                         (lambda (,stack) ,(emit-cps (cadr a) stack)))))))
           (:progv
            (emit-singles (subseq a 0 2) k
                          (lambda (vs next)

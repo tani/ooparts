@@ -84,7 +84,7 @@
                 systems = [ settings.library settings.tests ]
                   ++ lib.optionals (component == "prolog" || component == "all") [ "ooparts/prolog/text/cli" ]
                   ++ lib.optionals (component == "sat" || component == "all") [ "ooparts/sat/cli" ];
-                lispLibs = lib.optionals (impl != "sbcl" && component != "prolog") (
+                lispLibs = lib.optionals (component != "prolog") (
                   [ lisp.pkgs.bordeaux-threads ]
                   ++ lib.optionals (component == "continuation" || component == "all")
                     [ lisp.pkgs.cl-environments lisp.pkgs.closer-mop lisp.pkgs.trivial-garbage ]
@@ -169,18 +169,18 @@
           devShells = {
             default = pkgs.mkShell {
               packages = lib.mapAttrsToList (impl: _: (lispFor impl).withPackages (libraries:
-                lib.optionals (impl != "sbcl") [ libraries.bordeaux-threads ]
-                ++ lib.optionals (impl != "sbcl" && impl != "mkcl")
+                [ libraries.bordeaux-threads ]
+                ++ lib.optionals (impl != "mkcl")
                   [ libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) available
                 ++ [ python pkgs.stdenv.cc ];
-              shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
+              shellHook = ''export CL_SOURCE_REGISTRY="$PWD//:"'';
             };
           } // lib.mapAttrs (impl: _: pkgs.mkShell {
             packages = [ ((lispFor impl).withPackages (libraries:
-              lib.optionals (impl != "sbcl") [ libraries.bordeaux-threads ]
-              ++ lib.optionals (impl != "sbcl" && impl != "mkcl")
+              [ libraries.bordeaux-threads ]
+              ++ lib.optionals (impl != "mkcl")
                 [ libraries.cl-environments libraries.closer-mop libraries.trivial-garbage ])) python pkgs.stdenv.cc ];
-            shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
+            shellHook = ''export CL_SOURCE_REGISTRY="$PWD//:"'';
           }) available;
           overlayAttrs = lib.mapAttrs (impl: _: (lispFor impl).withOverrides
             (_: _: lib.listToAttrs (lib.concatMap (component:

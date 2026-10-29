@@ -1,15 +1,14 @@
 (uiop:define-package #:ooparts/continuation/runtime
   (:use #:cl)
   (:import-from
-   #+sbcl #:sb-mop
    #+mkcl #:clos
-   #-(or sbcl mkcl) #:closer-mop
+   #-mkcl #:closer-mop
    #:funcallable-standard-object #:funcallable-standard-class
    #:set-funcallable-instance-function)
-  #-(or sbcl mkcl)
+  #-mkcl
   (:shadowing-import-from #:closer-mop #:defclass)
   (:import-from #:ooparts/continuation/conditions #:cps-error #:missing-reset #:native-boundary #:unsupported-form #:inactive-control-target #:unsupported-form-form #:unsupported-form-reason)
-  (:export #:*native-call* #:run #:bounce #:deliver #:frame #:perform-shift #:push-specials #:invoke #:control-return #:control-go #:make-cps-function #:shift #:dynamic-wind #:register-cps-adapter #:cps-function-p #:continuation-p))
+  (:export #:push-restart-condition #:restart-condition #:*native-call* #:run #:bounce #:deliver #:frame #:perform-shift #:push-specials #:invoke #:control-return #:control-go #:make-cps-function #:shift #:dynamic-wind #:register-cps-adapter #:cps-function-p #:continuation-p))
 (in-package #:ooparts/continuation/runtime)
 
 ;; Each frame is immutable. Capturing retains a segment; invocation copies its
@@ -22,9 +21,11 @@
           (if (eq kind :special)
               (append (reverse data) (when next (frame-bindings next)))
               (when next (frame-bindings next)))
-          (if (eq kind :handlers)
-              (cons data (when next (frame-handlers next)))
-              (when next (frame-handlers next)))))
+          (case kind
+            (:handlers (cons data (when next (frame-handlers next))))
+            ((:restarts :restart-condition)
+             (cons (cons kind data) (when next (frame-handlers next))))
+            (otherwise (when next (frame-handlers next))))))
 (defstruct (task (:constructor task (thunk stack))) thunk stack)
 (defstruct (done (:constructor done (values))) values)
 (defstruct (transfer-goal (:constructor transfer-goal (target action anchor))) target action anchor)
@@ -48,6 +49,17 @@
   (:metaclass funcallable-standard-class))
 (defun cps-function-p (x) (typep x 'cps-function))
 (defun continuation-p (x) (typep x 'captured-continuation))
+
+(defun restart-condition (datum arguments default-type)
+  "Resolve a standard condition designator before associating its restarts."
+  (etypecase datum
+    (condition
+     (when (and arguments (eq default-type 'simple-warning))
+       (error 'type-error :datum arguments :expected-type 'null))
+     datum)
+    (symbol (apply #'make-condition datum arguments))
+    ((or string function)
+     (make-condition default-type :format-control datum :format-arguments arguments))))
 (defun make-cps-function (code &optional segment capturedp)
   (let ((f (if capturedp
                (make-instance 'captured-continuation :code code :segment segment)
@@ -69,7 +81,7 @@
               (:bind (funcall data values next))
               (:transition (transfer-goal-step data next))
               (:enter (enter-goal (entry-state-goal data) (entry-state-remaining data)))
-              ((:prompt :special :catch :block :tagbody :handlers)
+              ((:prompt :special :catch :block :tagbody :handlers :restarts :restart-condition)
                (deliver values next))
               (:cleanup
                (funcall data
@@ -245,32 +257,43 @@
                  (dolist (cell cells)
                    (unless #+(or abcl ecl) (member cell *pending-unbindings* :test #'eq)
                            #-(or abcl ecl) nil
-                    (let ((symbol (binding-cell-symbol cell)))
-                     (setf (binding-cell-boundp cell) (boundp symbol))
-                     (when (boundp symbol)
-                       (setf (binding-cell-value cell) (symbol-value symbol))))))))
-             #-sbcl
-             (bind-cells (remaining)
-               (if (null remaining) (execute)
-                   (let ((cell (car remaining)))
-                     ;; A missing PROGV value establishes an unbound binding.
-                     (progv (list (binding-cell-symbol cell))
-                            (when (binding-cell-boundp cell) (list (binding-cell-value cell)))
-                       (bind-cells (cdr remaining)))))))
-      (if (null cells) (funcall thunk)
-          #+sbcl
-          (progv (mapcar #'binding-cell-symbol cells) (mapcar #'binding-cell-value cells)
-            (dolist (cell cells)
-              (unless (binding-cell-boundp cell) (makunbound (binding-cell-symbol cell))))
-            (execute))
-          #-sbcl (bind-cells cells)))))
+                     (let ((symbol (binding-cell-symbol cell)))
+                       (setf (binding-cell-boundp cell) (boundp symbol))
+                       (when (boundp symbol)
+                         (setf (binding-cell-value cell) (symbol-value symbol)))))))))
+      ;; Each symbol occurs once, so initial binding order is immaterial.
+      ;; Missing trailing values establish unbound dynamic bindings directly.
+      (let ((symbols (loop for cell in cells
+                           unless (binding-cell-boundp cell)
+                             collect (binding-cell-symbol cell)))
+            (values nil))
+        (dolist (cell cells)
+          (when (binding-cell-boundp cell)
+            (push (binding-cell-symbol cell) symbols)
+            (push (binding-cell-value cell) values)))
+        (progv symbols values (execute))))))
 
 (defun call-with-handlers (stack thunk)
-  (let ((installers (when stack (frame-handlers stack))))
+  (let* ((installers (when stack (frame-handlers stack)))
+         (conditions (loop for entry in installers
+                           when (and (consp entry) (eq (car entry) :restart-condition))
+                             collect (cdr entry))))
     (labels ((install (remaining)
-               (if (null remaining) (funcall thunk)
-                   (funcall (car remaining) (lambda () (install (cdr remaining)))))))
+               (cond ((null remaining) (funcall thunk))
+                     ((functionp (car remaining))
+                      (funcall (car remaining) (lambda () (install (cdr remaining)))))
+                     ((eq (caar remaining) :restarts)
+                      (let ((installer (cdar remaining)))
+                        (funcall installer (lambda () (install (cdr remaining)))
+                                 (cdr (assoc installer conditions :test #'eq)))))
+                     (t (install (cdr remaining))))))
       (install (reverse installers)))))
+
+(defun push-restart-condition (condition k body)
+  (let ((installer (loop for p = k then (frame-next p) while p
+                         when (eq (frame-kind p) :restarts) return (frame-data p))))
+    (unless installer (error "No virtual restart binding for condition ~S" condition))
+    (funcall body (frame :restart-condition (cons installer condition) k))))
 
 (defun push-specials (symbols values k body)
   (let ((cells (loop for sym in symbols for tail = values then (cdr tail)

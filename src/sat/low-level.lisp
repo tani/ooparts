@@ -12,23 +12,18 @@
    #:with-solver #:add-clause #:solve-cnf #:read-dimacs #:solve-file #:api-locked #:*live-solvers*)
   (:import-from #:ooparts/sat/runtime)
   (:import-from #:ooparts/sat/engine)
-  #-(and sbcl sb-thread) (:import-from #:bordeaux-threads))
+  (:import-from #:bordeaux-threads))
 (in-package #:ooparts/sat/low-level)
-#+sbcl
-(declaim (sb-ext:unmuffle-conditions sb-ext:compiler-note))
 (declaim (optimize (speed 3) (safety 3) (debug 1)))
 (defconstant +unknown+ 0)
 (defconstant +satisfiable+ 10)
 (defconstant +unsatisfiable+ 20)
 (declaim (type hash-table *live-solvers* *proof-handles*))
 (defvar *api-lock*
-  #+(and sbcl sb-thread) (sb-thread:make-mutex :name "ooparts/sat/low-level API")
-  #-(and sbcl sb-thread) (bordeaux-threads:make-recursive-lock "ooparts/sat/low-level API"))
+  (bordeaux-threads:make-recursive-lock "ooparts/sat/low-level API"))
 (defvar *live-solvers* (make-hash-table :test 'eql))
 (defvar *proof-handles* (make-hash-table :test 'eql))
 (defmacro api-locked (&body body)
-  #+(and sbcl sb-thread) `(sb-thread:with-recursive-lock (*api-lock*) ,@body)
-  #-(and sbcl sb-thread)
   (let ((results (gensym "RESULTS")))
     ;; Keep the API's multiple values independent of the lock macro's return
     ;; convention, including older native thread backends.
@@ -41,6 +36,8 @@
   (unless (gethash solver *live-solvers*) (error "Not a live SATCH solver: ~S" solver))
   (the ooparts/sat/runtime:c-address solver))
 (declaim (ftype (function (t) (values (signed-byte 32) &optional)) require-c-int require-literal))
+(declaim (ftype (function (t) (values (unsigned-byte 32) &optional)) satch-maximum-variable))
+(declaim (ftype (function (t t) (values (signed-byte 32) &optional)) satch-solve))
 (defun require-c-int (value)
   (unless (typep value '(signed-byte 32)) (error "C int out of range: ~S" value))
   (the (signed-byte 32) value))
@@ -78,10 +75,7 @@
 (defun satch-version () "0.5.6rc")
 (defun satch-identifier () "b4d4081f8971931399b36c8fdd92bdf4aabac005")
 (defun satch-compile ()
-  #+(and sbcl x86-64 (not ooparts-portable-sat))
-  "Common Lisp / SBCL native arenas; SATCH production defaults (-DNDEBUG)"
-  #-(and sbcl x86-64 (not ooparts-portable-sat))
-  "Common Lisp / portable octet arenas; SATCH production defaults (-DNDEBUG)")
+  (ooparts/sat/runtime:backend-description))
 
 (defun satch-add (solver elit)
  (api-locked (setf solver (require-solver solver))

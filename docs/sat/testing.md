@@ -20,7 +20,7 @@ load-time string addresses that allocate no storage on repeated evaluation.
 See [portability](../portability.md) to repeat these checks on other runtimes
 or force the portable backend on SBCL.
 
-The compiler audit forces all five SAT library modules and the CLI to compile with normal
+The compiler audit forces all nine selected SAT/storage/CLI modules to compile with normal
 SBCL diagnostics. It fails on any NOTE, WARNING or STYLE-WARNING, without
 muffling conditions. `tests/sat/reports/compiler-diagnostics.json` records zero
 notes and warnings on SBCL 2.2.9, Linux x86-64.

@@ -31,7 +31,7 @@ upstream HEAD must not be represented as the revision used for that import.
 
 ## External portability dependencies
 
-SBCL uses its bundled environment/MOP/thread APIs. Other implementations load
+All supported implementations, including SBCL, load the selected portable APIs:
 [cl-environments](https://github.com/alex-gutev/cl-environments) (MIT),
 [closer-mop](https://github.com/pcostanza/closer-mop) (MIT) and
 [bordeaux-threads](https://github.com/sionescu/bordeaux-threads) (MIT) as needed.

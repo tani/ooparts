@@ -1,9 +1,5 @@
 (uiop:define-package #:ooparts/continuation/environment
   (:use #:cl)
-  #+sbcl
-  (:import-from #:sb-cltl2 #:augment-environment #:variable-information
-                #:function-information #:parse-macro #:enclose)
-  #-sbcl
   (:import-from #:cl-environments.cltl2 #:augment-environment #:variable-information
                 #:function-information #:parse-macro #:enclose
                 #:augmented-macroexpand-1 #:augmented-constantp #:augmented-get-setf-expansion)
@@ -23,13 +19,10 @@
          arguments))
 
 (defun expand-once (form environment)
-  #+sbcl (macroexpand-1 form environment)
-  #-sbcl (augmented-macroexpand-1 form environment))
+  (augmented-macroexpand-1 form environment))
 
 (defun constant-form-p (form environment)
-  #+sbcl (constantp form environment)
-  #-sbcl (augmented-constantp form environment))
+  (augmented-constantp form environment))
 
 (defun place-expansion (place environment)
-  #+sbcl (get-setf-expansion place environment)
-  #-sbcl (augmented-get-setf-expansion place environment))
+  (augmented-get-setf-expansion place environment))

@@ -1,0 +1,136 @@
+(uiop:define-package #:ooparts/sat/storage/portable
+  (:use #:cl)
+  (:use-reexport #:ooparts/sat/storage/state)
+  (:export #:ensure-arenas #:ensure-heap-space #:ensure-stack-space #:checked-sap #:define-memory-accessor #:m-u8 #:m-u16 #:m-u32 #:m-u64 #:m-s8 #:m-s16 #:m-s32 #:m-s64 #:m-f32 #:m-f64 #:copy-bytes #:c-memset #:backend-description #:storage-policy))
+(in-package #:ooparts/sat/storage/portable)
+
+(defmacro storage-policy ()
+  '(declaim (optimize (speed 1) (safety 3) (debug 1))))
+(storage-policy)
+(declaim (type (or null (simple-array (unsigned-byte 8) (*))) *heap* *stack*))
+
+(defun ensure-arenas ()
+  (unless *heap*
+    (unless (and (= (float-radix 1f0) 2) (= (float-digits 1f0) 24)
+                 (= (float-radix 1d0) 2) (= (float-digits 1d0) 53))
+      (error "The portable SAT backend requires binary single/double floats with 24/53 digits."))
+    (setf *heap* (make-array 4096 :element-type '(unsigned-byte 8) :initial-element 0)
+          *stack* (make-array 4096 :element-type '(unsigned-byte 8) :initial-element 0)
+          *heap-top* 16 *stack-top* 0
+          *heap-start* 4096 *stack-start* #x20000000)))
+(defun grow-arena (storage size limit)
+  (if (<= size (length storage)) storage
+      (let ((replacement (make-array (min limit (max size (* 2 (length storage))))
+                                     :element-type '(unsigned-byte 8) :initial-element 0)))
+        (replace replacement storage)
+        replacement)))
+
+(declaim (inline ensure-heap-space ensure-stack-space))
+(defun ensure-heap-space (size)
+  (setf *heap* (grow-arena *heap* size +heap-size+)))
+(defun ensure-stack-space (size)
+  (setf *stack* (grow-arena *stack* size +stack-size+)))
+
+(defun memory-location (address width)
+    (checked-address address width)
+    (if (<= *heap-start* address (+ *heap-start* *heap-top*))
+        (values *heap* (- address *heap-start*))
+        (values *stack* (- address *stack-start*))))
+
+  (defun read-integer-word (address width)
+    (multiple-value-bind (storage offset) (memory-location address width)
+      (loop for i below width
+            for shift from 0 by 8
+            sum (ash (aref storage (+ offset i)) shift))))
+
+  (defun write-integer-word (address width value)
+    (multiple-value-bind (storage offset) (memory-location address width)
+      (dotimes (i width)
+        (setf (aref storage (+ offset i)) (ldb (byte 8 (* 8 i)) value))))
+    value)
+
+  (defun signed-integer-word (word bits)
+    (if (logbitp (1- bits) word) (- word (ash 1 bits)) word))
+
+  ;; INTEGER-DECODE-FLOAT and SCALE-FLOAT keep the byte representation
+  ;; independent of the host's byte order and pointer size. SATCH uses finite
+  ;; binary floats; unsupported non-finite bit patterns are rejected explicitly.
+  (defun encode-binary-float (value precision exponent-bits)
+    (multiple-value-bind (significand exponent sign) (integer-decode-float value)
+      (let* ((fraction-bits (1- precision))
+             (bias (1- (ash 1 (1- exponent-bits))))
+             (sign-bit (if (minusp sign) (ash 1 (+ fraction-bits exponent-bits)) 0)))
+        (if (zerop significand) sign-bit
+            (let* ((length (integer-length significand))
+                   (encoded-exponent (+ exponent length -1 bias)))
+              (if (plusp encoded-exponent)
+                  (logior sign-bit (ash encoded-exponent fraction-bits)
+                          (ldb (byte fraction-bits 0) (ash significand (- precision length))))
+                  (logior sign-bit (ash significand (+ exponent bias precision -2)))))))))
+
+  (defun decode-binary-float (word precision exponent-bits prototype)
+    (let* ((fraction-bits (1- precision))
+           (exponent (ldb (byte exponent-bits fraction-bits) word))
+           (fraction (ldb (byte fraction-bits 0) word))
+           (bias (1- (ash 1 (1- exponent-bits)))))
+      (when (= exponent (1- (ash 1 exponent-bits)))
+        (error "Non-finite IEEE bit pattern in portable SAT storage: ~X" word))
+      (let ((magnitude (if (zerop exponent)
+                           (scale-float (float fraction prototype) (- 1 bias fraction-bits))
+                           (scale-float (float (+ (ash 1 fraction-bits) fraction) prototype)
+                                        (- exponent bias fraction-bits)))))
+        (if (logbitp (+ fraction-bits exponent-bits) word) (- magnitude) magnitude))))
+
+  (defmacro define-portable-memory-accessor (name width type &optional signed)
+    (let ((reader `(list 'read-integer-word address ,width)))
+      `(progn
+         (defmacro ,name (address)
+           (list 'the ',type
+                 ,(if signed `(list 'signed-integer-word ,reader ,(* 8 width)) reader)))
+         (defsetf ,name (address) (value)
+           (list 'write-integer-word address ,width (list 'the ',type value))))))
+  (define-portable-memory-accessor m-u8 1 (unsigned-byte 8))
+  (define-portable-memory-accessor m-u16 2 (unsigned-byte 16))
+  (define-portable-memory-accessor m-u32 4 (unsigned-byte 32))
+  (define-portable-memory-accessor m-u64 8 (unsigned-byte 64))
+  (define-portable-memory-accessor m-s8 1 (signed-byte 8) t)
+  (define-portable-memory-accessor m-s16 2 (signed-byte 16) t)
+  (define-portable-memory-accessor m-s32 4 (signed-byte 32) t)
+  (define-portable-memory-accessor m-s64 8 (signed-byte 64) t)
+  (defmacro m-f32 (address)
+    `(the single-float (decode-binary-float (read-integer-word ,address 4) 24 8 1f0)))
+  (defsetf m-f32 (address) (value)
+    (let ((v (gensym "FLOAT")))
+      `(let ((,v (the single-float ,value)))
+         (write-integer-word ,address 4 (encode-binary-float ,v 24 8))
+         ,v)))
+  (defmacro m-f64 (address)
+    `(the double-float (decode-binary-float (read-integer-word ,address 8) 53 11 1d0)))
+  (defsetf m-f64 (address) (value)
+    (let ((v (gensym "FLOAT")))
+      `(let ((,v (the double-float ,value)))
+         (write-integer-word ,address 8 (encode-binary-float ,v 53 11))
+         ,v)))
+
+(declaim (ftype (function (c-address c-address c-size) (values c-address &optional)) copy-bytes))
+(defun copy-bytes (destination source size)
+  (declare (type c-address destination) (type c-address source) (type c-size size))
+  (when (plusp size)
+    (multiple-value-bind (destination-storage destination-offset) (memory-location destination size)
+      (multiple-value-bind (source-storage source-offset) (memory-location source size)
+        (replace destination-storage source-storage
+                 :start1 destination-offset :end1 (+ destination-offset size)
+                 :start2 source-offset :end2 (+ source-offset size)))))
+  destination)
+
+(declaim (ftype (function (c-address (signed-byte 32) c-size) (values c-address &optional)) c-memset))
+(defun c-memset (d v n)
+  (declare (type c-address d) (type (signed-byte 32) v) (type c-size n))
+  (when (plusp n)
+    (multiple-value-bind (storage offset) (memory-location d n)
+      (fill storage (ldb (byte 8 0) v) :start offset :end (+ offset n))))
+  d)
+
+(declaim (ftype (function () (values simple-string &optional)) backend-description))
+(defun backend-description ()
+  "Common Lisp / portable octet arenas; SATCH production defaults (-DNDEBUG)")

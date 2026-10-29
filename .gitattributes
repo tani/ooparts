@@ -1,8 +1,4 @@
-# CSV data keeps its original CRLF encoding; preserve vendored notices/patches.
+# Retain archived measurements and upstream sources without whitespace edits.
 *.csv whitespace=cr-at-eol
 *.patch whitespace=-blank-at-eol,-blank-at-eof
-continuation/docs/assets/Font-OFL.txt whitespace=-blank-at-eol
-# Keep the pinned C source and generated translation byte-for-byte intact.
-sat/upstream/** -whitespace
-sat/src/generated/*.lisp whitespace=-blank-at-eol,-blank-at-eof
-sat/src/translated.lisp whitespace=-blank-at-eol
+vendor/** -whitespace

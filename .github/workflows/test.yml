@@ -1,4 +1,4 @@
-name: Common Lisp tests
+name: OOPArts validation
 
 on:
   push:
@@ -14,6 +14,37 @@ permissions:
   contents: read
 
 jobs:
+  sbcl:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y sbcl gcc
+      - name: Check inferred layout and license inventories
+        run: python3 tools/check-layout.py
+      - name: Compile SAT with zero notes and warnings
+        run: sbcl --non-interactive --load tools/sat/compile-clean.lisp
+      - name: Run all library suites with a 1 MiB control stack
+        run: sbcl --dynamic-space-size 2048 --control-stack-size 1 --script tools/test.lisp
+      - name: Verify continuation FASL and saved-core reloads
+        run: bash tools/continuation/test.sh
+      - name: Compare SAT with C and exhaustive search
+        run: python3 tools/sat/differential.py --random 1000
+      - name: Compare proof bytes and independently check RUP
+        run: python3 tools/sat/proofs.py
+      - name: Test ISO driver isolation and classification
+        run: ISO_SBCL=sbcl python3 -m unittest discover -s tests/prolog/iso -p 'test_*.py' -v
+      - name: Validate native-model ISO observations
+        run: python3 tools/prolog/iso/run.py --baseline tests/prolog/iso/expectations/baseline.json --strict --jobs 2
+      - name: Validate strict term-model ISO observations
+        run: python3 tools/prolog/iso/run.py --term-model iso --strict --jobs 2 --output build/prolog/iso-strict
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validation-reports
+          path: |
+            tests/sat/reports/
+            build/prolog/iso*/
   matrix:
     runs-on: ubuntu-24.04
     outputs:

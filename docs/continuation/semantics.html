@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OOPArts Continuation — Semantics and Implementation</title>
+<style>
+@font-face{font-family:"SCPS Docs Sans";src:url("../../vendor/docs-font/SCPSDocsSans-subset.woff") format("woff");font-style:normal;font-weight:100 900;font-display:swap}
+:root {color-scheme:light;--ink:#172a3b;--muted:#526477;--line:#dce4ea;--accent:#176c73}
+*{box-sizing:border-box}body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.85 "SCPS Docs Sans",system-ui,-apple-system,"Noto Sans JP",sans-serif}
+main{max-width:1000px;margin:36px auto;padding:54px 64px;background:white;border:1px solid var(--line);border-radius:12px}
+header{padding-bottom:26px;border-bottom:3px solid var(--accent)}.eyebrow{font:700 12px/1.5 system-ui;letter-spacing:.14em;color:var(--accent)}
+h1{font-size:34px;line-height:1.35;margin:12px 0 14px}h2{font-size:23px;margin:44px 0 14px}h3{font-size:18px;margin-top:26px}
+p{margin:14px 0}.sub{color:var(--muted)}a{color:#086f80}code,pre{font-family:"DejaVu Sans Mono",Consolas,monospace;font-size:.9em}code{background:#edf3f6;padding:.1em .3em;border-radius:3px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf3f6;padding:18px 22px;border-radius:6px;line-height:1.65}
+.math{overflow-x:auto;padding:8px 0}.note{border-left:4px solid var(--accent);padding:8px 20px;background:#edf7f6;margin:24px 0}table{width:100%;border-collapse:collapse;margin:22px 0;font-size:14px}th,td{border:1px solid var(--line);padding:11px 14px;vertical-align:top}th{background:#edf3f6;text-align:left}li{margin:8px 0}footer{border-top:1px solid var(--line);margin-top:42px;padding-top:18px;font-size:13px;color:var(--muted)}
+@media(max-width:700px){main{margin:0;padding:28px 20px;border:0;border-radius:0}h1{font-size:27px}table{font-size:12px}th,td{padding:8px}}@media print{body{background:white}main{margin:0;border:0;padding:0;max-width:none}h2,h3{break-after:avoid}pre,table,.math{break-inside:avoid}}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'local'},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
+</script>
+<script defer src="../../vendor/mathjax/tex-svg.js"></script>
+</head>
+<body><main>
+<header><div class="eyebrow">IMPLEMENTATION NOTE · 2026-10-29</div>
+<h1>Selective CPS for shift/reset<br>on SBCL</h1>
+<p class="sub">Single prompt, composable multi-shot continuations. A conservative adaptation of the control-effect idea of Asai–Uehara to dynamically typed Common Lisp.</p></header>
+
+<div class="note"><strong>Scope of the claims.</strong> This note gives an operational specification and design invariants, not a machine-checked proof of the complete Common Lisp implementation. It does not claim to implement the paper's polymorphic answer-type inference or capture untransformed native stacks.</div>
+
+<h2>1. Reference semantics</h2>
+<p>The core is call-by-value lambda calculus with Danvy–Filinski shift/reset. \(v\) denotes a value and \(E\) an evaluation context without reset. Common Lisp application uses <code>funcall</code>, with arguments evaluated from left to right.</p>
+<div class="math">\[
+\begin{aligned}
+e &amp;::= v \mid e\;e \mid \langle e\rangle \mid \mathcal S k.e\\
+E &amp;::= [\,] \mid E\;e \mid v\;E
+\end{aligned}
+\]</div>
+<div class="math">\[
+\begin{aligned}
+(\lambda x.e)\;v &amp;\longrightarrow e[v/x],\\
+\langle v\rangle &amp;\longrightarrow v,\\
+\langle E[\mathcal S k.e]\rangle
+ &amp;\longrightarrow
+ \left\langle e\left[(\lambda x.\langle E[x]\rangle)/k\right]\right\rangle.
+\end{aligned}
+\]</div>
+<p>The final rule reinstalls reset inside the captured continuation. Invocation returns to its caller, and a shift during resumption sees a fresh delimiter. This is composable delimited control, with the stated reduction rules.</p>
+<pre>(reset (+ 1 (shift k (+ (funcall k 10) (funcall k 20)))))
+;; =&gt; 32
+
+(let ((k (reset (+ 10 (shift k k)))))
+  (list (funcall k 2) (funcall k 7)))
+;; =&gt; (12 17)</pre>
+
+<h2>2. Annotations and selective CPS</h2>
+<p>Control effects form the two-point order \(p\leq i\). Here \(p\) means direct execution is safe; it does not imply referential transparency. Mutating operations such as <code>rplaca</code> may remain direct when they do not capture control.</p>
+<div class="math">\[
+\begin{aligned}
+\epsilon_{\mathrm{sub}} &amp;\leq \epsilon_{\mathrm{parent}},\\
+\epsilon_{\mathrm{body}(f)} &amp;\leq \epsilon_{\mathrm{latent}(f)},\\
+\epsilon_{\mathrm{latent}(f)} &amp;\leq \epsilon_{\mathrm{call}(f)},\\
+\epsilon_{\mathcal S k.e} &amp;= i,\qquad
+\epsilon_{\langle e\rangle}=p.
+\end{aligned}
+\]</div>
+<p>Unknown calls start at \(i\). Known safe CL primitives start at \(p\); local named calls depend on the callee's latent effect. Optional, keyword and auxiliary initializers contribute effects. Recursive LABELS constraints are solved by monotone fixed-point iteration. Constructing a function and calling its body have distinct effects.</p>
+<p>Dynamic control is conservatively placed in CPS when needed. Captured/nonlocal BLOCK and TAGBODY targets and special bindings require runtime frames. RESET confines its body's control effect, creating a separate driver and prompt when the body needs CPS. A direct body can omit that machinery.</p>
+<table><thead><tr><th>Paper concept</th><th>Implementation</th></tr></thead><tbody>
+<tr><td>Selective translation using pure/impure annotations</td><td>Regions classified as direct are emitted as native Lisp.</td></tr>
+<tr><td>Latent effects on function types</td><td>Local named functions carry latent effects; unknown dynamic function values use conservative CPS calls.</td></tr>
+<tr><td>Polymorphic answer-type inference</td><td>Not implemented. Dynamic typing is retained, with a common native/CPS calling interface.</td></tr>
+<tr><td>Consistent function representations</td><td>CPS functions are SB-MOP funcallable objects sharing a calling interface with native functions.</td></tr>
+<tr><td>Correctness theorem and Agda verification</td><td>Design references, without claiming that their theorems directly prove this Common Lisp extension.</td></tr>
+</tbody></table>
+
+<h2>3. Heap continuations and fresh prompts</h2>
+<p>A runtime continuation is an immutable frame spine. Let \(P\) be the nearest prompt and \(R\) the surrounding continuation.</p>
+<div class="math">\[
+K=F_1::\cdots::F_n::P::R,
+\qquad \Gamma=[F_1,\ldots,F_n].
+\]</div>
+<p>SHIFT retains \(\Gamma\), exits the dynamic regions up to \(P\), and evaluates its body. Calling the captured continuation with a value sequence \(\vec v\) copies its spine above a fresh prompt and the caller's continuation \(C\).</p>
+<div class="math">\[
+\operatorname{invoke}(\Gamma,\vec v,C)
+=\operatorname{resume}\bigl(
+\operatorname{copy}(\Gamma)\mathbin{+\!+}[P_{\rm fresh}]\mathbin{+\!+}C,
+\vec v\bigr).
+\]</div>
+<p>The saved spine is never destroyed. Frame actions receive an explicit <code>next</code> rather than closing over the old tail. Lexical locations and special-binding cells remain shared. Repeated invocation therefore preserves store effects and does not reevaluate previously evaluated arguments.</p>
+
+<h2>4. Multiple values and evaluation order</h2>
+<p>Internal results are possibly empty sequences \(\vec v=(v_1,\ldots,v_m)\). Single-value contexts, including arguments, conditions and SETQ right-hand sides, apply the following projection.</p>
+<div class="math">\[
+\operatorname{primary}(\vec v)=
+\begin{cases}v_1 &amp; m&gt;0,\\ \mathrm{nil} &amp; m=0.\end{cases}
+\]</div>
+<p><code>multiple-value-call</code> concatenates argument value sequences in order. <code>multiple-value-prog1</code> and normal <code>unwind-protect</code> completion retain the original sequence. Continuations accept both <code>(funcall k)</code> and <code>(funcall k 1 2 3)</code>.</p>
+<p>Evaluated arguments are retained in lexical temporaries. A later capture does not reevaluate an earlier expression or reread a location that has since changed.</p>
+
+<h2>5. Dynamic regions and pending transfers</h2>
+<p>Frames represent SPECIAL/PROGV bindings, CATCH, BLOCK, TAGBODY, cleanup and dynamic-wind. Every task runs under the special environment represented by its continuation. Native symbol-value, SETQ and MAKUNBOUND changes are synchronized with binding cells.</p>
+<p>Transfers find the common tail. Exited cleanup/after actions run from inside out; reentered before actions run from outside in. Shared mutable used-once flags do not suppress cleanup on later invocations.</p>
+<p>A capture inside cleanup or before also captures a pending transfer. Targets are explicit <code>transfer-goal</code>/<code>entry-state</code> data, rebound along with prompts during copying. Expired targets outside the original reset are not revived.</p>
+<pre>(reset
+  (let ((first t))
+    (+ 10 (unwind-protect (shift k (funcall k 1))
+            (when first
+              (setf first nil)
+              (shift h (+ 100 (funcall h 0))))))))
+;; =&gt; 111  (capture inside cleanup remains composable)</pre>
+<p>When direct RESET and CPS calls use different drivers, RETURN/GO/THROW first leave the current driver's virtual dynamic regions, then perform the native transfer. Cleanup can therefore capture normally before native unwinding has begun.</p>
+
+<h2>6. Native boundaries</h2>
+<p>An untransformed function's return continuation is not represented on the heap. Capture cannot cross that native frame to an outer prompt. The native CPS entry point uses an independent driver without an implicit reset and signals <code>native-boundary</code> for such requests. An explicit reset inside the callee can handle capture locally.</p>
+<p>Bundled adapters for mapping, reduce and sequence quantifiers also represent callback returns on the heap. <code>register-cps-adapter</code> registers a transformed replacement with the original calling convention.</p>
+<p>Native unwinding already started by an unhandled error is also a boundary. Capture from its cleanup to the original prompt is rejected. Capture within a fresh independent reset is permitted.</p>
+<p>The transformed single-prompt core and transparent interoperability with arbitrary native Common Lisp have different guarantees. See the README for restrictions, including custom macros that inspect local type declarations.</p>
+
+<h2>Direct-code generation</h2>
+<p>Direct argument sequences use ordinary left-to-right LET* evaluation and lexical temporaries. Standard CL single-value projection retains the first value or NIL. Combining direct regions preserves evaluated operands across later capture or mutation. Regions requiring PROGV execute inside a task with the correct bindings.</p>
+<p>BLOCK/TAGBODY effects are constrained jointly with their bodies and RETURN-FROM/GO uses. Closed direct regions use native forms. References crossing function or reset boundaries conservatively use heap targets with expiration checks.</p>
+<p>Common-tail search aligns immutable acyclic spine lengths. Copying can omit a mapping when no pending transfer occurs. Transition/entry frames retain rebasing. Direct regions bind their native-call boundary once at entry, and explicit lexical type/optimization declarations are preserved where supported.</p>
+<h2>7. Verification</h2>
+<p>The independent reference reducer implements beta-value and shift/reset rules directly with capture-avoiding substitution. It does not use compiler IR, runtime frames, effect solving or a CPS evaluator.</p>
+<table><thead><tr><th>Check</th><th>Coverage</th></tr></thead><tbody>
+<tr><td>Reference reduction</td><td>1008 terms from seven schemas instantiated with 12 by 12 constants, plus 320 fixed-seed terms at depth 4/5. Both selective and full modes are compared.</td></tr>
+<tr><td>Common Lisp extensions</td><td>Multiple values, evaluation order, mutation, lambda lists, higher-order calls, recursion, nonlocal control, special bindings, handlers/restarts, wind and capture inside cleanup.</td></tr>
+<tr><td>Resources and execution</td><td>100000 tail calls, depth-2000 multi-shot capture, invocation after full GC and from another thread, and separate-process FASL/core reloads.</td></tr>
+</tbody></table>
+<p>The current regression suite has 3073 checks. Run <code>tools/continuation/test.sh</code> from the repository root for the suite and fresh-process reload checks. The <a href="../testing.md">validation guide</a> records the scope; passing tests is not a formal correctness proof.</p>
+
+<h2>References</h2>
+<ol>
+<li>Asai, K. and Uehara, C. (2018). <em>Selective CPS Transformation for Shift and Reset</em>. PEPM, 40–52. <a href="https://doi.org/10.1145/3162069">DOI</a> · <a href="https://www.is.ocha.ac.jp/~asai/papers/pepm18.pdf">Author version</a></li>
+<li>Ishio, C. and Asai, K. (2020). <em>Verifying Selective CPS Transformation for Shift and Reset</em>. LNCS 12053, 38–57. <a href="https://doi.org/10.1007/978-3-030-47147-7_3">DOI</a> · <a href="https://www.is.ocha.ac.jp/~asai/papers/tfp19.agda">Agda development</a></li>
+<li><a href="https://cl-cont.common-lisp.dev/">cl-cont</a> / <a href="https://gitlab.common-lisp.net/cl-cont/cl-cont">source</a>. Design reference, not a distributed code dependency.</li>
+</ol>
+<footer>The original TeX equations remain in this HTML. The bundled renderer is MathJax 3.2.2 (Apache-2.0); the renamed Noto Sans JP subset is under OFL-1.1. OOPArts code is MIT. Papers, cl-cont source and the Agda development are not copied into this distribution. See <a href="../../THIRD_PARTY.md">license and provenance records</a>.</footer>
+</main></body></html>

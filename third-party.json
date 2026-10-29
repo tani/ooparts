@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "project_license": "MIT",
+  "distributed": [
+    {
+      "name": "SATCH",
+      "source": "https://github.com/arminbiere/satch",
+      "revision": "b4d4081f8971931399b36c8fdd92bdf4aabac005",
+      "version": "0.5.6rc",
+      "relationship": "source port plus unmodified reference sources and test corpus",
+      "license": "MIT",
+      "license_files": [
+        "licenses/satch-MIT.txt",
+        "licenses/satch-NOTICE.txt",
+        "vendor/satch/source/LICENSE"
+      ],
+      "paths": [
+        "src/sat/engine.lisp",
+        "src/sat/layout.lisp",
+        "vendor/satch/**"
+      ],
+      "modifications": "Default NDEBUG configuration; Lisp names, lexical bindings, structured control and generalized places; packed LP64 backend retained."
+    },
+    {
+      "name": "cons-prolog",
+      "source": "https://github.com/tani/cons-prolog",
+      "version_at_import": "0.10.0",
+      "ooparts_import_commit": "bbc50d5c78469b37a3c1745b2def248b26112e8e",
+      "upstream_revision": null,
+      "relationship": "library import, subsequently refactored",
+      "license": "MIT",
+      "license_files": [
+        "licenses/cons-prolog-MIT.txt"
+      ],
+      "paths": [
+        "src/prolog.lisp",
+        "src/prolog/**"
+      ],
+      "modifications": "Module ownership, inferred packages, unified layout and public facade; upstream revision not recorded at import."
+    },
+    {
+      "name": "Logtalk ISO tests",
+      "source": "https://github.com/LogtalkDotOrg/logtalk3",
+      "revision": "e0f2576eef32aa5d5732a0d47531d0f62b9a31f1",
+      "relationship": "unmodified originals and modified plain Prolog port",
+      "license": "Apache-2.0",
+      "license_files": [
+        "vendor/logtalk/original/LICENSE.txt",
+        "vendor/logtalk/original/NOTICE.txt",
+        "vendor/logtalk/ported/LICENSE.txt",
+        "vendor/logtalk/ported/NOTICE.txt"
+      ],
+      "paths": [
+        "vendor/logtalk/**"
+      ],
+      "modifications": "Object/fixture wrappers removed; case adaptations in cases.json; NOTICE paths updated."
+    },
+    {
+      "name": "MathJax",
+      "source": "https://github.com/MathJax/MathJax/tree/3.2.2",
+      "version": "3.2.2",
+      "relationship": "unmodified offline documentation browser bundle",
+      "license": "Apache-2.0",
+      "license_files": [
+        "vendor/mathjax/LICENSE",
+        "licenses/mathjax-NOTICE.txt"
+      ],
+      "paths": [
+        "vendor/mathjax/tex-svg.js"
+      ],
+      "ooparts_import_commit": "aa5bcced22c1eccc62cc254faa21e43ac2cc8baa",
+      "modifications": "None to asset bytes; moved to common vendor directory."
+    },
+    {
+      "name": "Speech Rule Engine",
+      "source": "https://github.com/Speech-Rule-Engine/speech-rule-engine/tree/v4.0.6",
+      "version": "4.0.6",
+      "relationship": "embedded in the MathJax browser bundle",
+      "license": "Apache-2.0",
+      "license_files": [
+        "licenses/speech-rule-engine-Apache-2.0.txt",
+        "licenses/speech-rule-engine-NOTICE.txt"
+      ],
+      "paths": [
+        "vendor/mathjax/tex-svg.js"
+      ],
+      "modifications": "No separate source import; bundle unchanged."
+    },
+    {
+      "name": "mj-context-menu",
+      "source": "https://www.npmjs.com/package/mj-context-menu",
+      "upstream_repository": "https://github.com/zorkow/context-menu",
+      "version_constraint_in_mathjax_release": "^0.6.1",
+      "exact_embedded_version": null,
+      "relationship": "embedded in the MathJax browser bundle",
+      "license": "Apache-2.0",
+      "license_files": [
+        "vendor/mathjax/LICENSE",
+        "licenses/mathjax-NOTICE.txt"
+      ],
+      "paths": [
+        "vendor/mathjax/tex-svg.js"
+      ],
+      "modifications": "No separate source import; exact embedded revision not recorded."
+    },
+    {
+      "name": "SCPS Docs Sans subset",
+      "source": "https://github.com/notofonts/noto-cjk",
+      "source_revision": null,
+      "metadata_version": "2.004",
+      "metadata_unique_id": "2.004;ADBO;NotoSansJP-Thin;ADOBE",
+      "relationship": "renamed subset font imported with continuation documentation",
+      "license": "OFL-1.1",
+      "license_files": [
+        "vendor/docs-font/OFL.txt"
+      ],
+      "paths": [
+        "vendor/docs-font/SCPSDocsSans-subset.woff"
+      ],
+      "ooparts_import_commit": "aa5bcced22c1eccc62cc254faa21e43ac2cc8baa",
+      "modifications": "Existing renamed family SCPS Docs Sans; bytes unchanged in this refactor. Source family inferred from font metadata; exact upstream revision unavailable."
+    }
+  ],
+  "references": [
+    {
+      "name": "PAIP Lisp",
+      "source": "https://github.com/norvig/paip-lisp",
+      "relationship": "design/API reference only; no source distributed",
+      "license": "MIT"
+    },
+    {
+      "name": "Allegro Prolog",
+      "source": "https://franz.com/products/prolog/",
+      "relationship": "interface reference only; no source or binaries distributed",
+      "license": "NOASSERTION",
+      "note": "Consult upstream software terms; no license inference from the web-page copyright."
+    },
+    {
+      "name": "cl-cont",
+      "source": "https://gitlab.common-lisp.net/cl-cont/cl-cont",
+      "relationship": "continuation reference and optional benchmark baseline; no source distributed",
+      "license": "LicenseRef-LLGPL",
+      "license_evidence": "cl-cont.asd version 0.3.8 declares :licence LLGPL"
+    }
+  ],
+  "optional_external_tools": [
+    {
+      "name": "Continuation benchmark dependencies",
+      "source": "benchmarks/continuation/fetch-vendor.py",
+      "components": [
+        "cl-cont",
+        "Alexandria",
+        "closer-mop"
+      ],
+      "relationship": "explicit development-only download; not distributed or required at runtime",
+      "license_policy": "Retain each downloaded upstream license; archive hashes and commit are pinned in the downloader.",
+      "download_directory": "build/continuation/vendor/"
+    },
+    {
+      "name": "SWI-Prolog",
+      "source": "https://www.swi-prolog.org/",
+      "relationship": "optional external benchmark and Logtalk syntax conversion executable; not bundled"
+    },
+    {
+      "name": "pycparser and GCC",
+      "source": "tools/sat/translate.py",
+      "relationship": "development-only translator and C reference compiler; not Lisp runtime dependencies"
+    }
+  ]
+}

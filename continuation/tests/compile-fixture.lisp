@@ -1,6 +1,0 @@
-(load (merge-pathnames "../load.lisp" *load-truename*))
-(let* ((source (merge-pathnames "fixture.lisp" *load-truename*))
-       (out (parse-namestring (uiop:getenv "SCPS_FIXTURE_FASL"))))
-  (multiple-value-bind (path warnings failure) (compile-file source :output-file out)
-    (declare (ignore warnings))
-    (assert path) (assert (not failure))))

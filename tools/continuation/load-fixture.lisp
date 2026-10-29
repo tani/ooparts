@@ -1,0 +1,5 @@
+(require :asdf)
+(asdf:load-asd (merge-pathnames "../../ooparts.asd" *load-truename*))
+(asdf:load-system "ooparts/continuation")
+(load (uiop:getenv "OOPARTS_CONT_FIXTURE_FASL"))
+(uiop:symbol-call :ooparts-tests/continuation/fixture :checks)

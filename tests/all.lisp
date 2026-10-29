@@ -1,0 +1,12 @@
+(uiop:define-package #:ooparts-tests/all
+  (:use #:cl)
+  (:import-from #:ooparts-tests/continuation)
+  (:import-from #:ooparts-tests/prolog)
+  (:import-from #:ooparts-tests/sat)
+  (:export #:run-tests))
+(in-package #:ooparts-tests/all)
+(defun run-tests ()
+  (ooparts-tests/continuation:run-tests)
+  (ooparts-tests/prolog:run-tests)
+  (ooparts-tests/sat:run-tests)
+  t)

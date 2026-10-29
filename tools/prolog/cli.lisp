@@ -1,0 +1,5 @@
+(require :asdf)
+(let ((*compile-verbose* nil) (*load-verbose* nil))
+  (asdf:load-asd (merge-pathnames "../../ooparts.asd" *load-truename*))
+  (asdf:load-system "ooparts/prolog/text/cli"))
+(ooparts/prolog/text/cli:main)

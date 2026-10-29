@@ -1,0 +1,11 @@
+(uiop:define-package #:ooparts-tests/sat/suite
+  (:use #:cl)
+  (:import-from #:ooparts-tests/sat/low-level)
+  (:import-from #:ooparts-tests/sat/boundaries)
+  (:import-from #:ooparts-tests/sat/interface)
+  (:export #:run-tests))
+(in-package #:ooparts-tests/sat/suite)
+(defun run-tests ()
+  (ooparts-tests/sat/low-level:run-tests)
+  (ooparts-tests/sat/boundaries:run-tests)
+  (ooparts-tests/sat/interface:run-tests))

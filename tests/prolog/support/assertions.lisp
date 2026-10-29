@@ -1,0 +1,10 @@
+(uiop:define-package #:ooparts-tests/prolog/support/assertions
+  (:use #:cl #:ooparts/prolog)
+  (:export #:*checks* #:check #:solutions #:value-of))
+(in-package #:ooparts-tests/prolog/support/assertions)
+(defmacro solutions (&body goals)
+  `(query ,(ooparts/prolog/syntax/host-syntax:goals-form goals)))
+(defvar *checks* 0)
+(defun check (value &optional (description "check"))
+  (incf *checks*) (unless value (error "FAILED: ~A" description)))
+(defun value-of (variable solution) (cdr (assoc variable solution)))

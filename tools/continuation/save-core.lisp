@@ -1,0 +1,12 @@
+(require :asdf)
+(asdf:load-asd (merge-pathnames "../../ooparts.asd" *load-truename*))
+(asdf:load-system "ooparts/continuation")
+(load (uiop:getenv "OOPARTS_CONT_FIXTURE_FASL"))
+(sb-ext:save-lisp-and-die (uiop:getenv "OOPARTS_CONT_TEST_CORE")
+  :toplevel (lambda ()
+              (handler-case
+                  (progn (uiop:symbol-call :ooparts-tests/continuation/fixture :checks)
+                         (sb-ext:exit :code 0))
+                (error (condition)
+                  (format *error-output* "Core check failed: ~A~%" condition)
+                  (sb-ext:exit :code 1)))))

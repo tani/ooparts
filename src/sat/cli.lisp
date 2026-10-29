@@ -1,0 +1,21 @@
+(uiop:define-package #:ooparts/sat/cli
+  (:use #:cl)
+  (:import-from #:ooparts/sat)
+  (:export #:main))
+(in-package #:ooparts/sat/cli)
+(defun main ()
+  (handler-case
+      (let ((args (uiop:command-line-arguments)))
+        (unless (= (length args) 1)
+          (format *error-output* "Usage: sbcl --script tools/sat/cli.lisp INPUT.cnf~%")
+          (uiop:quit 1))
+        (multiple-value-bind (status model) (ooparts/sat:solve-file (first args))
+          (format t "s ~A~%" (ecase status
+                              (:sat "SATISFIABLE")
+                              (:unsat "UNSATISFIABLE")
+                              (:unknown "UNKNOWN")))
+          (when model (format t "v~{ ~D~} 0~%" (coerce model 'list)))
+          (uiop:quit (ecase status (:sat 10) (:unsat 20) (:unknown 0)))))
+    (error (condition)
+      (format *error-output* "ooparts/sat: ~A~%" condition)
+      (uiop:quit 1))))

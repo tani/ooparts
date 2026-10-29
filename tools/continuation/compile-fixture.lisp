@@ -1,0 +1,7 @@
+(require :asdf)
+(asdf:load-asd (merge-pathnames "../../ooparts.asd" *load-truename*))
+(asdf:load-system "ooparts/continuation")
+(let* ((source (merge-pathnames "../../tests/continuation/fixture.lisp" *load-truename*))
+       (out (parse-namestring (uiop:getenv "OOPARTS_CONT_FIXTURE_FASL"))))
+  (multiple-value-bind (path warnings failure) (compile-file source :output-file out)
+    (assert path) (assert (not warnings)) (assert (not failure))))

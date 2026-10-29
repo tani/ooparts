@@ -1,20 +1,19 @@
 {
-  description = "ooparts/prolog: multi-implementation Common Lisp library and tests";
+  description = "OOPArts: package-inferred Common Lisp libraries and tests";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = inputs@{ nixpkgs, flake-parts, ... }:
+  outputs = inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [ flake-parts.flakeModules.easyOverlay ];
       systems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
       perSystem = { config, pkgs, lib, system, ... }:
         let
-          pname = "ooparts-prolog";
-          version = "0.10.0";
           src = lib.cleanSource ./.;
+          python = pkgs.python3.withPackages (ps: [ ps.pycparser ]);
           implementations = {
             sbcl = { program = "sbcl"; args = "--noinform --disable-debugger"; eval = "--eval"; };
             ecl = { program = "ecl"; args = "-norc"; eval = "--eval"; };
@@ -31,60 +30,110 @@
             && lib.meta.availableOn pkgs.stdenv.hostPlatform candidate.value
             && !(candidate.value.meta.broken or false)
           ) implementations;
-          recipe = lib.mapAttrs (impl: options: let
-            lisp = pkgs.${impl};
-            library = lisp.buildASDFSystem {
-              inherit pname version src;
-              systems = [ "ooparts/prolog" "ooparts/prolog/tests" ];
-              lispLibs = [];
-              nativeLibs = [];
-              preBuild = ''export XDG_CACHE_HOME="$TMPDIR/asdf-cache"'';
-            };
-            runtime = lisp.withPackages (_: [ library ]);
-            test = pkgs.writeShellScriptBin "ooparts-prolog-test" ''
-              exec ${runtime}/bin/${options.program} ${options.args} \
-                ${options.eval} '(require "asdf")' \
-                ${options.eval} '(handler-case (progn (asdf:test-system "ooparts/prolog") (uiop:quit 0)) (error (condition) (format *error-output* "~&~A~%" condition) (uiop:quit 1)))'
-            '';
-            # ooparts/prolog is a library: main-* starts a REPL with its API loaded.
-            main = pkgs.writeShellScriptBin "ooparts-prolog" ''
-              exec ${runtime}/bin/${options.program} ${options.args} \
-                ${options.eval} '(require "asdf")' \
-                ${options.eval} '(progn (asdf:load-system "ooparts/prolog") (use-package :prolog))' ${lib.optionalString (impl == "clisp") "-repl"} "$@"
-            '';
-            check = pkgs.runCommand "ooparts-prolog-test-${impl}" {} ''
-              mkdir -p "$TMPDIR/asdf-cache"
-              export XDG_CACHE_HOME="$TMPDIR/asdf-cache"
-              ${test}/bin/ooparts-prolog-test
-              touch "$out"
-            '';
-          in { inherit library runtime test main check; }) available;
-          attrsFor = prefix: field: lib.mapAttrs' (impl: value:
-            lib.nameValuePair "${prefix}-${impl}" value.${field}) recipe;
-          appsFor = prefix: field: bin: lib.mapAttrs' (impl: value:
-            lib.nameValuePair "${prefix}-${impl}" {
+          components = {
+            prolog = { library = "ooparts/prolog"; tests = "ooparts-tests/prolog"; };
+            continuation = { library = "ooparts/continuation"; tests = "ooparts-tests/continuation"; };
+            sat = { library = "ooparts/sat"; tests = "ooparts-tests/sat"; };
+            all = { library = "ooparts"; tests = "ooparts-tests"; };
+          };
+          supported = component: impl:
+            component == "prolog" || (impl == "sbcl"
+              && (component == "continuation" || system == "x86_64-linux"));
+          recipes = lib.listToAttrs (lib.concatMap (component:
+            lib.mapAttrsToList (impl: options: let
+              settings = components.${component};
+              lisp = pkgs.${impl};
+              library = lisp.buildASDFSystem {
+                pname = "ooparts-${component}";
+                version = "0.2.0";
+                inherit src;
+                systems = [ settings.library settings.tests ]
+                  ++ lib.optionals (component == "prolog" || component == "all") [ "ooparts/prolog/text/cli" ]
+                  ++ lib.optionals (component == "sat" || component == "all") [ "ooparts/sat/cli" ];
+                lispLibs = [];
+                nativeLibs = [];
+                preBuild = ''export XDG_CACHE_HOME="$TMPDIR/asdf-cache"'';
+              };
+              runtime = lisp.withPackages (_: [ library ]);
+              testPackage = if component == "all" then "ooparts-tests/all" else settings.tests;
+              test = pkgs.writeShellScriptBin "ooparts-test" ''
+                exec ${runtime}/bin/${options.program} ${options.args} \
+                  ${options.eval} '(require "asdf")' \
+                  ${options.eval} '(handler-case (progn (asdf:load-system "${settings.tests}") (uiop:symbol-call :${testPackage} :run-tests) (uiop:quit 0)) (error (condition) (format *error-output* "~&~A~%" condition) (uiop:quit 1)))'
+              '';
+              repl = pkgs.writeShellScriptBin "ooparts-repl" ''
+                exec ${runtime}/bin/${options.program} ${options.args} \
+                  ${options.eval} '(require "asdf")' \
+                  ${options.eval} '(asdf:load-system "${settings.library}")' \
+                  ${lib.optionalString (impl == "clisp") "-repl"} "$@"
+              '';
+              check = pkgs.runCommand "ooparts-test-${component}-${impl}" {} ''
+                export XDG_CACHE_HOME="$TMPDIR/asdf-cache"
+                ${test}/bin/ooparts-test
+                touch "$out"
+              '';
+            in lib.nameValuePair "${component}-${impl}" {
+              inherit library runtime test repl check;
+            }) (lib.filterAttrs (impl: _: supported component impl) available)
+          ) (builtins.attrNames components));
+          packagesFor = prefix: field: lib.mapAttrs' (name: value:
+            lib.nameValuePair "${prefix}-${name}" value.${field}) recipes;
+          appsFor = prefix: field: command: lib.mapAttrs' (name: value:
+            lib.nameValuePair "${prefix}-${name}" {
               type = "app";
-              program = "${value.${field}}/bin/${bin}";
-            }) recipe;
+              program = "${value.${field}}/bin/${command}";
+            }) recipes;
+          defaultRecipe = if recipes ? all-sbcl then recipes.all-sbcl else if recipes ? prolog-sbcl then recipes.prolog-sbcl else builtins.head (builtins.attrValues recipes);
+          cliApp = component: module: let
+            runtime = recipes."${component}-sbcl".runtime;
+            entry = pkgs.writeText "ooparts-${component}-main.lisp" ''
+              (require :asdf)
+              (asdf:load-system "${module}")
+              (uiop:symbol-call :${module} :main)
+            '';
+            command = pkgs.writeShellScriptBin "ooparts-${component}" ''
+              exec ${runtime}/bin/sbcl --noinform --script ${entry} "$@"
+            '';
+          in { type = "app"; program = "${command}/bin/ooparts-${component}"; };
         in {
-          packages = attrsFor "lib" "library" // attrsFor "main" "main"
-            // attrsFor "test" "test"
-            // lib.optionalAttrs (recipe ? sbcl) { default = recipe.sbcl.library; };
-          apps = appsFor "main" "main" "ooparts-prolog" // appsFor "test" "test" "ooparts-prolog-test";
-          checks = attrsFor "test" "check";
+          packages = packagesFor "lib" "library" // packagesFor "test" "test"
+            // packagesFor "repl" "repl" // { default = defaultRecipe.library; };
+          apps = { default = { type = "app"; program = "${defaultRecipe.repl}/bin/ooparts-repl"; }; } // appsFor "test" "test" "ooparts-test" // appsFor "repl" "repl" "ooparts-repl"
+            // lib.optionalAttrs (recipes ? prolog-sbcl) {
+              prolog = cliApp "prolog" "ooparts/prolog/text/cli";
+            } // lib.optionalAttrs (recipes ? sat-sbcl) {
+              sat = cliApp "sat" "ooparts/sat/cli";
+            };
+          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) recipes
+            // {
+              layout = pkgs.runCommand "ooparts-layout-and-licenses" {
+                nativeBuildInputs = [ pkgs.python3 ];
+              } ''
+                cd ${src}
+                python3 tools/check-layout.py
+                touch "$out"
+              '';
+            };
           devShells = {
             default = pkgs.mkShell {
-              packages = lib.mapAttrsToList (impl: _: pkgs.${impl}) available;
+              packages = lib.mapAttrsToList (impl: _: pkgs.${impl}) available
+                ++ [ python pkgs.stdenv.cc ];
               shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
             };
           } // lib.mapAttrs (impl: _: pkgs.mkShell {
-            packages = [ pkgs.${impl} ];
+            packages = [ pkgs.${impl} python pkgs.stdenv.cc ];
             shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
           }) available;
           overlayAttrs = lib.mapAttrs (impl: _: pkgs.${impl}.withOverrides
-            (_: _: { "ooparts/prolog" = config.packages."lib-${impl}"; })) available
-            // lib.mapAttrs' (impl: _: lib.nameValuePair "ooparts-prolog-${impl}"
-              config.packages."main-${impl}") available;
+            (_: _: lib.listToAttrs (lib.concatMap (component:
+              lib.optionals (supported component impl) [
+                (lib.nameValuePair components.${component}.library
+                  recipes."${component}-${impl}".library)
+                (lib.nameValuePair components.${component}.tests
+                  recipes."${component}-${impl}".library)
+              ]) (builtins.attrNames components)))) available
+            // lib.mapAttrs' (name: _: lib.nameValuePair "ooparts-${name}"
+              config.packages."repl-${name}") recipes;
         };
     };
 }

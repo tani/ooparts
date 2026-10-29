@@ -1,82 +1,109 @@
 # OOPArts
 
-Common Lisp libraries.
+Common Lisp libraries for delimited continuations, Prolog and SAT.
 
-## ooparts/continuation
+All library and test modules use ASDF's package-inferred systems. The only
+explicit systems are `ooparts` and `ooparts-tests`. A module's package name
+matches its path; public packages have no nicknames.
 
-Selective CPS `shift` / `reset` for SBCL. Supports composable, multi-shot
-continuations that can outlive their original `reset`.
+| Library | Loadable system and public package | Platform |
+|---|---|---|
+| [Continuation](docs/continuation/README.md) | `ooparts/continuation` | SBCL |
+| [Prolog](docs/prolog/README.md) | `ooparts/prolog` | Portable Common Lisp |
+| [SAT](docs/sat/README.md) | `ooparts/sat` | SBCL, Linux x86-64 |
+
+## Load and test
+
+Register the checkout with ASDF, or put it in an existing source registry:
 
 ```lisp
 (require :asdf)
-(asdf:load-asd #p"/path/to/ooparts/ooparts.asd")
-(asdf:load-system "ooparts/continuation")
+(pushnew (truename "/path/to/ooparts/") asdf:*central-registry* :test #'equal)
+(asdf:load-system "ooparts")
+(asdf:test-system "ooparts")
+;; Equivalent complete regression entry point:
+(asdf:test-system "ooparts-tests")
+```
 
+Load an individual inferred system to use a library on its supported platform.
+For example, `ooparts/prolog` does not load the SBCL-only libraries.
+
+```lisp
+(asdf:load-system "ooparts/continuation")
 (ooparts/continuation:reset
   (+ 1 (ooparts/continuation:shift k
          (+ (funcall k 10) (funcall k 20)))))
 ;; => 32
-```
 
-The package is `ooparts/continuation`; `scps` and `selective-cps` are aliases.
-See [the continuation documentation](continuation/README.md) for supported
-forms, native boundary restrictions, dynamic environment conventions and tests.
-
-```sh
-sbcl --script continuation/example.lisp
-bash continuation/tests/run.sh
-```
-
-`(asdf:test-system "ooparts/continuation")` runs the regression suite.
-The shell script additionally tests FASL and saved-core reloads.
-
-MIT licensed. Requires SBCL and its bundled ASDF / SB-CLTL2 / SB-MOP.
-
-## ooparts/prolog
-
-Lisp-native Prolog with a WAM VM, DCGs, SLG tabling and an ISO textual interface.
-
-```lisp
 (asdf:load-system "ooparts/prolog")
 (ooparts/prolog:query '((= ?x 42)))
+
+(asdf:load-system "ooparts/sat")
+(ooparts/sat:solve-cnf '((1) (-2)))
+;; => :SAT, #(1 -2), a statistics plist
 ```
 
-See [the Prolog documentation](prolog/README.md).
-The public package alias is `ooparts/prolog` (also `prolog`); internal modules
-use `ooparts/prolog/src/...`. Build the `ooparts-prolog` command with
-`(asdf:make "ooparts/prolog/cli")`.
+From the repository root:
 
 ```sh
-sbcl --dynamic-space-size 2048 --control-stack-size 1 --script prolog/tests/run.lisp
+sbcl --dynamic-space-size 2048 --control-stack-size 1 --script tools/test.lisp
+sbcl --script tools/test.lisp prolog
+sbcl --script tools/test.lisp continuation
+sbcl --script tools/test.lisp sat
+python3 tools/check-layout.py
 ```
 
-## ooparts/sat
+An individual test facade can also be loaded with
+`(asdf:load-system "ooparts-tests/prolog")`, followed by
+`(ooparts-tests/prolog:run-tests)`. The same pattern applies to the other two
+libraries. See [testing](docs/testing.md) for proof checks, compiler diagnostics,
+ISO observations, FASL/core reloads and verification limits.
 
-The default production SATCH solver, translated function-for-function to SBCL
-Common Lisp, with a resource-managed Lisp interface. No C solver or FFI is used.
+## Repository layout
 
-```lisp
-(asdf:load-system "ooparts/sat")
-(sat:solve-cnf '((1 2) (-1 2) (-2 3)))
-;; => :SAT, #(1 2 3) or #(-1 2 3), (:STATUS :SAT ...)
+| Directory | Contents |
+|---|---|
+| `src/<library>/` and `src/<library>.lisp` | Implementation packages and public facade |
+| `tests/<library>/` and `tests/<library>.lisp` | Inferred regression modules and test facade |
+| `docs/<library>/` | API, design and historical notes |
+| `examples/<library>/` | Executable examples |
+| `benchmarks/<library>/` | Reproducible drivers and identified historical results |
+| `tools/<library>/` | CLI launchers, generators and external validation drivers |
+| `vendor/` | Pinned upstream reference sources, test corpora and documentation assets |
+| `licenses/` | Preserved license texts and attribution notices |
+| `build/` | Ignored generated files, downloaded benchmark dependencies and fresh reports |
 
-(sat:with-solver (solver)
-  (let ((x (sat:new-variable solver)))
-    (sat:add-clause solver (list x))
-    (sat:solve solver)
-    (sat:value solver x)))
-;; => T
+Package `ooparts/sat/runtime` lives in `src/sat/runtime.lisp`; package
+`ooparts-tests/prolog/kernel/slg` lives in `tests/prolog/kernel/slg.lisp`.
+Dependencies come from `uiop:define-package`, without serial component lists or
+implementation files loading one another. Tool scripts invoke these systems.
+
+## Nix
+
+The single root `flake.nix` exposes component/implementation variants:
+
+```sh
+nix develop
+nix build .#lib-all-sbcl
+nix run .#test-all-sbcl
+nix run .#repl-prolog-sbcl
+nix run .#prolog -- --help
+nix run .#sat -- vendor/satch/test/true.cnf
 ```
 
-`ooparts/sat` (alias `sat`) returns `:sat`, `:unsat` or `:unknown`, a detached
-signed model vector, and a statistics plist. It accepts lists/vectors of integer
-clauses and strict DIMACS streams/files. `with-solver` releases native arenas'
-solver allocations on every exit. The original C-style interface is available
-in `ooparts/sat/low-level`.
+`lib-<component>-<implementation>`, `test-...` and `repl-...` follow the same
+scheme. Components are `prolog`, `continuation`, `sat` and `all`. Prolog variants
+are exposed for implementations available on the selected platform;
+continuation requires SBCL, while SAT and the aggregate require Linux x86-64
+and SBCL. The default package selects the aggregate where supported.
 
-See [the SAT documentation](sat/README.md) for the API, proof streams, state
-rules, platform limits, tests and upstream license. Requires SBCL on Linux x86-64.
+The default overlay adds each supported library and test system to the corresponding
+Lisp package set and exports `ooparts-<component>-<implementation>` REPL wrappers.
 
-`ooparts` loads all three libraries; `(asdf:test-system "ooparts")` tests all three.
-Prolog is portable Common Lisp; continuation currently requires SBCL.
-Bundled third-party ISO test cases retain their original licenses and notices.
+## Licenses and provenance
+
+Original OOPArts code is [MIT licensed](LICENSE). This does not replace the
+licenses of vendored sources or documentation assets.
+[THIRD_PARTY.md](THIRD_PARTY.md) and [third-party.json](third-party.json) record
+imports, ports, documentation assets, design references and external benchmark
+dependencies separately, with preserved notices and pinned-source checksums.

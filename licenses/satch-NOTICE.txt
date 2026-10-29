@@ -1,0 +1,11 @@
+ooparts/sat is a source translation of SATCH 0.5.6rc.
+Original: https://github.com/arminbiere/satch
+Pinned commit: b4d4081f8971931399b36c8fdd92bdf4aabac005
+Configuration: default features with NDEBUG defined (production build).
+Original copyright and MIT license are preserved in licenses/satch-MIT.txt and vendor/satch/source/LICENSE.
+All 284 function definitions in that preprocessed library configuration are
+translated, including elimination, subsumption, vivification, restart, reduction,
+mode switching, and proof output. No call to a C solver is made by the Lisp code.
+The Lisp representation support, public API wrappers, DIMACS frontend, translator,
+and tests were added for this port. The source C frontend, debugging checker, and
+alternative preprocessor configurations are retained as reference source only.

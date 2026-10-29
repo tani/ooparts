@@ -1,0 +1,41 @@
+{
+  "stock_allocator_trace_differences": [
+    {
+      "case": "add64.cnf",
+      "columns": [
+        5
+      ]
+    }
+  ],
+  "matched_allocator_exact": true,
+  "cases": 1105,
+  "exhaustive_checks": 1000,
+  "identical": [
+    "status",
+    "conflicts",
+    "decisions",
+    "propagations",
+    "ticks",
+    "reductions",
+    "restarts",
+    "mode switches",
+    "rephasings",
+    "eliminations",
+    "vivifications",
+    "model"
+  ],
+  "max_counters": {
+    "decisions": 81824,
+    "propagations": 1248558,
+    "ticks": 7285574,
+    "reductions": 6,
+    "restarts": 324,
+    "switches": 4,
+    "rephasings": 3,
+    "eliminations": 4,
+    "vivifications": 3
+  },
+  "c_batch_seconds": 0.5883880350011168,
+  "lisp_batch_seconds": 16.408413746001315,
+  "timing_note": "Lisp includes process startup/ASDF loading; not an isolated speed benchmark"
+}

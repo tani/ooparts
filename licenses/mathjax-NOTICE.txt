@@ -1,0 +1,15 @@
+Offline documentation renderer: MathJax 3.2.2
+https://github.com/MathJax/MathJax/tree/3.2.2
+Apache License 2.0; full text in vendor/mathjax/LICENSE.
+MathJax project contributors and the MathJax Consortium.
+
+The distributed tex-svg.js includes Speech Rule Engine 4.0.6 by Volker Sorge
+and the mj-context-menu project by Volker Sorge. Both use Apache License 2.0.
+Speech Rule Engine's original NOTICE is retained separately in
+licenses/speech-rule-engine-NOTICE.txt. MathJax 3.2.2 release metadata declares
+mj-context-menu ^0.6.1; no unverified exact bundled menu version is asserted.
+
+These are OOPArts' asset attribution notes, not a replacement for an upstream
+NOTICE. The browser bundle is unmodified from the prior OOPArts import.
+Speech Rule Engine can load wicked-good-xpath and locale resources dynamically;
+those separately loaded resources are not distributed by this repository.

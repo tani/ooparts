@@ -316,7 +316,11 @@
               (error (e)
                 (incf *checks*) (push (list name mode compiled e) *failures*)
                 (format t "ERROR ~S ~S ~S: ~A~%" name mode compiled e)))))))
+    (format t "Structured continuation cases completed.~%")
+    (finish-output)
     (dolist (mode '(:selective :full))
+      (format t "Boundary checks: ~S.~%" mode)
+      (finish-output)
       (expect-condition (list :no-prompt mode) 'missing-reset
                         (lambda () (run-form '(shift k k) mode t)))
       (expect-condition (list :guarded-root-without-prompt mode) 'missing-reset
@@ -331,8 +335,13 @@
       (check :function-type t (functionp k))
       (check :continuation-type t (continuation-p k))
       (check :outside-multishot '(11 12 13) (list (funcall k 1) (funcall k 2) (funcall k 3))))
+    (format t "Checking independent reduction semantics.~%")
+    (finish-output)
     (let ((terms (append (generated-core-terms) (random-core-terms))))
-      (dolist (term terms)
+      (loop for term in terms for index from 1 do
+        (when (zerop (mod index 128))
+          (format t "Reference progress: ~D/~D terms.~%" index (length terms))
+          (finish-output))
         (let ((expected (reference-eval term)))
           (dolist (mode '(:selective :full))
             (handler-case (check (list :reference mode term) expected (run-form term mode t))

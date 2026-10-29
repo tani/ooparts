@@ -1,4 +1,6 @@
 {
+  "implementation": "sbcl",
+  "portable_sat": false,
   "stock_allocator_trace_differences": [
     {
       "case": "add64.cnf",
@@ -35,7 +37,7 @@
     "eliminations": 4,
     "vivifications": 3
   },
-  "c_batch_seconds": 0.6125557190025575,
-  "lisp_batch_seconds": 4.7336261450036545,
+  "c_batch_seconds": 0.6458724350013654,
+  "lisp_batch_seconds": 5.39525409500493,
   "timing_note": "Lisp includes process startup/ASDF loading; not an isolated speed benchmark"
 }

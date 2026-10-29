@@ -36,23 +36,32 @@
             bordeaux-threads = if builtins.elem impl [ "clisp" "cmucl_binary" "mkcl" ] then pkgs.${impl}.buildASDFSystem {
               pname = "bordeaux-threads";
               version = "0.8.8";
-              src = pkgs.fetchurl {
-                url = "https://deb.debian.org/debian/pool/main/b/bordeaux-threads/bordeaux-threads_0.8.8.orig.tar.gz";
-                hash = "sha256-bAEtA4UV9fpsow0LwkxNICIZhhofcIHBB37Fd9Uv+do=";
-              };
+              # ASDF's source registry needs an immutable directory, not the
+              # archive filename supplied to a conventional unpack phase.
+              src = pkgs.runCommand "bordeaux-threads-0.8.8-source" {
+                nativeBuildInputs = [ pkgs.gnutar pkgs.gzip ];
+              } ''
+                mkdir -p "$out"
+                tar -xzf ${pkgs.fetchurl {
+                  url = "https://deb.debian.org/debian/pool/main/b/bordeaux-threads/bordeaux-threads_0.8.8.orig.tar.gz";
+                  hash = "sha256-bAEtA4UV9fpsow0LwkxNICIZhhofcIHBB37Fd9Uv+do=";
+                }} --strip-components=1 -C "$out"
+              '';
               systems = [ "bordeaux-threads" ];
               lispLibs = [ self.alexandria ];
             } else super.bordeaux-threads;
-            cl-environments = super.cl-environments.overrideAttrs (old: {
-              # List-valued walker metadata is not EQL across FASL reloads.
-              postPatch = (old.postPatch or "") + ''
-                substituteInPlace src/walker/cl-environments.lisp \
+            cl-environments = super.cl-environments.override {
+              # ASDF reads immutable SRC paths, so patch the source derivation.
+              src = pkgs.runCommand "cl-environments-portable-source" {} ''
+                cp -R ${super.cl-environments.src} "$out"
+                chmod -R u+w "$out"
+                substituteInPlace "$out/src/walker/cl-environments.lisp" \
                   --replace-fail '(defconstant +walk-macros+' '(defparameter +walk-macros+'
-                substituteInPlace src/walker/environment.lisp \
+                substituteInPlace "$out/src/walker/environment.lisp" \
                   --replace-fail '(defconstant +optimize-qualities+' '(defparameter +optimize-qualities+' \
                   --replace-fail '(defconstant +global-special-vars+' '(defparameter +global-special-vars+'
               '';
-            });
+            };
           });
           components = {
             prolog = { library = "ooparts/prolog"; tests = "ooparts-tests/prolog"; };

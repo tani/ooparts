@@ -1,0 +1,44 @@
+[
+  {
+    "case": "contradictory-unit",
+    "format": "a",
+    "bytes": 13,
+    "identical": true,
+    "rup_additions": 2
+  },
+  {
+    "case": "contradictory-unit",
+    "format": "b",
+    "bytes": 8,
+    "identical": true,
+    "rup_additions": null
+  },
+  {
+    "case": "full2",
+    "format": "a",
+    "bytes": 16,
+    "identical": true,
+    "rup_additions": 4
+  },
+  {
+    "case": "full2",
+    "format": "b",
+    "bytes": 11,
+    "identical": true,
+    "rup_additions": null
+  },
+  {
+    "case": "pigeonhole5",
+    "format": "a",
+    "bytes": 442,
+    "identical": true,
+    "rup_additions": 53
+  },
+  {
+    "case": "pigeonhole5",
+    "format": "b",
+    "bytes": 214,
+    "identical": true,
+    "rup_additions": null
+  }
+]

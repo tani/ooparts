@@ -5,7 +5,9 @@
 
 (defun run-tests ()
   (let ((checks 0) (cell (c-malloc 64)))
-    (flet ((check (value) (incf checks) (assert value)))
+    (macrolet ((check (value)
+                 `(progn (incf checks)
+                         (assert ,value () "Arena check ~D failed: ~S" checks ',value))))
       (unwind-protect
            (progn
              ;; Cross-width accesses test the representation, not just a pair
@@ -43,10 +45,14 @@
                (setf (m-f64 cell) least-positive-double-float)
                (check (= (m-u64 cell) 1))
                (check (= (m-f64 cell) least-positive-double-float)))
-             (when (minusp (float-sign -0d0))
-               (setf (m-f64 cell) -0d0)
-               (check (= (m-u64 cell) #x8000000000000000))
-               (check (minusp (float-sign (m-f64 cell)))))
+             ;; A compiler may coalesce EQL zero literals. Construct the sign
+             ;; at runtime so this checks storage rather than FASL constants.
+             (let ((negative-zero (locally (declare (notinline float-sign))
+                                    (float-sign -1d0 0d0))))
+               (when (minusp (float-sign negative-zero))
+                 (setf (m-f64 cell) negative-zero)
+                 (check (= (m-u64 cell) #x8000000000000000))
+                 (check (minusp (float-sign (m-f64 cell))))))
              (dotimes (i 16) (setf (m-u8 (+ cell i)) i))
              (copy-bytes (+ cell 2) cell 10)
              (check (equal (loop for i below 12 collect (m-u8 (+ cell i)))

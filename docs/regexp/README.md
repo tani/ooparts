@@ -1,11 +1,12 @@
 # ooparts/regexp
 
 `ooparts/regexp` is a portable Common Lisp implementation of POSIX.1-2024
-extended regular-expression matching over a fixed S-expression language. It
-returns numbered subexpression spans with POSIX leftmost-longest selection and
-supports the 2024 minimal-repetition modifier. The system is a Lisp interface to
-ERE operations, not a textual BRE/ERE parser and not an implementation of the C
-`regex.h` ABI.
+extended regular-expression matching. The primary interface is a fixed
+S-expression language; `compile-regexp-string` adds a POSIX ERE text front end
+that parses pattern notation into that language. Matches return numbered
+subexpression spans with POSIX leftmost-longest selection and support the 2024
+minimal-repetition modifier. The system is a Lisp interface to ERE operations,
+not an implementation of the C `regex.h` ABI.
 
 The library is portable Common Lisp. Compilation normalizes the expression and
 lowers it directly to an immutable edge graph in Lisp; matching uses either of
@@ -40,6 +41,7 @@ nickname. Compiled regexps and matches are immutable; no public constructor or
 
 ```lisp
 (compile-regexp expression &key (backend :vm) case-insensitive newline minimal)
+(compile-regexp-string pattern &key (backend :vm) case-insensitive newline minimal)
 (match-regexp regexp string &key not-bol not-eol)
 (search-regexp regexp string &key not-bol not-eol)
 (regexp-p object)
@@ -56,7 +58,9 @@ condition readers are `regexp-error-code` and `regexp-error-form`. The exported
 constant `+re-dup-max+` is `255`.
 
 `compile-regexp` validates and normalizes `expression`, builds the complete
-matcher, and returns an immutable `regexp`. It accepts exactly `:vm` or
+matcher, and returns an immutable `regexp`. `compile-regexp-string` parses
+`pattern` as POSIX ERE text and compiles the result; it takes the same keyword
+arguments and validation rules. It accepts exactly `:vm` or
 `:automaton` as `backend`; the default is `:vm`. Compilation is eager: the
 returned object is not a closure and matching never defers compilation. It does
 not mutate the source form, and later mutation of a source list or literal
@@ -99,7 +103,8 @@ is negative, non-integral, or greater than `regexp-group-count` signals
 
 Operators are keywords. A character or string is literal data: regular-expression
 metacharacters such as `.`, `*`, `[`, `(`, `\` and `|` have no textual meaning
-inside it. There is no pattern-string syntax and no escaping layer.
+inside it. The S-expression language itself has no escaping layer; textual
+notation is handled by `compile-regexp-string`.
 
 | Form | Meaning |
 | --- | --- |
@@ -154,6 +159,39 @@ those of the source capture openings. Because repetition nodes are visited
 before their children and earlier siblings before later ones, ascending
 structural identifiers are the outer-before-inner, left-to-right order used by
 the minimal-mode filter below.
+
+## Text constructor
+
+`compile-regexp-string` parses POSIX extended regular-expression notation and
+compiles the result through the same pipeline as `compile-regexp`. It accepts the
+same keyword arguments and produces the same immutable `regexp` object; pattern
+characters are validated against the fixed domain ($1$ through $255$).
+
+| Notation | Meaning |
+| --- | --- |
+| ordinary character | literal; metacharacters are `. \ [ ] ( ) { } * + ? \| ^ $` |
+| `\c` | literal character `c`; there are no C-style escapes, so `\n` is the letter `n` |
+| `.` | any character except NUL, and except newline under `newline` |
+| `^`, `$` | beginning/end assertions wherever they occur outside a bracket expression |
+| `e1 e2`, `(e)` | concatenation and a numbered capture; `()` is empty |
+| `e1\|e2` | alternation; an empty branch matches the empty string |
+| `e*`, `e+`, `e?` | zero-or-more, one-or-more, zero-or-one |
+| `e{m}`, `e{m,}`, `e{m,n}` | interval repetition; bounds are validated as `:badbr` |
+| `e*?`, `e+?`, `e??`, `e{...}?` | the 2024 minimal modifier for that repetition |
+| `[...]`, `[^...]` | matching and nonmatching bracket lists |
+| `[a-z]` | inclusive range |
+| `[[:alpha:]]` | C-locale character class |
+| `[[.x.]]`, `[[=x=]]` | collating symbol and equivalence class (single characters) |
+| `[]]`, `[-a]`, `[a-]` | `]` first and `-` first or last are literal |
+
+An interval whose text is not syntactically a valid interval (for example `a{x}`
+or a trailing `{`) leaves the `{` as an ordinary literal. A quantifier with no
+preceding operand, a second quantifier on the same atom, an unclosed group or
+bracket, and a trailing backslash signal `:badpat`. Semantic validation remains
+in normalization: reversed ranges signal `:erange`, unknown classes `:ectype`,
+multi-character collating elements `:ecollate`, and out-of-range bounds
+`:badbr`. The front end does not implement Perl extensions such as `(?:...)`,
+inline flags, `\d`, named groups, lookaround, or backreferences.
 
 ## Character domain and C-locale classes
 
@@ -447,10 +485,9 @@ code `:badpat`. No match is represented by `nil`.
 
 ## Scope
 
-This library implements POSIX ERE matching operations over S-expressions. It is
-not a textual BRE or ERE parser: pattern text is never scanned for
-metacharacters, and there is no escaping syntax. It does not implement
-backreferences, lookaround, named captures, Unicode matching, locale-dependent
-collation, multi-character collating elements, or the C `regex.h` binary
-interface. `:collating` and `:equivalence` are singleton characters because the
+This library implements POSIX ERE matching operations. The S-expression API is
+primary; `compile-regexp-string` adds the textual ERE front end described above.
+Neither interface implements backreferences, lookaround, named captures, Unicode
+matching, locale-dependent collation, multi-character collating elements, or the
+C `regex.h` binary interface. `:collating` and `:equivalence` are singleton characters because the
 fixed locale is the C locale.

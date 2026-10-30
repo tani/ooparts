@@ -8,10 +8,11 @@
     #:regexp-metadata-of
     #:regexp-p)
   (:import-from #:ooparts/regexp/compiler #:compile-graph)
+  (:import-from #:ooparts/regexp/text #:parse-regexp-string)
   (:import-from #:ooparts/regexp/selection #:history-captures #:select-history)
   (:import-from #:ooparts/regexp/vm #:make-vm-program #:run-vm)
   (:import-from #:ooparts/regexp/automaton #:make-automaton #:run-automaton)
-  (:export #:compile-regexp #:match-regexp #:search-regexp
+  (:export #:compile-regexp #:compile-regexp-string #:match-regexp #:search-regexp
     #:regexp-p #:regexp-backend #:regexp-group-count
     #:regexp-match-p #:match-start #:match-end #:match-string
     #:regexp #:regexp-match
@@ -44,6 +45,14 @@
     (make-regexp :backend backend
                  :implementation implementation
                  :metadata (compiled-graph-metadata graph))))
+
+(defun compile-regexp-string (pattern &key (backend :vm) case-insensitive newline minimal)
+  "Compile POSIX ERE text PATTERN into an immutable REGEXP object."
+  (compile-regexp (parse-regexp-string pattern)
+                  :backend backend
+                  :case-insensitive case-insensitive
+                  :newline newline
+                  :minimal minimal))
 
 (defun %run-engine (regexp string start require-end not-bol not-eol)
   (ecase (regexp-backend regexp)

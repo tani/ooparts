@@ -3,6 +3,7 @@
   (:use #:cl)
   (:import-from #:ooparts-tests/regexp/syntax #:run-syntax-tests)
   (:import-from #:ooparts-tests/regexp/posix #:run-posix-tests)
+  (:import-from #:ooparts-tests/regexp/text #:run-text-tests)
   (:import-from #:ooparts-tests/regexp/differential #:run-differential-tests)
   (:import-from #:ooparts-tests/regexp/support #:*checks*)
   (:export #:run-tests))
@@ -11,6 +12,7 @@
 (defun run-module-tests ()
   (run-syntax-tests)
   (run-posix-tests)
+  (run-text-tests)
   (run-differential-tests))
 
 (defun run-tests ()

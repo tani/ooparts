@@ -212,6 +212,10 @@
       (check (= expected (iso-value '?n (list (list 'is '?n expression)))) (format nil "arithmetic ~S" expression))))
   (check (< (abs (- pi (iso-value '?n '((is ?n pi))))) 1d-14))
   (check (iso-error-p '((is ?n (** -1 0.5d0))) "evaluation_error"))
+  ;; Disputed evaluations must raise instead of leaking a host infinity or complex.
+  (dolist (expression '((log 0) (log 0.0d0) (log -1) (sqrt -1) (acos 2)))
+    (check (iso-error-p (list (list 'is '?n expression)) "evaluation_error")
+           (format nil "non-finite arithmetic ~S" expression)))
   (check (iso-error-p '((is ?n (floor 2))) "type_error"))
   (check (iso-error-p '((is ?n (sin ?x))) "instantiation_error"))
   (let ((term 0))

@@ -157,10 +157,16 @@ graph/atom identity and cursor statistics.
 
 | Host | `:auto` | `OOPARTS_PROLOG_DISABLE_NATIVE=1` |
 | --- | ---: | ---: |
-| SBCL 2.5.4 (local, script and `nix run .#test-prolog-sbcl`) | 5,911 | 5,887 |
-| CLISP 2.49.95 | 5,911 | 5,887 |
-| ABCL 1.9.3 | 5,911 | 5,887 |
-| ECL 24.5.10 | 5,908 | 5,884 |
+| SBCL 2.5.4 (local, script and `nix run .#test-prolog-sbcl`) | 5,916 | 5,892 |
+| CLISP 2.49.95 | 5,916 | 5,892 |
+| ABCL 1.9.3 | 5,916 | 5,892 |
+| ECL 24.5.10 | 5,913 | 5,889 |
+
+The five checks added with the non-finite arithmetic fix run on every host and
+are the only difference from the counts measured for the preceding commit
+(5,911/5,887 SBCL, CLISP and ABCL; 5,908/5,884 ECL). SBCL and the ECL auto cell
+were re-measured at 5,916/5,892 and 5,913; the remaining cells follow from the
+same host-independent checks.
 
 The delta is limited to assertions that require actual compiled execution. ECL
 additionally skips three exception-shape assertions because its interpreted
@@ -179,9 +185,17 @@ boundaries. Deep pure recursion inside the depth budget runs natively; beyond it
 the interpreter answers without host stack exhaustion.
 
 ISO adapters: `tools/prolog/iso/run.py --term-model iso --strict --jobs 2`
-selects 782 upstream cases and reports **724 PASS, 2 FAIL, 56 SKIP** both with
-and without the native path, with an identical failure set (the pinned float
-`log(0)` evaluation expectations, which predate this change).
+selects 782 upstream cases and reports **726 PASS, 0 FAIL, 56 SKIP** both with
+and without the native path, matching the record above.
+
+The two disputed `log(0)` and `log(0.0)` cases initially failed on this host:
+`iso-eval` accepted `(log 0d0)` because SBCL 2.5.4 returns negative infinity.
+The baseline records these cases as PASS, so the recording host's `log` did not
+return a finite real value. The transcendental branch now rejects any non-finite
+or complex result as `evaluation_error(undefined)`, which satisfies both disputed
+zero-argument cases and the undisputed negative-argument one. A probe of the
+unmodified checkout (a detached worktree at `HEAD`) reproduced the infinity, so
+the gap was host behavior rather than a checkout regression.
 
 Specialization measurements: `benchmarks/prolog/jit-compare.py --repeats 7
 --batch 20` on SBCL 2.5.4, Linux aarch64, two counterbalanced fresh-process

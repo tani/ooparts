@@ -71,7 +71,14 @@
                        ((member name '("SIN" "COS" "TAN" "ASIN" "ACOS" "ATAN" "EXP" "LOG" "SQRT") :test #'string=)
                         (arity 1)
                         (let ((v (funcall (symbol-function (find-symbol name :cl)) (coerce a 'double-float))))
-                          (unless (realp v) (iso-error "evaluation_error" (iso-atom "undefined"))) v))
+                          ;; Hosts differ on the disputed evaluations: some signal, some
+                          ;; return a complex, an infinity or a NaN. Only a finite real
+                          ;; result is a value; anything else is an undefined evaluation.
+                          (unless (and (realp v)
+                                       (<= (- most-positive-double-float) v
+                                           most-positive-double-float))
+                            (iso-error "evaluation_error" (iso-atom "undefined")))
+                          v))
                        ((string= name "ATAN2") (arity 2)
                         (when (and (zerop a) (zerop b)) (iso-error "evaluation_error" (iso-atom "undefined")))
                         (atan (coerce a 'double-float) (coerce b 'double-float)))

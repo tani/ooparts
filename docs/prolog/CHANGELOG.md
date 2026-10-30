@@ -10,6 +10,9 @@
   `findall` bags, tabling, SLG and instrumentation.
 - Add native/interpreted differential regressions and a counterbalanced
   `benchmarks/prolog/jit-compare.py` comparison on the shared workload.
+- Raise `evaluation_error(undefined)` for non-finite transcendental results, so
+  hosts whose `log` returns an infinity instead of signaling keep the disputed
+  `log(0)` ISO expectations.
 
 # OOPArts refactor — 2026-10-29
 

@@ -1,0 +1,191 @@
+;;; POSIX leftmost-longest and repetition fixtures for ooparts/regexp.
+(uiop:define-package #:ooparts-tests/regexp/posix
+  (:use #:cl)
+  (:import-from #:ooparts-tests/regexp/support
+    #:check #:run-case #:run-for-backends #:check-error-code)
+  (:import-from #:ooparts/regexp
+    #:compile-regexp #:match-regexp #:search-regexp
+    #:match-start #:match-end)
+  (:export #:run-tests #:run-posix-tests))
+(in-package #:ooparts-tests/regexp/posix)
+
+(defun run-table-tests ()
+  (dolist (case
+           '(((:or "a" "aa") "aa" ((0 2)))
+             ((:seq (:capture (:or "wee" "week"))
+                    (:capture (:or "knights" "night")))
+              "xxweeknightsyy" ((2 12) (2 5) (5 12)))
+             ((:seq (:capture (:or "a" "aa"))
+                    (:capture (:or :epsilon "a")))
+              "aa" ((0 2) (0 2) (2 2)))
+             ((:repeat 0 nil (:capture (:or "a" "aa")))
+              "aa" ((0 2) (0 2)))
+             ((:repeat 0 nil (:capture (:or "a" "aa")))
+              "aaa" ((0 3) (2 3)))
+             ((:repeat 0 nil (:capture (:seq "a" (:repeat 0 1 (:capture "b")))))
+              "aba" ((0 3) (2 3) (nil nil)))
+             ((:repeat 0 nil (:capture (:repeat 0 nil "a")))
+              "a" ((0 1) (0 1)))
+             ((:repeat 0 nil (:capture (:repeat 0 nil "a")))
+              "b" ((0 0) (0 0)))
+             ((:repeat 2 2 (:capture (:repeat 0 nil "a")))
+              "a" ((0 1) (1 1)))
+             ((:seq (:*? :any) #\c)
+              "abc abc" ((0 3)))
+             ((:seq (:capture (:*? :any)) (:* :any))
+              "abcdef" ((0 6) (0 0)))
+             ((:seq (:capture (:*? "a")) #\b)
+              "aaab" ((0 4) (0 3)))
+             ((:or (:seq (:*? :any) #\c) (:seq (:* :any) #\d))
+              "abc abcd" ((0 8)))
+             ((:seq (:repeat? 1 nil
+                              (:capture (:seq (:capture (:* "a"))
+                                              (:seq (:* "a") "b"))))
+                    (:* :any))
+              "aabaaab" ((0 7) (0 3) (0 2)))))
+    (destructuring-bind (expression input expected) case
+      (run-case expression input expected))))
+
+(defun run-minimal-flag-tests ()
+  (run-case '(:seq (:* :any) #\c) "abc abc" '((0 3))
+            :flags '(:minimal t)
+            :description "greedy repetition under minimal default")
+  (run-case '(:seq (:*? :any) #\c) "abc abc" '((0 7))
+            :flags '(:minimal t)
+            :description "suffixed repetition inverts minimal default"))
+
+(defun run-boundary-tests ()
+  ;; Literals, failure, and empty expressions.
+  (run-case "abc" "abc" '((0 3)) :mode :match :description "literal full")
+  (run-case "abc" "xabc" '((1 4)) :description "literal search")
+  (run-case "abc" "xabc" nil :mode :match :description "literal full failure")
+  (run-case "a" "b" nil :description "literal search failure")
+  (run-case "a" "b" nil :mode :match :description "literal full failure")
+  (run-case "a" "" nil :description "empty input search")
+  (run-case "a" "" nil :mode :match :description "empty input full")
+  (run-case '(:seq) "" '((0 0)) :description "empty expression search")
+  (run-case '(:seq) "" '((0 0)) :mode :match :description "empty expression full")
+  (run-case '(:seq) "x" '((0 0)) :description "empty expression on data")
+  (run-case '(:seq) "x" nil :mode :match :description "empty expression full failure")
+  ;; A zero-length capture at the end of the input.
+  (run-case '(:seq "a" (:capture (:* "b"))) "a" '((0 1) (1 1))
+            :description "zero-length capture at end; search")
+  (run-case '(:seq "a" (:capture (:* "b"))) "a" '((0 1) (1 1))
+            :mode :match :description "zero-length capture at end; full")
+  ;; Full matching is anchored at the whole input.
+  (run-case "a" "ba" nil :mode :match :description "full match rejects prefix")
+  (run-case "a" "ba" '((1 2)) :description "search selects suffix")
+  ;; Bounded interval forms.
+  (run-case '(:repeat 0 0 #\a) "aaa" '((0 0)) :description "{0} search")
+  (run-case '(:repeat 0 0 #\a) "aaa" nil :mode :match :description "{0} full")
+  (run-case '(:repeat 0 1 #\a) "aaa" '((0 1)) :description "{0,1} search")
+  (run-case '(:repeat 2 2 #\a) "aaa" '((0 2)) :description "{2} search")
+  (run-case '(:repeat 2 2 #\a) "aa" '((0 2)) :mode :match :description "{2} full")
+  (run-case '(:repeat 2 nil #\a) "aaa" '((0 3)) :description "{2,} search")
+  (run-case '(:repeat 1 3 #\a) "aaa" '((0 3)) :description "{1,3} search")
+  ;; The repetition ceiling is 255 and the compiled language is finite.
+  (let* ((text (make-string 256 :initial-element #\z))
+         (repeated (make-string 255 :initial-element #\a)))
+    (run-case text text (list (list 0 256))
+              :mode :match :description "256-character literal")
+    (run-case '(:repeat 255 255 #\a) repeated (list (list 0 255))
+              :mode :match :description "255 repetitions")
+    (run-case '(:repeat 255 255 #\a) text nil
+              :mode :match :description "255 repetitions reject 256"))
+  (check-error-code '(:repeat 0 256 #\a) :badbr
+                    "interval bound above 255"))
+
+(defun run-reuse-tests ()
+  ;; A compiled regexp owns no mutable matching state.
+  (run-for-backends
+   (lambda (backend)
+     (let* ((regexp (compile-regexp '(:seq (:capture "a") (:capture "b"))
+                                    :backend backend))
+            (first (search-regexp regexp "ab ab"))
+            (saved (list (match-start first 1) (match-end first 1))))
+       (search-regexp regexp "ab")
+       (search-regexp regexp "xx ab")
+       (search-regexp regexp "no match here")
+       (check (equal saved (list (match-start first 1) (match-end first 1)))
+              "earlier match object remains unchanged")
+       (check (equal "ab" (subseq "ab ab" (match-start first)
+                                  (match-end first)))
+              "earlier match still addresses its own input"))))
+  ;; Compilation copies the source language.
+  (run-for-backends
+   (lambda (backend)
+     (let* ((expression (list :seq "a" "b"))
+            (regexp (compile-regexp expression :backend backend)))
+       (rplaca expression :or)
+       (check (not (null (match-regexp regexp "ab")))
+              "mutating the source list does not change the language")
+       (check (null (match-regexp regexp "a"))
+              "mutated source operators are not compiled"))))
+  (run-for-backends
+   (lambda (backend)
+     (let* ((source (copy-seq "abc"))
+            (regexp (compile-regexp source :backend backend)))
+       (setf (char source 0) #\z)
+       (check (not (null (match-regexp regexp "abc")))
+              "mutating a source string does not change the language")
+       (check (null (match-regexp regexp "zbc"))
+              "mutated string data is not compiled")))))
+
+(defun run-flag-tests ()
+  ;; Case-insensitive literals and bracket expressions.
+  (run-case #\a "A" '((0 1)) :flags '(:case-insensitive t)
+            :description "case-insensitive literal")
+  (run-case '(:class #\a) "A" '((0 1)) :flags '(:case-insensitive t)
+            :description "case-insensitive positive class")
+  (run-case '(:class (:posix :lower)) "A" '((0 1))
+            :flags '(:case-insensitive t)
+            :description "case-insensitive :lower")
+  (run-case '(:class (:posix :upper)) "a" '((0 1))
+            :flags '(:case-insensitive t)
+            :description "case-insensitive :upper")
+  (run-case '(:not-class #\a) "A" nil :flags '(:case-insensitive t)
+            :description "complemented class excludes both cases")
+  (run-case '(:not-class #\a) "B" '((0 1)) :flags '(:case-insensitive t)
+            :description "complemented class keeps other characters")
+  ;; Newline handling for :any, complemented classes, and positive classes.
+  (run-case :any (string #\Newline) nil :flags '(:newline t)
+            :description "newline period rejects newline")
+  (run-case '(:not-class #\a) (string #\Newline) nil :flags '(:newline t)
+            :description "newline complemented class rejects newline")
+  (run-case '(:class #\Newline) (string #\Newline) '((0 1))
+            :flags '(:newline t)
+            :description "newline positive class accepts newline")
+  (run-case :any (string #\Newline) '((0 1))
+            :description "without newline period accepts newline")
+  (run-case '(:not-class #\a) (string #\Newline) '((0 1))
+            :description "without newline complemented class accepts newline")
+  ;; Interior line assertions ignore not-bol and not-eol.
+  (run-case '(:seq :bol #\b :eol) "a
+b
+c" '((2 3))
+            :flags '(:newline t)
+            :execution '(:not-bol t :not-eol t)
+            :description "interior bol/eol unaffected by execution flags")
+  (run-case '(:seq :bol #\b :eol) "a
+b
+c" nil :mode :match
+            :flags '(:newline t)
+            :description "interior line assertions do not relax whole match")
+  (run-case '(:seq "a" :eol) "a
+" nil :description "without newline eol is only at input end")
+  (run-case '(:seq "a" :eol) "a
+" '((0 1)) :flags '(:newline t)
+            :description "with newline eol precedes a newline")
+  (run-case '(:seq :bol :any) (string #\Newline) '((0 1))
+            :description "without newline bol is only at input start"))
+
+(defun run-tests ()
+  (run-table-tests)
+  (run-minimal-flag-tests)
+  (run-boundary-tests)
+  (run-reuse-tests)
+  (run-flag-tests)
+  t)
+
+(defun run-posix-tests ()
+  (run-tests))

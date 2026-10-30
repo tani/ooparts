@@ -104,6 +104,27 @@
       "license": "LicenseRef-Public-Domain",
       "license_evidence": "trivial-garbage.asd and source headers",
       "relationship": "Native interface reference only; not loaded, patched, vendored or distributed."
+    },
+    {
+      "name": "POSIX.1-2024 Chapter 9",
+      "source": "https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap09.html",
+      "relationship": "ERE syntax and semantics reference only; no source distributed",
+      "license": "NOASSERTION",
+      "note": "Consult The Open Group publication terms; no license inference from the web-page copyright."
+    },
+    {
+      "name": "Borsotti-Trofimovich 2019/2020 POSIX submatch extraction",
+      "source": "https://doi.org/10.1002/spe.2881",
+      "relationship": "POSIX disambiguation and parse-tree ordering reference only; no source distributed",
+      "license": "NOASSERTION",
+      "note": "Paper consulted for the P-order definitions; no software license applies to the reference."
+    },
+    {
+      "name": "TRE",
+      "source": "https://github.com/laurikari/tre",
+      "relationship": "consulted matching implementation only; no source distributed",
+      "license": "NOASSERTION",
+      "note": "No license is established for the consulted code; the described algorithms are implemented independently."
     }
   ],
   "optional_external_tools": [

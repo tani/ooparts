@@ -35,12 +35,14 @@
             prolog = { library = "ooparts/prolog"; tests = "ooparts-tests/prolog"; };
             continuation = { library = "ooparts/continuation"; tests = "ooparts-tests/continuation"; };
             sat = { library = "ooparts/sat"; tests = "ooparts-tests/sat"; };
+            regexp = { library = "ooparts/regexp"; tests = "ooparts-tests/regexp"; };
             all = { library = "ooparts"; tests = "ooparts-tests"; };
           };
-          # MKCL exposes Prolog and SAT. Its continuation environment adapter
-          # has not been implemented and validated yet.
+          # MKCL exposes Prolog, SAT and regexp. Its continuation environment
+          # adapter has not been implemented and validated yet.
           supported = component: impl:
-            component == "prolog" || component == "sat" || impl != "mkcl";
+            component == "prolog" || component == "sat" || component == "regexp"
+            || impl != "mkcl";
           recipes = lib.listToAttrs (lib.concatMap (component:
             lib.mapAttrsToList (impl: options: let
               settings = components.${component};
@@ -120,7 +122,7 @@
             } // lib.optionalAttrs (recipes ? sat-sbcl) {
               sat = cliApp "sat" "ooparts/sat/cli";
             };
-          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || (builtins.elem name [ "prolog-mkcl" "sat-mkcl" ])) recipes)
+          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || (builtins.elem name [ "prolog-mkcl" "sat-mkcl" "regexp-mkcl" ])) recipes)
             // {
               layout = pkgs.runCommand "ooparts-layout-and-licenses" {
                 nativeBuildInputs = [ pkgs.python3 ];

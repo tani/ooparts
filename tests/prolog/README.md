@@ -3,12 +3,17 @@
 Run from the repository root:
 
 ```sh
-sbcl --dynamic-space-size 2048 --control-stack-size 1 --script tools/test.lisp prolog
+python3 tools/lisp.py tools/test.lisp prolog
 ```
 
+`tools/lisp.py` selects an implementation and isolates ASDF caches;
 `tools/test.lisp` loads the inferred `ooparts-tests/prolog` facade and calls its
 exported `run-tests`. The `suite` module imports the layer suites; every test
-package matches its path under `tests/`.
+package matches its path under `tests/`. The same driver accepts the other
+components through `python3 tools/lisp.py tools/test.lisp <continuation|sat|regexp>`
+and the aggregate suite through `all`. The direct invocation
+`sbcl --dynamic-space-size 2048 --control-stack-size 1 --script tools/test.lisp prolog`
+runs the same component under SBCL.
 
 | Directory | Coverage |
 |---|---|
@@ -24,6 +29,14 @@ package matches its path under `tests/`.
 `sbcl --script tools/prolog/observations.lisp` prints normalized observations.
 Use `OOPARTS_ROOT` to select another checkout with the same layout. Compare older
 layouts with their revision's observation entry point and the same SBCL.
+
+The bundled ISO corpus has its own driver, outside `tools/test.lisp`:
+
+```sh
+ISO_SBCL=sbcl python3 -m unittest discover -s tests/prolog/iso -p 'test_*.py' -v
+python3 tools/prolog/iso/run.py --baseline tests/prolog/iso/expectations/baseline.json --strict --jobs 2
+python3 tools/prolog/iso/run.py --term-model iso --strict --jobs 2 --output build/prolog/iso-strict
+```
 
 See the [ISO driver](../../docs/prolog/iso-runner.md) and
 [validation coverage](../../docs/prolog/VALIDATION.md).

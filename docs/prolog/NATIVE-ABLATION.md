@@ -1,13 +1,23 @@
-# Native compiler ablation — 2026-10-23
+# Native compiler ablation — 2026-10-23 (superseded)
 
-> Historical record. The optimizer measured here was removed and has since been
-> replaced by the independent implementation described in [NATIVE-JIT.md](NATIVE-JIT.md).
-> These results apply only to the revisions cited below; run reproduction commands
-> in those revisions and do not reuse these figures for the current code.
+> Historical record of a removed optimizer. The guarded native compiler measured
+> here is **not** the current specialization implementation; it was removed and
+> replaced by the independent two-tier implementation described in
+> [NATIVE-JIT.md](NATIVE-JIT.md). The ablation numbers apply only to the revisions
+> cited below; run reproduction commands in those revisions and do not reuse them
+> for current code. Current measurements and reproduce commands are in
+> [BENCHMARKS.md](BENCHMARKS.md).
 
 ## Decision
 
-Keep the guarded native compiler and its ground-fact relation index. Remove the VM first-argument index, scalar-unification shortcuts and graph-copy rewrite from this PR. They are unnecessary to reach SWI parity on the six current workloads. This does not establish that they would be useless on interpreter-only or SLG workloads.
+Keep the guarded native compiler and its ground-fact relation index. Remove the
+VM first-argument index, scalar-unification shortcuts and graph-copy rewrite from
+that PR. They were unnecessary to reach SWI parity on the six workloads measured
+then. This does not establish that they would be useless on interpreter-only or
+SLG workloads.
+
+That decision applied to the removed optimizer recorded here, not to the current
+two-tier implementation.
 
 | Variant | VM clause/term handling | Native ground-fact handling | Cases faster than SWI |
 | --- | --- | --- | ---: |
@@ -71,4 +81,8 @@ the controlled ablation table; do not mix their samples into one comparison.
 
 ## Validation after removing the VM optimizations
 
-4,625 checks pass on SBCL with a 1 MiB control stack. With native execution disabled, 4,618 checks pass (seven native-path assertions are skipped). All 54 derived observations still match upstream. The original full PR passed all 17 GitHub Actions jobs before this reduction; those results do not substitute for the new head’s CI.
+At that revision, 4,625 checks passed on SBCL with a 1 MiB control stack. With
+native execution disabled, 4,618 checks passed (seven native-path assertions were
+skipped). All 54 derived observations still matched upstream. The original full
+PR passed all 17 GitHub Actions jobs before this reduction; those results do not
+substitute for the new head's CI.

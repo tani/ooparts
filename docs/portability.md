@@ -1,8 +1,9 @@
 # Portability
 
-All three libraries use package-inferred systems. The public continuation
-system remains `ooparts/continuation` (singular). No compatibility nicknames or
-additional explicit systems are introduced.
+All four libraries — continuation, Prolog, SAT and regexp — use
+package-inferred systems. The public continuation system remains
+`ooparts/continuation` (singular). No compatibility nicknames or additional
+explicit systems are introduced.
 
 Libraries and regression suites require no external Lisp libraries or patches
 to external software. ASDF/UIOP manages the systems; implementation modules such
@@ -18,6 +19,11 @@ when they avoid an external dependency, even when that increases their count.
 | Continuation environments | Bundled SB-CLTL2, CCL and CMUCL interfaces | Native interpreter environments on ECL, ABCL, CLISP and Clasp |
 | Callable continuations | Host MOP funcallable objects | Same public calling convention on every supported host |
 | GC/thread regression checks | Host GC and thread operations | Thread checks depend on actual thread support |
+
+The regexp library has no reader-selected path: `src/regexp/**` contains no
+reader conditionals and no implementation-specific fast path, so every supported
+host runs the same two portable Lisp engines. See
+[regexp](regexp/README.md) for the engine selection within the library.
 
 The SAT storage facade selects `ooparts/sat/storage/native` or
 `ooparts/sat/storage/portable` once. Shared address state lives in

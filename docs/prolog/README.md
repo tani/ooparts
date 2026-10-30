@@ -50,12 +50,15 @@ not captured Lisp environments. Use the explicit textual loader for Prolog text:
 A database owns user clauses, stream state and term-model configuration. Bind
 `*database*` to `(make-database)` for independent state. Use `make-query`,
 `next-solution` and `close-query` for explicit cursors; close them on every exit.
-`query-statistics` exposes instructions, explicit stack/heap use and GC counters.
+`query-statistics` exposes instructions, explicit stack/heap use, GC counters and
+the native-execution counters `:native-calls` and `:native-deoptimizations`.
 `table`/`untable` control SLG predicates; `tnot` supports well-founded negation.
+Databases default to `:execution-mode :auto`, which compiles eligible predicate
+groups to Common Lisp; see [native specialization](NATIVE-JIT.md).
 See the [manual](MANUAL.md) for complete conventions and resource ownership.
 
-Native mode retains Lisp cons/symbol terms. The explicit `:term-model :iso`
-profile uses the dedicated list/atom distinctions documented in
+The default native term model retains Lisp cons/symbol terms. The explicit
+`:term-model :iso` profile uses the dedicated list/atom distinctions documented in
 [ISO compatibility](ISO-COMPATIBILITY.md). Text syntax and semantic profiles
 are separate settings. Readers parse without Lisp EVAL.
 
@@ -93,9 +96,10 @@ platform, using `lib-prolog-<implementation>` and `test-prolog-<implementation>`
 
 ## Performance
 
-The measured comparison against SWI-Prolog is tabulated once, in the repository
-[README performance section](../../README.md#performance), together with the
-reproduction commands and the reference-only caveat.
+[Benchmark analysis](BENCHMARKS.md) is the canonical measurement document: it
+holds the workload tables, allocation profiles, bottlenecks and the reproduction
+commands. The [project README](../../README.md) links that analysis only as an
+overview; it is not the measurement source.
 
 ## Validation
 
@@ -106,8 +110,9 @@ python3 tools/prolog/iso/run.py --baseline tests/prolog/iso/expectations/baselin
 python3 tools/prolog/iso/run.py --term-model iso --strict --jobs 2 --output build/prolog/iso-strict
 ```
 
-The recorded SBCL regression run has 5632 checks, including deep recursion,
-cyclic terms, forced GC, callback lifetime and SLG behavior. The pinned ISO
+The recorded SBCL regression run has 6027 checks, including 389
+native-specializer and 110 explicit-stack checks, plus deep recursion, cyclic
+terms, forced GC, callback lifetime and SLG behavior. The pinned ISO
 inventory has 782 cases: native mode records 718 PASS, 56 SKIP and eight exact
 expected differences; the strict term-model profile records 726 PASS and 56
 SKIP. No unexpected failures or baseline regressions are accepted. A skip is

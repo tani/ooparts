@@ -17,6 +17,16 @@
   and version checks when definitions change during tabled execution.
 - 128 core builtin indicators plus seven aliases: control, arithmetic, cons term
   operations, exceptions, dynamic definitions, collectors and character/byte I/O.
+- Automatic predicate specialization enabled by default through
+  `:execution-mode :auto`, with `:wam` as a per-database interpreted oracle and
+  `OOPARTS_PROLOG_DISABLE_NATIVE=1` as a process-wide switch. Eligible pure
+  predicate groups compile to Common Lisp and run on a direct tier bounded by
+  logical depth 256, continuing deep semidet recursion on an explicit-stack tier
+  over a heap arena bounded at 1,048,576 slots. A depth promotion reuses the same
+  attempt, inputs, fuel and answers and counts as one native call rather than a
+  deoptimization; real bound failures replay atomically on the WAM.
+  `query-statistics` reports `:native-calls` and `:native-deoptimizations`.
+  See [NATIVE-JIT.md](NATIVE-JIT.md) for the contract.
 - Logical update view for immutable clause/code snapshots.
 - Source LET bindings shared by lexical callbacks, with mutation, shadowing and
   cursor-safe lifetime. Dynamic special bindings remain future work.
@@ -26,10 +36,13 @@ See [the user guide](MANUAL.md), [builtin specification](BUILTINS.md) and
 
 ## Execution policy
 
-Predicates execute through the portable WAM backend. Ground-mode specialization
-and native JIT compilation were removed to keep a single execution path.
-Earlier native-compiler [comparisons](COMPETITIVE-BENCHMARKS.md) and
-[ablation results](NATIVE-ABLATION.md) remain historical records.
+The default `:execution-mode :auto` compiles and uses eligible predicate groups
+and otherwise keeps the complete portable WAM implementation; `:wam` selects the
+interpreted oracle per database. Predicate specialization therefore does not
+remove the WAM path: it adds two compiled tiers above it. Earlier experimental
+native-compiler [comparisons](COMPETITIVE-BENCHMARKS.md) and
+[ablation results](NATIVE-ABLATION.md) remain historical records of a different,
+removed optimizer; current measurements are in [BENCHMARKS.md](BENCHMARKS.md).
 
 ## Scope
 
@@ -51,11 +64,11 @@ negation/conditionals remain unsupported.
 ## Future performance work
 
 The [historical profiles](BENCHMARKS.md) identify interpreter bottlenecks.
-Make small, measured changes when interpreter/SLG workloads justify them. Earlier
-optimizer results do not establish the performance of the current interpreter.
+Make small, measured changes when interpreter/SLG workloads justify them.
+Current specialization measurements are recorded separately in the same document.
 
 - VM indexing, scalar/graph allocation changes, X-register reuse and variable lifetime analysis.
-- Direct acyclic term construction, compact instruction encodings and native dispatch.
+- Direct acyclic term construction, compact instruction encodings and further compiled-tier dispatch.
 - Shared frozen stacks, answer tries and explicit table-space accounting.
 - Incremental SCC maintenance, immediate completion of ground successes,
   call/answer subsumption and answer aggregation.

@@ -28,6 +28,11 @@ logic variables, shared cons graphs or cyclic cons graphs.
 
 ## Measurements
 
+> **Historical record.** Every figure below, including the check count, is a
+> measurement of the pinned baseline commit and its two patches. It is not
+> current performance or the current test inventory; see [BENCHMARKS.md](BENCHMARKS.md)
+> for current measurements.
+
 SBCL 2.2.9.debian, 2 GiB dynamic-space ceiling and 1 MiB control stack, in the
 same environment as the original benchmark. Separate source trees and ASDF
 cache paths prevent one variant's definitions from contaminating another.
@@ -86,9 +91,9 @@ cannot avoid scanning irrelevant clauses or copying every exported answer graph.
 The arithmetic evaluator accepts several numeric types and interprets heterogeneous
 expressions; assuming all values are fixnums or floats would change its contract.
 
-Both candidates passed **4,190 checks**, including cyclic terms, VM GC, SLG,
-cut, dynamic predicates, interactive queries and lexical bindings, with a
-1 MiB host control stack. This validates the exercised behaviors, rather than
+Both candidates passed **4,190 checks at that revision**, including cyclic terms,
+VM GC, SLG, cut, dynamic predicates, interactive queries and lexical bindings,
+with a 1 MiB host control stack. This validates the exercised behaviors, rather than
 proving every internal caller satisfies the declarations.
 
 **Decision:** retain the experiment, but do not apply either patch wholesale.

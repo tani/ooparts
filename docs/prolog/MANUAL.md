@@ -336,7 +336,10 @@ The implementation does not use XSB code or claim full XSB/SWI-Prolog compatibil
 
 ## WAM execution
 
-The sole execution backend generates granular term instructions.
+The WAM interpreter generates granular term instructions and remains the
+reference backend used by `:execution-mode :wam`. The default `:auto` policy may
+execute eligible predicate groups as compiled Lisp; see
+[Native specialization](#native-specialization).
 
 | Family | Instructions |
 |---|---|
@@ -356,9 +359,12 @@ long and open lists use list instructions. Both preserve native cons semantics.
 The structure-recognition bound is an optimization, not a limit on term size.
 This is not a contiguous classic WAM tagged-cell heap.
 
-Prolog calls do not use Lisp recursion. Unification, compilation, term export,
-graph copying and GC traversal also use explicit work lists. User callback
-recursion is outside this guarantee. First-argument indexing is not implemented.
+Interpreted WAM calls do not use Lisp recursion. Unification, compilation, term
+export, graph copying and GC traversal also use explicit work lists. User callback
+recursion is outside this guarantee. The compiled direct tier uses host recursion
+only up to its configured depth bound and then continues on the heap arena, as
+described under [Native specialization](#native-specialization). First-argument
+indexing is not implemented.
 
 ### Native specialization
 

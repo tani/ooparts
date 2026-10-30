@@ -133,9 +133,10 @@ existing Lisp bridge and lexical getter/setter closures.
 `;/2`, `=/2`, `true/0`, `fail/0`, and `false/0`; they remain available to meta-call
 through runtime entry. Punctuation aliases keep their previous meanings.
 
-## Validation
+## Validation (historical records)
 
-- SBCL 2.2.9 and CLISP 2.49.93+: the complete suite passes **4,324 checks**, including the existing
+- At that historical revision, SBCL 2.2.9 and CLISP 2.49.93+ passed the complete
+  suite's **4,324 checks**, including the existing
   100,000-step tail-call and 10,000-token DCG checks, with a **1 MiB control stack** on SBCL.
 - New tests cover registry separation/protection, clearing databases, repeat,
   caller cut scope, failed partial unification, cyclic copies, character conversion
@@ -158,8 +159,12 @@ diff -u before.txt after.txt
 
 ## Implementation packages
 
-The current SBCL suite passes 5,632 checks, including package ownership and
-facade isolation checks. Earlier experiment counts below describe their revisions.
+The current SBCL suite passes 6027 Prolog checks, including 389
+native-specializer checks, 110 explicit-stack checks, and package ownership and
+facade isolation checks. The aggregate `all` run additionally reports 5650 regexp
+checks, SAT API 40, numeric/representation boundaries 51, Lisp interface 475
+(including 96 exhaustive-oracle cases) and arena storage 69. Earlier experiment
+counts below describe their revisions.
 
 The package refactoring uses `uiop:define-package` and matching `in-package`
 forms in source and test modules. Public `ooparts/prolog:` names are selective reexports
@@ -214,14 +219,23 @@ and reports cycles or unrepresentable Lisp objects explicitly.
 
 ## Predicate execution
 
-All Prolog predicates use the portable WAM backend on every Lisp implementation.
-There is no predicate specialization, native JIT, mode cache or speculative
-fallback path. `findall/3` and `bagof/3` use the child-query collection adapter;
-returned lists follow the database's immutable term model.
+All Prolog predicates execute through the portable WAM, which remains the
+authoritative interpreter. On top of it, `ooparts/prolog` specializes eligible
+pure predicate groups into compiled Common Lisp: `:execution-mode :auto` (the
+default) compiles and uses them, `:wam` selects the interpreted oracle per
+database, and `OOPARTS_PROLOG_DISABLE_NATIVE=1` disables compilation
+process-wide. Compiled groups run on a direct tier bounded by logical depth 256
+and continue deep semidet recursion on an explicit-stack tier over a heap arena
+bounded at 1,048,576 slots; a depth promotion reuses the same attempt and counts
+once, and only a real bound failure is replayed on the WAM. `findall/3` and
+`bagof/3` use the child-query collection adapter; returned lists follow the
+database's immutable term model.
 
-`query-statistics` reports WAM execution, ownership GC and SLG counters.
-The former `:native-calls` and `:native-deoptimizations` counters were removed
-with the optimizer.
+`query-statistics` reports WAM execution, ownership GC and SLG counters, plus
+`:native-calls` (a native attempt that succeeded or failed logically) and
+`:native-deoptimizations` (attempts privately aborted and replayed on the WAM).
+See [NATIVE-JIT.md](NATIVE-JIT.md) for eligibility, budgets and the atomic-commit
+contract.
 
 ## Prolog source procedure properties
 

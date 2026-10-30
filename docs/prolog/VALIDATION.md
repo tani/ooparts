@@ -1,18 +1,59 @@
-> Current refactor validation: 5,632 Lisp checks on SBCL 2.2.9 with a 1 MiB
-> stack; 718 PASS / 56 SKIP / 8 XFAIL in native ISO observations and
-> 726 PASS / 56 SKIP in strict term mode. See [recorded validation](../testing.md).
-> Older dated sections below retain their historical counts and implementation scope.
+# Validation
 
-# Portable WAM execution — 2026-10-23
+Predicate specialization is enabled by default. `:execution-mode :auto` compiles
+eligible pure predicate groups into Common Lisp; `:wam` is the per-database
+interpreted oracle, and `OOPARTS_PROLOG_DISABLE_NATIVE=1` disables compilation
+process-wide. `query-statistics` reports `:native-calls` and
+`:native-deoptimizations`. Compiled groups use a direct tier bounded by logical
+depth 256 and continue deep semidet recursion on an explicit-stack tier over a
+heap arena bounded at 1,048,576 slots; a depth promotion reuses the same attempt
+and counts as one native call, not a deoptimization. The contract is in
+[NATIVE-JIT.md](NATIVE-JIT.md).
 
-Predicate specialization and native JIT compilation have been removed. Every Lisp
-implementation uses the same WAM execution path, without mode caches or native
-call/deoptimization counters. WAM compilation and lexical Lisp callbacks remain.
+Recorded with SBCL 2.5.4 on aarch64-linux and a 1 MiB control stack.
+`python3 tools/lisp.py tools/test.lisp all` prints:
 
-SBCL 2.2.9 with a 1 MiB control stack passes **5,632 checks**. General collection
+| Component | Checks |
+| --- | ---: |
+| Prolog | 6027, including 389 native-specializer and 110 explicit-stack |
+| regexp | 5650 |
+| SAT API | 40 |
+| Numeric/representation boundaries | 51 |
+| Lisp interface | 475, including 96 exhaustive-oracle cases |
+| Arena storage | 69 |
+
+The ISO adapter selects the pinned 782-definition inventory. The native-model
+profile reports 718 PASS / 56 SKIP / 8 XFAIL, and the strict term-model profile
+reports 726 PASS / 56 SKIP, with no FAIL or BLOCKED in either.
+`python3 tools/check-layout.py` prints
+`Layout, inferred packages and licenses verified; 293 pinned vendor files.`
+
+```sh
+python3 tools/lisp.py tools/test.lisp all
+python3 tools/check-layout.py
+```
+
+Benchmark measurements, allocation and cold-compile figures, and their reproduce
+commands are in [BENCHMARKS.md](BENCHMARKS.md).
+
+# Historical records (superseded)
+
+Every section below preserves the counts, scope and wording recorded at its
+revision. Those numbers are not current; use the table above for the present
+tree. Optimizer comparisons and removal claims in the 2026-10-23 record describe
+an implementation that no longer exists.
+
+# Portable WAM execution — 2026-10-23 (superseded)
+
+At this revision, predicate specialization and native JIT compilation were absent.
+Every Lisp implementation used the same WAM execution path, without mode caches
+or native call/deoptimization counters. WAM compilation and lexical Lisp callbacks
+remained.
+
+SBCL 2.2.9 with a 1 MiB control stack passed **5,632 checks**. General collection
 regressions cover both term models, empty/nested collections, compound elements,
 answer order and duplicates, variable sharing, cuts and forced GC. Optimizer-only
-comparisons and fallback-counter assertions were removed with that implementation.
+comparisons and fallback-counter assertions were absent at this revision.
 The 54 normalized derived observations match the preceding revision byte for byte.
 The bundled corpus completes with 726 PASS / 56 SKIP in ISO mode and
 718 PASS / 8 XFAIL / 56 SKIP in the default model, with no FAIL or BLOCKED in
@@ -20,7 +61,7 @@ either mode. All 13 driver tests pass. The six shared-source workloads return
 their expected results in both models through WAM execution.
 
 Earlier validation records below describe the revisions tested at the time;
-optimizer-specific checks and measurements do not describe the current interpreter.
+their optimizer-specific checks and measurements do not describe the current tree.
 
 # ISO failure and applicability corrections
 
@@ -146,14 +187,14 @@ disabled and thresholds 1, 8 and 4096. Existing callback, SLG, logical-update an
 stress tests remain in the full suite. The 54 serialized derived observations
 match the initial ISO-baseline revision byte for byte.
 
-# Native specializer validation — 2026-10-30
+# Native specializer validation — 2026-10-30 (superseded)
 
-Portable automatic specialization is implemented in
+At this revision, portable automatic specialization was implemented in
 [`src/prolog/syntax/native.lisp`](../../src/prolog/syntax/native.lisp) and tested
-by `tests/prolog/syntax/native.lisp` (278 differential checks). Every semantic
-observation runs on fresh `:auto` and `:wam` databases and compares ordered
-answers, duplicates, truth values, delays, normalized ISO exception terms,
-graph/atom identity and cursor statistics.
+by `tests/prolog/syntax/native.lisp` (278 differential checks at that time). Every
+semantic observation ran on fresh `:auto` and `:wam` databases and compared
+ordered answers, duplicates, truth values, delays, normalized ISO exception
+terms, graph/atom identity and cursor statistics.
 
 | Host | `:auto` | `OOPARTS_PROLOG_DISABLE_NATIVE=1` |
 | --- | ---: | ---: |
@@ -212,12 +253,12 @@ rounds, same sources, validated results.
 | Graph, 1024 paths | 541.6 ms | 541.9 ms | 1.00x | 0 / 3 |
 | Symbolic differentiation | 42.7 ms | 0.374 ms | 114.2x | 1 / 0 |
 
-This table records the direct tier alone: reverse exceeded the logical depth
-budget and was replayed by the interpreter, which cost the reported 16%. It is
-retained as the pre-promotion baseline, is reproducible from its recorded JSON, and
-was not modified. Current numbers, where every case completes on exactly one
-native attempt with no replay, are in [NATIVE-JIT.md](NATIVE-JIT.md). No
-SWI-Prolog parity is claimed.
+This table records the direct tier alone at the 2026-10-30 revision: reverse
+exceeded the logical depth budget and was replayed by the interpreter, which cost
+the reported 16%. It is retained as the pre-promotion baseline, is reproducible
+from its recorded JSON, and was not modified. Current numbers, where every case
+completes on exactly one native attempt with no replay, are in
+[BENCHMARKS.md](BENCHMARKS.md). No SWI-Prolog parity is claimed.
 
 The previous native-compiler record follows and describes a superseded revision.
 

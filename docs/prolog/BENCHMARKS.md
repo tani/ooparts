@@ -1,16 +1,125 @@
-# Benchmarks and bottlenecks
+# Prolog benchmarks and measurements
 
-For the current optimizer and SWI-Prolog comparison, see [Competitive benchmarks](COMPETITIVE-BENCHMARKS.md). The investigation below describes the historical unoptimized revision.
+This is the canonical home for current Prolog performance measurements and their
+reproduction commands. The execution contract behind the numbers is in
+[NATIVE-JIT.md](NATIVE-JIT.md); historical investigations and superseded
+optimizers are archived below under [Historical records](#historical-records-superseded).
 
-Measured production revision: `be479795e11bcbd6f84ca2020e53c8dd17a9e992` (0.9.1).
-Date: 2026-10-12 JST. Runtime code is unchanged by this investigation.
+## Current native execution measurements
 
-The main opportunities are avoiding generic graph machinery for scalar values,
-adding first-argument indexing, reducing large-term compilation/allocation and
-reducing repeated answer copying. VM GC is effective at limiting retained cells;
-disabling it did not provide a clear throughput benefit on the garbage workload.
+Recorded 2026-10-30 with SBCL 2.5.4 on aarch64-linux, 30 samples per case per
+round, `BENCH_BATCH=3`, in two counterbalanced fresh-process rounds on the
+identical sources with a 1 MiB control stack. Times are warmed CPU milliseconds
+per query; allocation is cumulative SBCL bytes per query. Both policies produced
+every expected result (`92, 5, 1200, 2000, 1024, 12799`).
 
-## Method
+Every case executes completely natively: exactly one native call and zero
+deoptimizations, both cold and warm. Deep semidet recursion is promoted once from
+the direct tier to the explicit-stack tier within that same attempt; no case is
+replayed by the interpreter. Allocation falls sharply relative to the WAM - from
+143.17 MB to 1.558 MB on queens and from 1280.12 MB to 11.937 MB on reverse -
+because intermediate answer graphs stay in the private arena.
+
+Interquartile spread of the samples was 0.2–3.9% of each median, and the two
+counterbalanced rounds agreed within 1.6%, so the medians are stable rather than
+one lucky ordering.
+
+| Workload | `:wam` ms | `:auto` ms | Speedup | Allocated `:auto` MB | Allocated `:wam` MB | `:auto` cold compile ms |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 8 queens, all solutions | 117.58 | 1.048 | 112.17x | 1.558 | 143.17 | 28.3 |
+| Takeuchi (16,10,4) | 212.38 | 0.865 | 245.58x | 0.031 | 242.94 | 0.9 |
+| Naive reverse, 1200 | 2281.14 | 71.547 | 31.88x | 11.937 | 1280.12 | 374.7 |
+| Quicksort, 2000 | 216.47 | 6.156 | 35.16x | 1.370 | 166.71 | 6.1 |
+| Graph, 1024 paths | 539.48 | 1.013 | 532.61x | 2.349 | 788.06 | 1.3 |
+| Symbolic differentiation | 55.61 | 0.416 | 133.72x | 0.099 | 59.84 | 0.4 |
+
+`reverse` remains slower than the other specializations in absolute terms because
+its helper chain is quadratic, not because part of it still runs on the WAM.
+Cold compile is reported separately from warmed queries; it is not included in
+the `:auto` milliseconds column.
+
+### Pre-tier baseline
+
+The same tool, host and flags were run against the parent revision in a separate
+worktree before the explicit-stack tier was introduced, in the same
+counterbalanced order. At that revision deep list recursion exceeded the direct
+tier's depth bound and was replayed by the interpreter, which is visible in the
+call/deoptimization counts.
+
+| Workload | `:auto` before ms | `:auto` after ms | Allocated before / after MB | Native before / after |
+| --- | ---: | ---: | ---: | --- |
+| Naive reverse, 1200 | 2653.7 | 71.547 | 1709.6 / 11.937 | 3 calls, 2 deopts / 1 call, 0 |
+| Quicksort, 2000 | 222.1 | 6.156 | 187.6 / 1.370 | 4002 calls, 2 deopts / 1 call, 0 |
+| Graph, 1024 paths | 539.6 | 1.013 | 790.0 / 2.349 | 0 calls, 3 deopts / 1 call, 0 |
+
+The `:wam` medians of the two runs agree within noise, so the comparison is
+between the two engine policies rather than between two host states.
+`benchmarks/prolog/competitive.lisp` requires exactly one native call and zero
+deoptimizations for `reverse` and `quicksort` on the cold run and on every warm
+query whenever compilation is enabled. `benchmarks/prolog/jit-compare.py`
+requires at least one native call in both counterbalanced rounds for queens, tak,
+reverse and qsort, and additionally exactly one call with no replay for reverse
+and qsort, while still recording all six cases so shallow-path regressions stay
+visible.
+
+### SWI-Prolog reference
+
+`benchmarks/prolog/compare.py` on the same host, 30 samples, `BENCH_BATCH=3`,
+SWI-Prolog 9.2.9 with `-O`. This is used only as a reference; no SWI parity gate
+applies.
+
+| Workload | `:auto` ms | SWI `-O` ms | `:auto` vs SWI |
+| --- | ---: | ---: | ---: |
+| 8 queens | 1.072 | 2.408 | 2.25x faster |
+| Takeuchi (16,10,4) | 0.872 | 4.157 | 4.77x faster |
+| Naive reverse, 1200 | 71.576 | 18.742 | 3.82x slower |
+| Quicksort, 2000 | 6.181 | 3.754 | 1.65x slower |
+| Graph, 1024 paths | 1.002 | 0.333 | 3.01x slower |
+| Symbolic differentiation | 0.415 | 0.820 | 1.98x faster |
+
+Queens, Takeuchi and differentiation are ahead of optimized SWI. The remaining
+deficits are structural rather than interpretive: `reverse` builds two quadratic
+lists in portable Lisp, `quicksort` sorts a pseudo-random permutation without a
+specialized comparison or destructive update, and `route(X, D, Y)` re-scans the
+`edge/2` fact relation per call because the ground-fact index is keyed on the
+available scalars instead of being a first-argument index. No part of those three
+workloads is executed by the WAM any more, so closing the gaps needs better data
+structures and fact indexing, not more native code.
+
+### Reproduction
+
+Run from the repository root:
+
+```sh
+python3 benchmarks/prolog/jit-compare.py --repeats 30 --batch 3 --output build/prolog/jit-comparison.json
+BENCH_BATCH=3 python3 benchmarks/prolog/compare.py --repeats 30 --output build/prolog/swi-comparison.json
+python3 tools/lisp.py tools/test.lisp all
+```
+
+The first command runs `:wam` and `:auto` in two counterbalanced fresh-process
+rounds on identical sources, validates all six results, and retains per-round
+samples, native-use counts and medians. The second compares the same shared
+sources against SWI-Prolog. The third is the aggregate correctness suite.
+
+Host and flags belong to the recorded run above; re-running on other hardware or
+runtime versions may produce different ratios. Do not convert the historical
+x86-64 figures into current multipliers.
+
+## Historical records (superseded)
+
+The following investigation describes the interpreter-only revision
+`be479795e11bcbd6f84ca2020e53c8dd17a9e992` (0.9.1) on 2026-10-12 JST. It
+predates predicate specialization and the explicit-stack tier. Its tables are a
+separate diagnostic record of interpreter bottlenecks, not current measurements,
+and are kept for provenance. Runtime code was unchanged by that investigation.
+
+The main opportunities identified then were avoiding generic graph machinery for
+scalar values, adding first-argument indexing, reducing large-term
+compilation/allocation and reducing repeated answer copying. VM GC was effective
+at limiting retained cells; disabling it did not provide a clear throughput
+benefit on the garbage workload.
+
+### Method
 
 - SBCL 2.2.9.debian, Linux x86-64, AMD EPYC 9V74 virtual machine.
 - The container exposes nine logical CPUs, an eight-CPU quota and an 8 GiB memory limit.
@@ -31,7 +140,7 @@ disabling it did not provide a clear throughput benefit on the garbage workload.
 - Host-GC milliseconds and VM managed-cell/collection counters are in the raw results.
   Outer-VM heap counters do not include suspended SLG workers or all host allocations.
 
-## Baseline results
+### Baseline results
 
 | Workload | Build ms | Run ms | Export ms | Build MiB | Run MiB | Export MiB |
 |---|---:|---:|---:|---:|---:|---:|
@@ -54,9 +163,9 @@ The SLG workload enumerates paths along 1,000 edges using a left-recursive rule;
 it uses the same unindexed fact database. DCG consumes 10,000 tokens. Append-all
 exports 1,001 splits of a 1,000-element list.
 
-## Identified bottlenecks
+### Historical bottleneck analysis
 
-### 1. Generic graph processing for scalar values
+#### 1. Generic graph processing for scalar values
 
 `unify` constructs a work list and cycle-detection hash table before it knows
 whether it is comparing two scalar values. `map-term` similarly allocates graph
@@ -83,10 +192,11 @@ in these cases. Separate shortcuts and raw measurements are in
 [diagnostics.csv](../../benchmarks/prolog/results/diagnostics.csv). Small differences between shortcut
 variants can be noise; allocation counts are more stable than their timing order.
 
-First optimization: scalar fast paths and lazy creation of cycle-detection state.
-Preserve cyclic-term handling, variable age/trailing and generated-atom equality.
+The proposed first optimization was scalar fast paths and lazy creation of
+cycle-detection state, preserving cyclic-term handling, variable age/trailing and
+generated-atom equality.
 
-### 2. Missing first-argument indexing
+#### 2. Missing first-argument indexing
 
 Every unsuccessful fact head invokes unification and creates/backs out choices.
 The SLG path workload executes 3,011,016 worker instructions even though it has
@@ -94,7 +204,7 @@ only 1,000 edges and answers. It copies 1,001 continuations, but the measured
 large speedup comes from skipping irrelevant fact clauses, rather than from
 changing those copies.
 
-A benchmark-only index for unique ground numeric heads gives:
+A benchmark-only index for unique ground numeric heads gave:
 
 | Workload | Production baseline ms / MiB | Numeric index ms / MiB |
 |---|---:|---:|
@@ -106,7 +216,7 @@ continuation copies. The index is restricted to these numeric facts; a general
 implementation must preserve clause order, variable-headed fallback clauses and
 logical update snapshots. Its approximately 4 ms result is timer-resolution limited.
 
-### 3. Large literal terms expand into expensive compiled construction
+#### 3. Large literal terms expand into expensive compiled construction
 
 For a 100,000-element list, query construction takes 108 ms and allocates 114.5 MiB,
 compared with 48 ms / 66.4 MiB to execute and 8 ms / 23.2 MiB to export it.
@@ -118,11 +228,11 @@ construction, preserving sharing and cycles but adding work for acyclic input.
 Its BUILD-TERM helper accounts for 26.1% inclusive CPU samples in the large-term
 profile; graph hash lookup/growth and STRUCTURE-FIELDS also appear prominently.
 
-Candidate optimizations: a direct acyclic construction path, compact instruction
+Candidate optimizations were a direct acyclic construction path, compact instruction
 operands, fewer temporary graph/list objects, and compiled-query reuse when input
-shape is stable. These are proposals; none were installed or timed here.
+shape is stable. None were installed or timed in that investigation.
 
-### 4. Exporting each answer copies the complete cons graph
+#### 4. Exporting each answer copies the complete cons graph
 
 Enumerating all append splits takes 116 ms and allocates 243.9 MiB even though
 answers are immediately discarded. MAP-TERM accounts for 90.8% inclusive CPU
@@ -133,7 +243,7 @@ Streaming avoids retaining every answer, but still performs these copies. A
 read-only/transient answer API or sharing-aware multi-binding export may help;
 saved ordinary answers must remain valid after backtracking.
 
-### 5. Arithmetic builtin dispatch and LET overhead
+#### 5. Arithmetic builtin dispatch and LET overhead
 
 The interpreted arithmetic countdown takes 416 ms versus 192 ms for equivalent
 Lisp arithmetic callbacks. Its profile attributes 53.3% inclusive samples to
@@ -144,10 +254,10 @@ numeric subtraction itself, are substantial costs.
 LET adds about 29% time and 53% allocated bytes over the host countdown in the
 baseline. Much of this is generic host-value graph handling: the scalar diagnostic
 reduces LET to 172 ms / 158.7 MiB. Closure/cell construction remains another cost.
-Specialized arithmetic instructions and cached builtin dispatch are candidates
+Specialized arithmetic instructions and cached builtin dispatch were candidates
 after scalar paths and indexing.
 
-## GC tradeoff
+### Historical GC tradeoff
 
 | Discarded terms, 50k | Run ms | Run MiB | Peak managed cells | VM collections | Host GC ms |
 |---|---:|---:|---:|---:|---:|
@@ -163,9 +273,10 @@ Live large terms can still make GC significant: the large-term CPU profile has
 15.7% inclusive VM-GC samples, and its baseline host-GC time is about 39 ms across
 build/run/export. GC effectiveness and throughput depend on the workload.
 
-## Reproduction
+### Historical reproduction
 
-Run from the repository directory:
+These commands reproduce the interpreter-only investigation, not the current
+native measurements. Run from the repository directory:
 
 ```sh
 sbcl --dynamic-space-size 2048 --control-stack-size 1 --script benchmarks/prolog/run.lisp
@@ -187,17 +298,18 @@ byte attribution. Inclusive percentages overlap and recursive stacks can exceed
 100%. Profiler signal/trampoline overhead is visible in raw reports. Timing results
 come from separate, unprofiled runs.
 
-Diagnostic substitutions are process-local and restored with UNWIND-PROTECT.
-They confirm mechanisms on these workloads, not correctness or performance of a
-finished general optimizer. Production source files remain unchanged. No comparison
-with SWI-Prolog, XSB or Allegro Prolog was performed.
+Diagnostic substitutions were process-local and restored with UNWIND-PROTECT.
+They confirmed mechanisms on these workloads, not correctness or performance of a
+finished general optimizer. Production source files remained unchanged. No comparison
+with SWI-Prolog, XSB or Allegro Prolog was performed in that investigation.
 
-Recommended order: scalar graph fast paths; first-argument indexing; large-term
-construction; answer export; arithmetic dispatch. Shared SLG stacks are a later
-candidate, rather than the first fix for the path workload measured here.
+The recommended order at that time was scalar graph fast paths; first-argument
+indexing; large-term construction; answer export; arithmetic dispatch. Shared SLG
+stacks were a later candidate, rather than the first fix for the path workload
+measured there.
 
-## Type declarations without algorithm changes
+### Historical type-declaration experiment
 
 A [follow-up experiment](TYPE-DECLARATIONS.md) compares VM parameter declarations
-and broader vector/local type declarations against this implementation. It retains
+and broader vector/local type declarations against that implementation. It retains
 reproducible patches and measurements; neither candidate is applied to production.

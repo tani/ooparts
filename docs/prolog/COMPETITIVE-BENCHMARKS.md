@@ -1,9 +1,11 @@
-# Shared-source comparison with SWI-Prolog
+# Historical shared-source comparison with SWI-Prolog (2026-10-23)
 
-> Historical record. The optimizer measured here was replaced by the independent
-> implementation described in [NATIVE-JIT.md](NATIVE-JIT.md). These results apply
-> only to the revisions cited below; run reproduction commands in those revisions
-> and do not reuse these figures for the current code.
+> Historical record, superseded. The optimizer measured here was removed and has
+> since been replaced by the independent implementation described in
+> [NATIVE-JIT.md](NATIVE-JIT.md). These results apply only to the revisions cited
+> below; run reproduction commands in those revisions and do not reuse these
+> figures for the current code. Current measurements and reproduce commands live
+> in [BENCHMARKS.md](BENCHMARKS.md).
 
 Measured 2026-10-23 JST, starting from upstream `9e14c1e` (0.10.0).
 All six workloads beat SWI-Prolog 9.2.9 with `-O` on this host after warmup.
@@ -32,9 +34,10 @@ This is a throughput result for this suite, not a claim about every Prolog progr
 - Process launch, source loading, database construction and initial native compilation are excluded. The raw `cold_seconds` field records first-query time; the first benchmark compiles a closed group containing all six `bench/2` clauses, so later first-query values are not independent cold-compiler measurements.
 - Raw CPU samples, allocation counts, batches, versions and executed commands are in [native-only-results.json](../../benchmarks/prolog/results/native-only-results.json). The former full-optimization measurements and upstream context are archived in [competitive-results.json](../../benchmarks/prolog/results/competitive-results.json). Allocation bytes are cumulative SBCL allocations per query, not live bytes or RSS. SWI allocation fields are placeholders (zero), not allocation measurements.
 
-## Reproduction
+## Reproduction at the measured revision
 
-From the repository root, with SBCL, SWI-Prolog and Python 3 available:
+At a checkout of the revisions cited above, from the repository root, with SBCL,
+SWI-Prolog and Python 3 available:
 
 ```sh
 sbcl --dynamic-space-size 2048 --control-stack-size 1 --script tools/test.lisp prolog
@@ -51,20 +54,50 @@ BENCH_CASE=QUEENS BENCH_BATCH=1 sbcl --dynamic-space-size 2048 --control-stack-s
 BENCH_CASE=QUEENS BENCH_BATCH=1 swipl -O -q -s benchmarks/prolog/competitive-swi.pl
 ```
 
-## Implementation and limits
+## Implementation and limits at the measured revision
 
-The VM's clause selection, unification and graph-copying algorithms are unchanged
-from upstream. The [ablation report](NATIVE-ABLATION.md) explains why their proposed
-optimizations were removed; they were unnecessary for this throughput target.
+This section describes the measured revision only. It is not the current
+execution contract: the current implementation has two compiled tiers, a direct
+tier bounded by logical depth 256, an explicit-stack tier and different bailout
+bookkeeping, all specified in [NATIVE-JIT.md](NATIVE-JIT.md).
 
-On SBCL, `src/prolog/syntax/native.lisp` specializes pure user predicates by their ground input positions. Disjoint input heads or source cuts justify deterministic/semideterministic execution. Native Common Lisp labels perform integer arithmetic, matching and calls directly. A pure statically known `findall/3` goal uses continuation-based enumeration; ground fact relations use indexes on available scalar inputs. These optimizations depend on program structure and call modes, not benchmark names.
+The VM's clause selection, unification and graph-copying algorithms were unchanged
+from upstream at that revision. The [ablation report](NATIVE-ABLATION.md) explains
+why the proposed VM-side optimizations were removed from that experiment; they
+were unnecessary for its throughput target.
 
-Native calls require ground acyclic inputs and independent free output variables. Constrained/aliased outputs, unsupported arithmetic types, host callbacks, effects, tabling and instrumentation retain the VM path. Compiled and rejected modes are cached per database generation; clearing a database releases its cache. Recursive native collector compilation is detected and falls back.
+On SBCL at that revision, `src/prolog/syntax/native.lisp` specialized pure user
+predicates by their ground input positions. Disjoint input heads or source cuts
+justified deterministic/semideterministic execution. Native Common Lisp labels
+performed integer arithmetic, matching and calls directly. A pure statically
+known `findall/3` goal used continuation-based enumeration; ground fact relations
+used indexes on available scalar inputs. These optimizations depended on program
+structure and call modes, not benchmark names.
 
-Native evaluation is speculative: it makes no VM bindings or external effects before completion. Depth (2,048), call fuel (1,000,000), compiler mode count (128), template depth (64) and collector answer count (65,536) bounds trigger VM fallback. A cursor remembers a failed specialization to avoid retrying the same expensive bailout at every recursive call. The portable WAM remains the implementation for other Lisp runtimes; SLG is not a speed claim of this benchmark.
+Native calls required ground acyclic inputs and independent free output variables.
+Constrained/aliased outputs, unsupported arithmetic types, host callbacks,
+effects, tabling and instrumentation retained the VM path. Compiled and rejected
+modes were cached per database generation; clearing a database released its
+cache. Recursive native collector compilation was detected and fell back.
 
-`query-statistics` adds `:native-calls` and `:native-deoptimizations`. Existing instruction, continuation-depth and managed-cell counters describe WAM work; native temporary allocation is visible in the host byte counters.
+Native evaluation was speculative: it made no VM bindings or external effects
+before completion. Depth (2,048), call fuel (1,000,000), compiler mode count
+(128), template depth (64) and collector answer count (65,536) bounds triggered
+VM fallback. A cursor remembered a failed specialization to avoid retrying the
+same expensive bailout at every recursive call. The portable WAM remained the
+implementation for other Lisp runtimes; SLG was not a speed claim of this
+benchmark.
 
-## Correctness evidence
+`query-statistics` added `:native-calls` and `:native-deoptimizations`. Existing
+instruction, continuation-depth and managed-cell counters described WAM work;
+native temporary allocation was visible in the host byte counters.
 
-4,625 checks pass on SBCL with a 1 MiB stack, including native/interpreter comparisons, 49 cut/guard combinations, errors, output constraints/aliasing, rational/open terms, recursive collectors, cache invalidation and deep tail/non-tail fallback. With native execution disabled, 4,618 checks pass (seven native-path assertions are skipped). All 54 serialized derived observations match the upstream revision. Existing SLG, callback, forced-GC and logical-update regressions remain enabled.
+## Correctness evidence at the measured revision
+
+4,625 checks passed on SBCL with a 1 MiB stack, including native/interpreter
+comparisons, 49 cut/guard combinations, errors, output constraints/aliasing,
+rational/open terms, recursive collectors, cache invalidation and deep
+tail/non-tail fallback. With native execution disabled, 4,618 checks passed
+(seven native-path assertions were skipped). All 54 serialized derived
+observations matched the upstream revision. Existing SLG, callback, forced-GC and
+logical-update regressions remained enabled.

@@ -11,8 +11,9 @@
   stack without changing the generated algorithms, answer order or cut scope. The
   promotion reuses the same constants, inputs, fuel and answer budget and is not a
   deoptimization; enumerated definitions and `findall` generators stay synchronous.
-- Bound every attempt (fuel, logical depth, collected answers, arithmetic, arity,
-  arena slots) and keep the complete WAM implementation for declined calls,
+- Bound every attempt (fuel, logical depth 256 on the direct tier, collected
+  answers, arithmetic, arity, and the 1,048,576-slot explicit-stack arena) and
+  keep the complete WAM implementation for declined calls,
   transactional replay, cut scope, `findall` bags, tabling, SLG and instrumentation.
 - Add native/interpreted differential regressions and a counterbalanced
   `benchmarks/prolog/jit-compare.py` comparison on the shared workload.

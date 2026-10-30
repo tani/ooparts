@@ -2,7 +2,7 @@
   (:use #:cl #:ooparts/prolog)
   (:import-from #:ooparts-tests/prolog/support/assertions #:check #:solutions #:value-of)
   (:import-from #:ooparts/prolog/syntax/native #:*native-enabled*)
-  (:export #:run-native-tests))
+  (:export #:run-native-tests #:run-native-stack-tests))
 (in-package #:ooparts-tests/prolog/syntax/native)
 
 ;;; Differential regressions for the JIT predicate specializer. Every semantic
@@ -478,9 +478,13 @@
       (check (equal (first auto) (first wam)) "depth bailout replays the WAM answer")
       (check (equal (first auto) '((:true . "((?r . done))")))
              "depth bailout returns the complete answer")
+      ;; A host-depth overflow now promotes the same attempt to the heap tier,
+      ;; so the answer is produced by one native call and no replay.
       (when (and (native-possible-p) (= limit 2))
-        (check (plusp (native-deopts (fourth auto)))
-               "depth bailout increments deoptimizations"))))
+        (check (plusp (native-calls (fourth auto)))
+               "depth overflow promotes to the explicit-stack tier")
+        (check (zerop (native-deopts (fourth auto)))
+               "a successful promotion is not a deoptimization"))))
   (let* ((auto (fuel-bailout-data :auto 5))
          (wam (fuel-bailout-data :wam 5)))
     (check (equal (first auto) (first wam)) "fuel bailout replays the WAM answer")
@@ -547,7 +551,9 @@
                "previously rejected caller becomes compilable"))))
   ;; Bailout suppression is qualified by generation inside one cursor.
   (let ((*database* (make-database))
-        (ooparts/prolog/syntax/native::*native-depth-limit* 2))
+        (ooparts/prolog/syntax/native::*native-depth-limit* 2)
+        ;; A tiny arena forces a real replay of the deep call in one cursor.
+        (ooparts/prolog/syntax/native::*native-stack-slot-limit* 32))
     (load-prolog-string
      "qdeep(0) :- !. qdeep(N) :- M is N-1, qdeep(M).")
     (let* ((mutate
@@ -773,7 +779,7 @@
     (list (capture-error (lambda ()
                            (query '((badmod ?x)) :database *database*)))
           (capture-error (lambda ()
-                           (query (list 'badfloat 1.5 '?x)
+                           (query (list (list 'badfloat 1.5 '?x))
                                   :database *database*))))))
 
 (defun test-slg-and-arithmetic ()
@@ -815,7 +821,407 @@
     (test-gc)
     (test-high-arity)
     (test-slg-and-arithmetic)
+    (run-native-stack-tests)
     (format t "~D native specializer checks passed.~%"
+            (- (symbol-value 'ooparts-tests/prolog/support/assertions:*checks*)
+               start))
+    t))
+
+;;; 15. Explicit-stack tier: deep semidet promotion.
+;;;
+;;; Each observation runs on a fresh database and compares the ordered answers,
+;;; truth values and delays of the public cursor with the interpreted oracle.
+;;; Statistics assertions only make sense for a query whose single public goal is
+;;; the measured attempt.
+
+(defvar *stack-up-source*
+  "up(0, 0) :- !.
+up(N, R) :- N > 0, M is N-1, up(M, S), R is S+1.")
+
+(defun stack-observations (source goals &key (model :native) (mode :auto) gc
+                                          (depth 256) (fuel 1000000)
+                                          (answers 65536) slots)
+  "Run GOALS over fresh SOURCE under one execution policy and bounds."
+  (let* ((*database* (make-database :term-model model :execution-mode mode))
+         (ooparts/prolog/syntax/native::*native-depth-limit* depth)
+         (ooparts/prolog/syntax/native::*native-fuel-limit* fuel)
+         (ooparts/prolog/syntax/native::*native-answer-limit* answers)
+         (ooparts/prolog/syntax/native::*native-stack-slot-limit*
+           (or slots ooparts/prolog/syntax/native::*native-stack-slot-limit*)))
+    (load-prolog-string source)
+    (query-list goals *database* :gc-threshold (or gc 4096))))
+
+(defun stack-agrees (label source goals &rest options)
+  "Check that the auto and WAM cursors produce equal answers, truth and delays."
+  (let ((auto (apply #'stack-observations source goals :mode :auto options))
+        (wam (apply #'stack-observations source goals :mode :wam options)))
+    (check (equal (subseq auto 0 3) (subseq wam 0 3))
+           (format nil "~A agrees with WAM" label))
+    (values auto wam)))
+
+(defun stack-solutions (source goals &key (model :native) (depth 0))
+  "Load SOURCE into a fresh database and return the public answers."
+  (let* ((*database* (make-database :term-model model))
+         (ooparts/prolog/syntax/native::*native-depth-limit* depth))
+    (load-prolog-string source)
+    (query goals :database *database*)))
+
+(defun stack-decoded (source goals keys &key (depth 256))
+  "Return the listed bindings of the first answer under native execution."
+  (let* ((*database* (make-database))
+         (ooparts/prolog/syntax/native::*native-depth-limit* depth))
+    (load-prolog-string source)
+    (let ((solutions (query goals :database *database*)))
+      (and solutions
+           (mapcar (lambda (key) (value-of key (first solutions))) keys)))))
+
+(defun stack-answer (observations)
+  (first observations))
+
+(defun stack-statistics (observations)
+  (fourth observations))
+
+(defun single-answer-p (observations text)
+  (equal (first observations) (list (cons :true text))))
+
+;;; Deep non-tail recursion, and mutual recursion with distinct keys.
+(defun test-stack-deep-recursion ()
+  (dolist (depth '(0 256))
+    (let ((auto (stack-observations *stack-up-source* '((up 600 ?r)) :depth depth)))
+      (check (single-answer-p auto "((?r . 600))")
+             (format nil "up(600,R) answers 600 at depth ~A" depth))
+      (check (equal (first auto)
+                    (first (stack-observations *stack-up-source* '((up 600 ?r))
+                                               :depth depth :mode :wam)))
+             "deep up agrees with the WAM")
+      (when (native-possible-p)
+        (check (= 1 (native-calls (stack-statistics auto)))
+               "deep up is one native attempt")
+        (check (zerop (native-deopts (stack-statistics auto)))
+               "deep up needs no replay"))))
+  (let ((source "evenup(0, 0) :- !.
+evenup(N, R) :- N > 0, M is N-1, oddup(M, S), R is S+1.
+oddup(0, 1) :- !.
+oddup(N, R) :- N > 0, M is N-1, evenup(M, S), R is S+1."))
+    (multiple-value-bind (auto wam)
+        (stack-agrees "mutual recursion" source '((evenup 600 ?r)) :depth 0)
+      (check (single-answer-p auto "((?r . 600))") "evenup(600,R) answers 600")
+      (check (equal (stack-answer auto) (stack-answer wam)) "mutual recursion matches")
+      (when (native-possible-p)
+        (check (= 1 (native-calls (stack-statistics auto)))
+               "mutual recursion is one native attempt")
+        (check (zerop (native-deopts (stack-statistics auto)))
+               "mutual recursion needs no replay")))))
+
+;;; The benchmark helpers themselves, inside one deep wrapper body.
+(defvar *stack-sort-source*
+  "range(0, []) :- !.
+range(N, [N|Xs]) :- M is N-1, range(M, Xs).
+bappend([], Ys, Ys).
+bappend([X|Xs], Ys, [X|Zs]) :- bappend(Xs, Ys, Zs).
+nrev([], []).
+nrev([X|Xs], Ys) :- nrev(Xs, Zs), bappend(Zs, [X], Ys).
+partition([], _, [], []).
+partition([X|Xs], P, [X|Ls], Hs) :- X =< P, !, partition(Xs, P, Ls, Hs).
+partition([X|Xs], P, Ls, [X|Hs]) :- partition(Xs, P, Ls, Hs).
+qsort([], []).
+qsort([X|Xs], Ys) :- partition(Xs, X, L, H), qsort(L, LS), qsort(H, HS),
+                     bappend(LS, [X|HS], Ys).
+revdeep(R) :- range(1200, Xs), nrev(Xs, Ys), R = Ys.
+sortdeep(R) :- range(300, Xs), qsort(Xs, Ys), R = Ys.
+sortsmall(R) :- qsort([3, 1, 3, 2, 1], R).
+revsmall(R) :- nrev([1, 2, 3], R).
+partsmall(L, H) :- partition([3, 1, 3, 2], 3, L, H).")
+
+(defun stack-wrapper-list (goal model depth)
+  (let* ((*database* (make-database :term-model model))
+         (ooparts/prolog/syntax/native::*native-depth-limit* depth))
+    (load-prolog-string *stack-sort-source*)
+    (let* ((vm (make-query (list goal) :database *database*))
+           (answer nil) (stats nil))
+      (unwind-protect
+           (multiple-value-bind (solution foundp) (next-solution vm)
+             (when foundp
+               (setf answer (bag-items (value-of '?r solution) model)))
+             (setf stats (query-statistics vm)))
+        (close-query vm))
+      (values answer stats))))
+
+(defun test-stack-helpers ()
+  (dolist (model '(:native :iso))
+    (dolist (depth '(0 256))
+      (multiple-value-bind (reversed stats) (stack-wrapper-list '(revdeep ?r) model depth)
+        ;; RANGE counts down, so the reversed list is ascending 1..1200.
+        (check (equal reversed (loop for value from 1 to 1200 collect value))
+               (format nil "revdeep reverses the whole list (~A, depth ~A)" model depth))
+        (when (and (native-possible-p) (eq model :native))
+          (check (= 1 (native-calls stats))
+                 "revdeep is one native attempt")
+          (check (zerop (native-deopts stats)) "revdeep needs no replay")))
+      (multiple-value-bind (sorted stats) (stack-wrapper-list '(sortdeep ?r) model depth)
+        (check (equal sorted (loop for value from 1 to 300 collect value))
+               (format nil "sortdeep sorts the whole list (~A, depth ~A)" model depth))
+        (when (and (native-possible-p) (eq model :native))
+          (check (= 1 (native-calls stats)) "sortdeep is one native attempt")
+          (check (zerop (native-deopts stats)) "sortdeep needs no replay"))))
+    (multiple-value-bind (reversed stats) (stack-wrapper-list '(revsmall ?r) model 0)
+      (check (equal reversed '(3 2 1)) "revsmall reverses a three-element list")
+      (when (and (native-possible-p) (eq model :native))
+        (check (= 1 (native-calls stats)) "revsmall is one native attempt")))
+    (multiple-value-bind (small stats) (stack-wrapper-list '(sortsmall ?r) model 0)
+      (check (equal small '(1 1 2 3 3)) "sortsmall sorts duplicates")
+      (when (and (native-possible-p) (eq model :native))
+        (check (= 1 (native-calls stats)) "sortsmall stays native with a deep limit")))
+    (let* ((*database* (make-database :term-model model))
+           (ooparts/prolog/syntax/native::*native-depth-limit* 0))
+      (load-prolog-string *stack-sort-source*)
+      (let ((solution (first (query '((partsmall ?l ?h)) :database *database*))))
+        (check (equal (bag-items (value-of '?l solution) model) '(3 1 3 2))
+               "partition keeps every element in the lower half")
+        (check (null (bag-items (value-of '?h solution) model))
+               "partition leaves the upper half empty")))))
+
+;;; Promotion with multiple, absent and NIL outputs plus cut placement.
+(defvar *stack-up-clauses*
+  "up(0, 0) :- !.
+up(N, R) :- N > 0, M is N-1, up(M, S), R is S+1.
+")
+
+(defvar *stack-cut-source*
+  "up(0, 0) :- !.
+up(N, R) :- N > 0, M is N-1, up(M, S), R is S+1.
+two(a, b).
+tri(a, b, c).
+twoout(A, B) :- up(2, R), R = 2, two(A, B).
+triout(A, B, C) :- up(2, R), R = 2, tri(A, B, C).
+nilwrap(X) :- up(2, R), R = 2, X = [].
+zeroout :- up(2, R), R = 2.
+cutpre :- up(2, R), R = 3, !, fail.
+cutpre.
+cutpost :- up(2, R), R = 2, !, fail.
+pickc(a).
+pickc(b).
+cutpick(X) :- pickc(X), !.
+outerpick(X) :- up(2, R), R = 2, cutpick(X), !.
+outerpick(fallback).")
+
+(defun test-stack-promotion-shapes ()
+  (multiple-value-bind (auto wam)
+      (stack-agrees "multiple outputs" *stack-cut-source* '((twoout ?a ?b)) :depth 0)
+    (check (equal (mapcar (lambda (item) (list (value-of '?a item) (value-of '?b item)))
+                          (stack-solutions *stack-cut-source* '((twoout ?a ?b))))
+                  '((a b)))
+           "twoout binds both outputs")
+    (check (= 1 (length (stack-answer auto))) "twoout has one answer")
+    (check (equal (stack-answer auto) (stack-answer wam)) "twoout matches the WAM"))
+  (multiple-value-bind (auto wam)
+      (stack-agrees "three outputs" *stack-cut-source* '((triout ?a ?b ?c)) :depth 0)
+    (check (= 1 (length (stack-answer auto))) "triout has one answer")
+    (check (equal (stack-answer auto) (stack-answer wam)) "triout matches the WAM"))
+  (dolist (goal '((nilwrap ?x) (zeroout)))
+    (multiple-value-bind (auto wam)
+        (stack-agrees "output shape" *stack-cut-source* (list goal) :depth 0)
+      (check (equal (stack-answer auto) (stack-answer wam))
+             (format nil "~S output shape matches the WAM" goal))))
+  (let* ((auto (stack-observations *stack-cut-source* '((nilwrap ?x)) :depth 0))
+         (solution (first (stack-solutions *stack-cut-source* '((nilwrap ?x))))))
+    (check (null (value-of '?x solution)) "nilwrap binds the empty list")
+    (when (native-possible-p)
+      (check (= 1 (native-calls (stack-statistics auto))) "nilwrap is one native attempt")))
+  (multiple-value-bind (auto wam)
+      (stack-agrees "cut before failure" *stack-cut-source* '((cutpre)) :depth 0)
+    (check (single-answer-p auto "nil") "cutpre reaches its second clause")
+    (check (equal (stack-answer auto) (stack-answer wam)) "cutpre matches the WAM"))
+  (multiple-value-bind (auto wam)
+      (stack-agrees "cut after failure" *stack-cut-source* '((cutpost)) :depth 0)
+    (check (null (stack-answer auto)) "cutpost fails after its cut")
+    (check (equal (stack-answer auto) (stack-answer wam)) "cutpost matches the WAM")
+    (when (native-possible-p)
+      (check (zerop (native-deopts (stack-statistics auto)))
+             "a committed failure is a logical failure, not a replay")))
+  ;; A nested cut commits the callee without corrupting the caller's clause.
+  (multiple-value-bind (auto wam)
+      (stack-agrees "nested cut" *stack-cut-source* '((outerpick ?x)) :depth 0)
+    (check (equal (mapcar (lambda (solution) (value-of '?x solution))
+                          (stack-solutions *stack-cut-source* '((outerpick ?x))))
+                  '(a))
+           "the caller's cut prunes the callee's alternatives")
+    (check (equal (stack-answer auto) (stack-answer wam)) "nested cut matches the WAM")
+    (when (native-possible-p)
+      (check (zerop (native-deopts (stack-statistics auto)))
+             "stack cuts do not replay"))))
+
+;;; Graph and identity outputs after a deep prefix inside one stack activation.
+(defun test-stack-graph-outputs ()
+  (dolist (model '(:native :iso))
+    (let* ((*database* (make-database :term-model model))
+           (ooparts/prolog/syntax/native::*native-depth-limit* 0)
+           (leaf (list 'a))
+           (shared (list 'pair leaf leaf))
+           (text (copy-seq "stack-atom"))
+           (roots nil))
+      (ooparts/prolog/syntax/compiler:add-clause
+       (list 'seed shared text) nil t *database*)
+      (load-prolog-string
+       "up(0, 0) :- !.
+up(N, R) :- N > 0, M is N-1, up(M, S), R is S+1.
+dagwrap(Y) :- seed(A, _), up(2, R), R = 2, Y = pair(A, A).
+atomwrap(A) :- seed(_, T), up(2, R), R = 2, A = T.
+distwrap(A, B) :- up(2, R), R = 2, A = f(1), B = f(1).")
+      (let ((vm (make-query '((dagwrap ?y) (atomwrap ?a) (distwrap ?d1 ?d2))
+                            :database *database* :gc-threshold 1)))
+        (unwind-protect
+             (multiple-value-bind (solution foundp) (next-solution vm)
+               (check foundp "graph wrappers succeed")
+               (let ((dag (value-of '?y solution))
+                     (atom (value-of '?a solution))
+                     (left (value-of '?d1 solution))
+                     (right (value-of '?d2 solution)))
+                 (check (eq (second dag) (third dag))
+                        "output sharing inside one answer is preserved")
+                 (check (equal (second dag) shared)
+                        "the shared input graph keeps its contents")
+                 (check (eq (second (second dag)) (third (second dag)))
+                        "sharing nested inside the input survives")
+                 (check (eq atom text) "string atom output keeps identity")
+                 (check (equal left right) "distinct equal outputs stay equal")
+                 (check (not (eq left right))
+                        "distinct equal outputs are separate objects")
+                 (collect-query-garbage vm)
+                 (check (eq (second dag) (third dag))
+                        "output sharing survives collection between answers")
+                 (push (list dag atom left right) roots)))
+          (close-query vm)))
+      (check (= 1 (length roots)) "graph wrapper produced one answer"))))
+
+;;; FINDALL stays a synchronous bridge inside a promoted activation.
+(defun test-stack-findall-bridge ()
+  (let ((source (concatenate 'string *stack-up-clauses*
+                             "g(a).
+g(b).
+g(a).
+deepbag(R, B) :- up(600, R), findall(X, g(X), B).")))
+    (multiple-value-bind (auto wam)
+        (stack-agrees "deep prefix with findall" source '((deepbag ?r ?b)) :depth 4)
+      (multiple-value-bind (result bag)
+          (values-list (stack-decoded source '((deepbag ?r ?b)) '(?r ?b) :depth 4))
+        (check (= 600 result) "deep prefix still binds its result")
+        (check (equal (bag-items bag :native) '(a b a))
+               "the synchronous collector keeps every answer in order"))
+      (check (equal (stack-answer auto) (stack-answer wam))
+             "deep findall bridge matches the WAM")
+      (when (native-possible-p)
+        (check (= 1 (native-calls (stack-statistics auto)))
+               "deep prefix with a synchronous collector is one native attempt")
+        (check (zerop (native-deopts (stack-statistics auto)))
+               "the collector bridge is not a replay"))))
+  ;; A collector whose own recursion exceeds the bound replays atomically.
+  (let ((source "countdown(0, done) :- !.
+countdown(N, done) :- N > 0, M is N-1, countdown(M, done).
+countbag(B) :- findall(X, countdown(600, X), B)."))
+    (multiple-value-bind (auto wam)
+        (stack-agrees "deep collector" source '((countbag ?b)) :depth 4)
+      (check (equal (stack-answer auto) (stack-answer wam))
+             "deep collector matches the WAM")
+      (when (native-possible-p)
+        (check (plusp (native-deopts (stack-statistics auto)))
+               "a collector past the bound is replayed once")))))
+
+;;; Shared fuel and answers across the single promotion.
+(defun test-stack-budget-sharing ()
+  (let ((auto (stack-observations *stack-up-source* '((up 5 ?r))
+                                  :depth 2 :fuel 8))
+        (wam (stack-observations *stack-up-source* '((up 5 ?r))
+                                 :depth 2 :fuel 8 :mode :wam)))
+    (check (single-answer-p auto "((?r . 5))") "fuel-starved promotion replays the answer")
+    (check (equal (stack-answer auto) (stack-answer wam)) "fuel sharing matches the WAM")
+    (when (native-possible-p)
+      (check (zerop (native-calls (stack-statistics auto)))
+             "an exhausted continuation is not a native success")
+      (check (= 1 (native-deopts (stack-statistics auto)))
+             "fuel is not replenished for the promoted attempt")))
+  (let ((source (concatenate 'string *stack-up-clauses*
+                             "g(a).
+g(b).
+g(c).
+mixdeep(B, R) :- findall(X, g(X), B), up(5, R).")))
+    (let ((auto (stack-observations source '((mixdeep ?b ?r))
+                                    :depth 2 :answers 4))
+          (wam (stack-observations source '((mixdeep ?b ?r))
+                                   :depth 2 :answers 4 :mode :wam)))
+      (check (equal (stack-answer auto) (stack-answer wam))
+             "collected answers survive the replay")
+      (multiple-value-bind (bag result)
+          (values-list (stack-decoded source '((mixdeep ?b ?r)) '(?b ?r) :depth 2))
+        (check (equal (bag-items bag :native) '(a b c))
+               "the replayed bag is complete")
+        (check (= 5 result) "the replayed result is complete"))
+      (when (native-possible-p)
+        (check (plusp (native-deopts (stack-statistics auto)))
+               "answers consumed speculatively are not replenished")))))
+
+;;; Arena bounds are finite and reject before any allocation or push.
+(defun test-stack-slot-limits ()
+  (dolist (slots '(0 128))
+    (let ((auto (stack-observations *stack-up-source* '((up 600 ?r))
+                                    :depth 2 :slots slots))
+          (wam (stack-observations *stack-up-source* '((up 600 ?r))
+                                   :depth 2 :slots slots :mode :wam)))
+      (check (single-answer-p auto "((?r . 600))")
+             (format nil "slot limit ~A replays the complete answer" slots))
+      (check (equal (stack-answer auto) (stack-answer wam))
+             (format nil "slot limit ~A matches the WAM" slots))
+      (when (native-possible-p)
+        (check (zerop (native-calls (stack-statistics auto)))
+               (format nil "slot limit ~A rejects the attempt" slots))
+        (check (= 1 (native-deopts (stack-statistics auto)))
+               (format nil "slot limit ~A replays once" slots))))))
+
+;;; A non-integer arithmetic guard after a deep prefix replays exactly once.
+(defun stack-guard-case (source goal mode depth)
+  "Return the raised ISO exception snapshot (or :NO-ERROR) and the statistics."
+  (let* ((*database* (make-database :execution-mode mode))
+         (ooparts/prolog/syntax/native::*native-depth-limit* depth))
+    (load-prolog-string source)
+    (let ((vm (make-query (list goal) :database *database*)) (raised :no-error) (stats nil))
+      (unwind-protect
+           (handler-case (next-solution vm)
+             (iso-exception (condition)
+               (setf raised (term-snapshot (iso-exception-term condition)))))
+        (setf stats (query-statistics vm))
+        (close-query vm))
+      (list raised stats))))
+
+(defun test-stack-arithmetic-guard ()
+  ;; The operand is a variable, so only the runtime integer guard rejects it.
+  (let ((source (concatenate 'string *stack-up-clauses*
+                             "badwrap(X, V) :- up(600, R), X is R + V."))
+        (goal '(badwrap ?x a)))
+    (let ((auto (stack-guard-case source goal :auto 0))
+          (wam (stack-guard-case source goal :wam 0)))
+      (check (equal (first auto) (first wam))
+             "guarded arithmetic matches the WAM")
+      (check (stringp (first wam))
+             "the WAM raises a structured ISO exception")
+      (when (native-possible-p)
+        (check (= 1 (native-deopts (second auto)))
+               "the outer attempt replays exactly once")
+        ;; The replay reaches its own deep helper, which is a separate call site.
+        (check (plusp (native-calls (second auto)))
+               "the replay's deep helper still executes natively")))))
+
+(defun run-native-stack-tests ()
+  (let ((*package* (find-package '#:ooparts-tests/prolog/syntax/native))
+        (start (symbol-value 'ooparts-tests/prolog/support/assertions:*checks*)))
+    (test-stack-deep-recursion)
+    (test-stack-helpers)
+    (test-stack-promotion-shapes)
+    (test-stack-graph-outputs)
+    (test-stack-findall-bridge)
+    (test-stack-budget-sharing)
+    (test-stack-slot-limits)
+    (test-stack-arithmetic-guard)
+    (format t "~D explicit-stack checks passed.~%"
             (- (symbol-value 'ooparts-tests/prolog/support/assertions:*checks*)
                start))
     t))

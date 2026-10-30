@@ -91,6 +91,12 @@ an explicit ASDF program system. All Nix components share the root flake.
 Library and test variants are offered for implementations available on each
 platform, using `lib-prolog-<implementation>` and `test-prolog-<implementation>`.
 
+## Performance
+
+The measured comparison against SWI-Prolog is tabulated once, in the repository
+[README performance section](../../README.md#performance), together with the
+reproduction commands and the reference-only caveat.
+
 ## Validation
 
 ```sh

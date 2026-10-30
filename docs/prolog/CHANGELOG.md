@@ -5,9 +5,15 @@
 - Add `:execution-mode :auto|:wam` to `make-database`, `OOPARTS_PROLOG_DISABLE_NATIVE`
   as a process-level interpreted oracle, and `:native-calls`/`:native-deoptimizations`
   in `query-statistics`.
-- Bound every attempt (fuel, logical depth, collected answers, arity) and keep the
-  complete WAM implementation for declined calls, transactional replay, cut scope,
-  `findall` bags, tabling, SLG and instrumentation.
+- Continue depth-limited semidet recursion on an explicit-stack tier: the verified
+  definition group is lowered into one `tagbody` over a private adjustable arena,
+  with static call entries and integer resume tokens, so activations leave the host
+  stack without changing the generated algorithms, answer order or cut scope. The
+  promotion reuses the same constants, inputs, fuel and answer budget and is not a
+  deoptimization; enumerated definitions and `findall` generators stay synchronous.
+- Bound every attempt (fuel, logical depth, collected answers, arithmetic, arity,
+  arena slots) and keep the complete WAM implementation for declined calls,
+  transactional replay, cut scope, `findall` bags, tabling, SLG and instrumentation.
 - Add native/interpreted differential regressions and a counterbalanced
   `benchmarks/prolog/jit-compare.py` comparison on the shared workload.
 - Raise `evaluation_error(undefined)` for non-finite transcendental results, so

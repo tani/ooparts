@@ -181,8 +181,10 @@ isolation, ground-input aliasing with a single published root, atom-name
 matching across Lisp packages, depth/fuel/answer bailouts with transactional
 replay, clause-replacement cache invalidation, dispatcher and provider
 instrumentation, forced managed GC, high-arity rejection, and tabled/arithmetic
-boundaries. Deep pure recursion inside the depth budget runs natively; beyond it
-the interpreter answers without host stack exhaustion.
+boundaries. Deep pure recursion inside the host-depth budget runs on the direct
+tier; beyond it the same attempt is promoted once to the explicit-stack tier,
+which answers from a heap arena without host stack exhaustion and without a
+replay. `run-native-stack-tests` in the same file covers that tier portably.
 
 ISO adapters: `tools/prolog/iso/run.py --term-model iso --strict --jobs 2`
 selects 782 upstream cases and reports **726 PASS, 0 FAIL, 56 SKIP** both with
@@ -210,10 +212,12 @@ rounds, same sources, validated results.
 | Graph, 1024 paths | 541.6 ms | 541.9 ms | 1.00x | 0 / 3 |
 | Symbolic differentiation | 42.7 ms | 0.374 ms | 114.2x | 1 / 0 |
 
-Generated search is fully specialized; reverse exceeds the logical depth budget
-and is replayed by the interpreter, which costs the reported 16%. The same table
-is reproducible from the recorded JSON; no archived measurement was modified and
-no SWI-Prolog parity is claimed.
+This table records the direct tier alone: reverse exceeded the logical depth
+budget and was replayed by the interpreter, which cost the reported 16%. It is
+retained as the pre-promotion baseline, is reproducible from its recorded JSON, and
+was not modified. Current numbers, where every case completes on exactly one
+native attempt with no replay, are in [NATIVE-JIT.md](NATIVE-JIT.md). No
+SWI-Prolog parity is claimed.
 
 The previous native-compiler record follows and describes a superseded revision.
 

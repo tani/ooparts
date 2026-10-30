@@ -3,8 +3,11 @@
 `ooparts/prolog` specializes eligible predicate groups into compiled Common
 Lisp functions at query time. Specialized calls use fixed Lisp arguments, local
 variables, direct matching/arithmetic and direct calls; they never dispatch WAM
-instructions. Ineligible or unsupported executions keep the complete interpreted
-implementation, so observable Prolog semantics do not depend on the policy.
+instructions. Deep semidet recursion that would exhaust the host stack continues
+on a second tier that keeps its activations in a heap arena and transfers control
+with static jumps and integer resume tokens. Ineligible or unsupported executions
+keep the complete interpreted implementation, so observable Prolog semantics do
+not depend on the policy.
 
 ## Execution policy
 
@@ -54,14 +57,44 @@ kind. Compilation is attempted only for a closed group of pure clauses:
   64. Graph-shaped or cyclic source terms stay interpreted.
 - Size limits protect the host: at most 128 compiled modes per group, arity at
   most `(min 64 (- call-arguments-limit 4) (- lambda-parameters-limit 4)
-  (1- multiple-values-limit))`.
+  (1- multiple-values-limit))`, and at most 1,048,576 explicit-stack slots per
+  attempt.
+
+## Two execution tiers
+
+Compiled groups run on two tiers with identical semantics.
+
+| Tier | Activation storage | Bound |
+| --- | --- | --- |
+| Direct | one host frame per generated call | logical depth 256 |
+| Explicit stack | private adjustable heap arena | arena slot limit |
+
+The direct tier is emitted first: fixed Lisp arguments, local variables, direct
+matching/arithmetic and direct calls. When its logical-depth check trips, the
+same attempt is offered to an explicit-stack function compiled from the identical
+verified definition group that the direct compiler already built. Only that
+promotion exists; a mode that is not depth-limited never touches the second tier.
+
+The second tier lowers the same generated bodies into one `tagbody`. A call
+checks and grows the arena, evaluates its inputs with the caller's base, writes
+the callee frame - header slots for the parent base, the success token and the
+failure token, then mask-ordered inputs and one fixed register slot per generated
+binding - advances the base and jumps to a static entry label. A return publishes
+outputs into a per-attempt result vector, clears the dying frame and dispatches on
+a dense integer token, so no closure, argument list or per-term dispatch is built.
+Enumerated definitions and `findall/3` generators keep their bounded Lisp
+recursion and act as synchronous bridges: the collector runs to completion before
+the caller resumes, so no frame offset is captured across a suspension.
 
 ## Bounded attempts and atomic commit
 
 Each outer attempt owns one budget: 1,000,000 generated entries, logical depth
-256 and 65,536 collected answers. Crossing a bound throws a private bailout tag
-and the call is replayed by the WAM; suppression is generation qualified, so a
-later clause publication re-enables the mode. Attempt-level guards are ordinary
+256, 65,536 collected answers and the arena slot limit. A depth overflow on the
+direct tier is not a bailout: the promoted attempt continues with the same
+constants, inputs and remaining fuel and answers, and counts once. Crossing any
+other bound - or the depth bound again - throws the same private bailout tag, and
+only then is the call replayed by the WAM. Suppression is generation qualified, so
+a later clause publication re-enables the mode. Attempt-level guards are ordinary
 declines, not logical failures.
 
 A successful native result is adopted atomically: outputs are validated, their
@@ -88,7 +121,7 @@ not evidence for this implementation.
 Measure and reproduce with the shared public workload:
 
 ```sh
-python3 benchmarks/prolog/jit-compare.py --sbcl sbcl --repeats 7 --batch 20 \
+python3 benchmarks/prolog/jit-compare.py --sbcl sbcl --repeats 30 --batch 3 \
   --output build/prolog/jit-comparison.json
 ```
 
@@ -98,50 +131,74 @@ native-use counts and medians. Correct results, actual compiled execution and
 lower warmed medians for the generated-search workloads are the acceptance
 evidence; no SWI-Prolog parity gate applies.
 
-Recorded 2026-10-30 with SBCL 2.5.4 on aarch64-linux, 7 samples per case per
-round, batch 20. Times are warmed CPU milliseconds per query; allocation is bytes
-per query; both policies produced every expected result (`92, 5, 1200, 2000,
-1024, 12799`).
+Recorded 2026-10-30 with SBCL 2.5.4 on aarch64-linux, 30 samples per case per
+round, batch 3, in two counterbalanced fresh processes with a 1 MB control stack.
+Interquartile spread of those samples was 0.2-3.9% of each median, and the two
+rounds agreed within 1.6%, so the medians below are stable rather than one lucky
+ordering.
+Times are warmed CPU milliseconds per query and allocation is bytes per query;
+both policies produced every expected result (`92, 5, 1200, 2000, 1024, 12799`).
 
 | Workload | `:wam` | `:auto` | Speedup | Native calls/deopts | Cold compile | Allocated `:wam` / `:auto` |
 | --- | ---: | ---: | ---: | --- | ---: | --- |
-| 8 queens, all solutions | 106.7 ms | 0.98 ms | 108.9x | 1 / 0 | 28 ms | 143 MB / 1.5 MB |
-| Takeuchi (16,10,4) | 203.1 ms | 0.82 ms | 248.0x | 1 / 0 | 1 ms | 245 MB / 13 KB |
-| Naive reverse, 1200 | 2344 ms | 2790 ms | 0.84x | 3 / 2 | 2.49 s | 1.33 GB / 1.86 GB |
-| Quicksort, 2000 | 247.1 ms | 244.3 ms | 1.01x | 4002 / 2 | 0.30 s | 169 MB / 189 MB |
-| Graph, 1024 paths | 541.6 ms | 541.9 ms | 1.00x | 0 / 3 | 0.63 s | 792 MB / 794 MB |
-| Symbolic differentiation | 42.7 ms | 0.374 ms | 114.2x | 1 / 0 | <1 ms | 60 MB / 74 KB |
+| 8 queens, all solutions | 117.6 ms | 1.05 ms | 112.2x | 1 / 0 | 28 ms | 143 MB / 1.6 MB |
+| Takeuchi (16,10,4) | 212.4 ms | 0.87 ms | 245.6x | 1 / 0 | <1 ms | 243 MB / 31 KB |
+| Naive reverse, 1200 | 2281 ms | 71.5 ms | 31.9x | 1 / 0 | 375 ms | 1.28 GB / 11.9 MB |
+| Quicksort, 2000 | 216.5 ms | 6.16 ms | 35.2x | 1 / 0 | 6 ms | 167 MB / 1.4 MB |
+| Graph, 1024 paths | 539.5 ms | 1.01 ms | 532.6x | 1 / 0 | 1 ms | 788 MB / 2.3 MB |
+| Symbolic differentiation | 55.6 ms | 0.42 ms | 133.7x | 1 / 0 | <1 ms | 60 MB / 99 KB |
 
 These are comparisons against this checkout's interpreted backend, not the
-historical x86-64 figures in [NATIVE-ABLATION.md](NATIVE-ABLATION.md). Generated
-search specializes completely and drops allocation by one to four orders of
-magnitude. `reverse` exceeds the logical-depth budget: every new cursor attempts
-the mode, reaches depth 257 with private intermediate graphs, and then replays
-the whole query on the interpreter, which accounts for the 16% regression. The
-quicksort and graph cases are bounded fallbacks dominated by interpretation and
-stay within measurement noise. This conservative behaviour is the designed
-tradeoff, not an outstanding optimization.
+historical x86-64 figures in [NATIVE-ABLATION.md](NATIVE-ABLATION.md). Every case
+now runs completely natively: exactly one native attempt and no replay, cold and
+warm, including the deep list recursion that used to fall back.
+
+The same tool, host and flags were run against the parent revision in a separate
+worktree before the tier was introduced, in the same counterbalanced order:
+
+| Workload | `:auto` before | `:auto` after | Allocated before / after | Native before / after |
+| --- | ---: | ---: | ---: | --- |
+| Naive reverse, 1200 | 2654 ms | 71.5 ms | 1710 MB / 11.9 MB | 3 calls, 2 deopts / 1 call, 0 |
+| Quicksort, 2000 | 222.1 ms | 6.16 ms | 188 MB / 1.34 MB | 4002 calls, 2 deopts / 1 call, 0 |
+| Graph, 1024 paths | 539.6 ms | 1.02 ms | 790 MB / 2.33 MB | 0 calls, 3 deopts / 1 call, 0 |
+
+Allocation drops by two to four orders of magnitude because intermediate answer
+graphs stay in the private arena instead of being interpreted, and the
+`:wam` medians of the two runs agree within noise, so the comparison is between
+the two engine policies rather than between two host states. `reverse` remains
+slower than the other specializations in absolute terms because its helper chain
+is quadratic, not because part of it still runs on the WAM.
+`benchmarks/prolog/competitive.lisp`
+enforces exactly one native call and zero deoptimizations for `reverse` and
+`quicksort` on the cold run and on every warm query whenever compilation is
+enabled. `benchmarks/prolog/jit-compare.py` requires at least one native call in
+both counterbalanced rounds for queens, tak, reverse and qsort, and additionally
+exactly one call with no replay for reverse and qsort, while still recording all
+six cases so shallow-path regressions stay visible.
 
 ### SWI-Prolog reference
 
-`benchmarks/prolog/compare.py --sbcl sbcl --swipl swipl` on the same host, five
-samples, batch 1 (used only as a reference; no parity gate applies):
+`benchmarks/prolog/compare.py --sbcl sbcl --swipl swipl` on the same host, 30
+samples, `BENCH_BATCH=3`, SWI-Prolog 9.2.9 `-O` (used only as a reference; no
+parity gate applies):
 
-| Workload | `:wam` | `:auto` | SWI `-O` | `:auto` vs SWI |
-| --- | ---: | ---: | ---: | ---: |
-| 8 queens | 151.4 ms | 1.23 ms | 2.41 ms | 1.96x faster |
-| Takeuchi (16,10,4) | 244.5 ms | 0.89 ms | 4.10 ms | 4.62x faster |
-| Naive reverse, 1200 | 2264 ms | 2465 ms | 19.1 ms | 129x slower |
-| Quicksort, 2000 | 222.4 ms | 226.8 ms | 3.75 ms | 60x slower |
-| Graph, 1024 paths | 572.9 ms | 570.4 ms | 0.33 ms | 1729x slower |
-| Symbolic differentiation | 47.2 ms | 0.46 ms | 0.80 ms | 1.76x faster |
+| Workload | `:auto` | SWI `-O` | `:auto` vs SWI |
+| --- | ---: | ---: | ---: |
+| 8 queens | 1.07 ms | 2.41 ms | 2.25x faster |
+| Takeuchi (16,10,4) | 0.87 ms | 4.16 ms | 4.77x faster |
+| Naive reverse, 1200 | 71.6 ms | 18.7 ms | 3.82x slower |
+| Quicksort, 2000 | 6.18 ms | 3.75 ms | 1.65x slower |
+| Graph, 1024 paths | 1.00 ms | 0.33 ms | 3.01x slower |
+| Symbolic differentiation | 0.42 ms | 0.82 ms | 1.98x faster |
 
-The three wins are the fully specialized workloads. The losses are outside the
-compiled fragment: reverse and quicksort are list recursion deeper than the
-logical depth budget, and the graph case repeatedly calls a fact relation from
-its second argument, which SWI answers by first-argument indexing while this
-implementation scans every clause. Closing those gaps needs first-argument
-indexing and a larger safe recursion envelope, not more native code.
+Queens, Takeuchi and differentiation are ahead of optimized SWI. The remaining
+deficits are structural rather than interpretive: `reverse` builds two quadratic
+lists in portable Lisp, `quicksort` sorts a pseudo-random permutation without
+specialized comparison or destructive update, and `route(X, D, Y)` re-scans the
+`edge/2` fact relation per call because the ground-fact index is keyed on the
+coarse available scalars instead of being a first-argument index. No part of those
+three workloads is executed by the WAM any more, so closing the gaps needs better
+data structures and fact indexing, not more native code.
 
 ## Host notes
 
@@ -159,3 +216,13 @@ semantic case is skipped on an available host.
 process-disabled oracles, cut/failure placement, lazy answers, `findall` bags and
 graph isolation, atom identity, transactional bailout, cache invalidation,
 instrumentation, forced GC, high arity, tabled and ISO boundaries.
+
+`run-native-stack-tests` in the same file covers the explicit-stack tier
+portably: deep and mutually recursive non-tail bodies, the benchmark helper chain
+inside one wrapper body, multi/absent/NIL outputs, cut placement, output sharing
+and atom identity after promotion, the synchronous collector bridge, fuel and
+answer budget sharing across exactly one promotion, arena slot limits, and a
+non-integer arithmetic guard after a deep prefix. Every case compares ordered
+answers, truth values and delays against the WAM on a fresh database in both term
+models, and asserts native statistics only where a query has a single public
+attempt.

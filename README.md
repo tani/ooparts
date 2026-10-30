@@ -61,6 +61,43 @@ An individual test facade can also be loaded with
 libraries. See [testing](docs/testing.md) for proof checks, compiler diagnostics,
 ISO observations, FASL/core reloads and verification limits.
 
+## Performance
+
+Warmed CPU milliseconds per query on the shared Prolog workload
+(`benchmarks/prolog/competitive.pl`, identical source and search order in both
+engines, every expected answer validated). 30 samples per case, `BENCH_BATCH=3`,
+SBCL 2.5.4 vs SWI-Prolog 9.2.9 `-O`, aarch64-linux. `:auto` is the default
+execution mode, which compiles eligible predicate groups to Common Lisp and keeps
+the interpreted backend as the fallback oracle.
+
+| Workload | `ooparts/prolog` `:auto` | SWI-Prolog `-O` | Ratio |
+| --- | ---: | ---: | ---: |
+| 8 queens, all solutions | 1.07 ms | 2.41 ms | 2.25x faster |
+| Takeuchi (16,10,4) | 0.87 ms | 4.16 ms | 4.77x faster |
+| Naive reverse, 1200 | 71.6 ms | 18.7 ms | 3.82x slower |
+| Quicksort, 2000 | 6.18 ms | 3.75 ms | 1.65x slower |
+| Graph, 1024 paths | 1.00 ms | 0.33 ms | 3.01x slower |
+| Symbolic differentiation | 0.42 ms | 0.82 ms | 1.98x faster |
+
+The interquartile spread of those samples stayed within 3.4% of every
+`ooparts/prolog` median and within 0.3% of every SWI median, so the ratios are
+stable rather than noise-bound. This is a reference, not a parity gate. Against
+the same checkout's `:wam` oracle the six cases are 31.9x to 532.6x faster, each
+completing on exactly one native attempt with no replay; the three workloads still
+behind SWI need better data structures and first-argument fact indexing, not an
+interpreter.
+
+```sh
+BENCH_BATCH=3 python3 benchmarks/prolog/compare.py --repeats 30 \
+  --output build/prolog/swi-comparison.json
+python3 benchmarks/prolog/jit-compare.py --repeats 30 --batch 3 \
+  --output build/prolog/jit-comparison.json
+```
+
+See [native predicate specialization](docs/prolog/NATIVE-JIT.md) for the
+two-tier execution contract, the budgets, per-workload allocation and cold
+compile cost.
+
 ## Repository layout
 
 | Directory | Contents |

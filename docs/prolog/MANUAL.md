@@ -366,8 +366,10 @@ recursion is outside this guarantee. First-argument indexing is not implemented.
 eligible deterministic/semideterministic ground-input predicate groups to Common
 Lisp and `:wam` keeps the interpreted backend only. Either policy answers
 identically; `query-statistics` adds `:native-calls` and
-`:native-deoptimizations`. Unsupported, open, cyclic, effectful, tabled,
-instrumented or over-budget calls keep the WAM automatically. See
+`:native-deoptimizations`. Deep semidet recursion that would exhaust the host
+stack continues on a heap-arena tier with the same budget and still counts as one
+native call. Unsupported, open, cyclic, effectful, tabled, instrumented or
+over-budget calls keep the WAM automatically. See
 [Native predicate specialization](NATIVE-JIT.md) for eligibility and limits.
 
 ```lisp

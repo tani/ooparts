@@ -38,6 +38,9 @@
 (defvar *native-fuel-limit* 1000000)
 (defvar *native-depth-limit* 256)
 (defvar *native-answer-limit* 65536)
+;;; The explicit-stack tier keeps activations in a heap arena, so its bound is
+;;; the arena size in slots rather than the host stack depth.
+(defvar *native-stack-slot-limit* 1048576)
 (defvar *native-arity-limit*
   (min 64 (- call-arguments-limit 4) (- lambda-parameters-limit 4)
        (1- multiple-values-limit)))
@@ -47,20 +50,29 @@
 (defvar *constants* nil)
 (defvar *constant-index* nil)
 
-(defstruct (native-mode (:constructor make-native-mode (function constants)))
-  function constants)
-(defstruct (native-budget (:constructor make-native-budget (fuel depth-limit answers-left)))
-  fuel (depth-limit 0 :read-only t) answers-left)
+(defstruct (native-mode (:constructor make-native-mode (function constants stack-template)))
+  function constants stack-template
+  ;; :UNCOMPILED, :READY or :REJECTED for the explicit-stack tier.
+  (stack-state :uncompiled) stack-function)
+(defstruct (native-budget (:constructor make-native-budget
+                                        (fuel depth-limit answers-left stack-slot-limit)))
+  fuel (depth-limit 0 :read-only t) answers-left (stack-slot-limit 0 :read-only t))
 
 (declaim (inline native-budget-fuel native-budget-depth-limit native-budget-answers-left
-                 native-mode-function native-mode-constants native-integer native-budget-check))
+                 native-budget-stack-slot-limit
+                 native-mode-function native-mode-constants native-integer native-budget-check
+                 native-stack-entry-check))
 (defun native-integer (value)
   (unless (integerp value) (throw 'native-bailout nil)) value)
 (defun native-budget-check (budget depth)
-  "Fail the whole attempt once its logical depth or fuel is exhausted."
-  (when (or (> depth (native-budget-depth-limit budget))
-            (minusp (decf (native-budget-fuel budget))))
-    (throw 'native-bailout nil)))
+  "Fail the whole attempt once its logical depth or fuel is exhausted.
+A depth overflow is reported separately so the caller may retry the identical
+attempt on the explicit-stack tier without replenishing fuel or answers."
+  (when (> depth (native-budget-depth-limit budget)) (throw 'native-bailout :depth))
+  (when (minusp (decf (native-budget-fuel budget))) (throw 'native-bailout nil)))
+(defun native-stack-entry-check (budget)
+  "Charge one generated entry on the explicit-stack tier; depth is heap bound."
+  (when (minusp (decf (native-budget-fuel budget))) (throw 'native-bailout nil)))
 
 (defun native-fresh-graph (term)
   "Copy a ground cons graph into a private host graph, preserving sharing."
@@ -477,6 +489,12 @@ Symbols overlap by canonical atom name, not by host symbol identity."
        (native-budget-check budget depth)
        (block ,done ,@(nreverse forms) (values nil)))))
 
+(defstruct (native-stack-template
+             (:constructor make-native-stack-template
+                 (entry parameters output-count definitions modes)))
+  ;; Frozen, query-independent description of one verified mode group.
+  entry parameters output-count definitions modes)
+
 (defun compile-mode (database name arity mask &optional (enumeratep nil))
   "Compile a closed group of deterministic/semideterministic ground modes.
 No VM bindings, effects or table operations occur inside this group."
@@ -520,7 +538,8 @@ No VM bindings, effects or table operations occur inside this group."
                      (entry-parameters (second entry-form))
                      (parameters (butlast (rest entry-parameters)
                                           (if enumeratep 1 0)))
-                     (constants (coerce *constants* 'simple-vector)))
+                     (constants (coerce *constants* 'simple-vector))
+                     (definitions (nreverse definitions)))
                 (multiple-value-bind (function warnings failure)
                     (compile nil
                              `(lambda (constants budget depth ,@parameters
@@ -528,12 +547,442 @@ No VM bindings, effects or table operations occur inside this group."
                                 (declare (optimize (speed 3) (safety 1) (debug 0)))
                                 (declare (ignorable depth constants
                                                     ,@(when enumeratep '(callback))))
-                                (labels ,(nreverse definitions)
+                                (labels ,definitions
                                   (,entry depth ,@parameters
                                           ,@(when enumeratep '(callback))))))
                   (declare (ignore warnings))
                   (when failure (return-from compile-mode nil))
-                  (make-native-mode function constants))))))))))
+                  (make-native-mode
+                   function constants
+                   (unless enumeratep
+                     (make-native-stack-template
+                      entry parameters (- arity (logcount mask)) definitions
+                      (loop for mode-key being the hash-keys of nodes
+                            using (hash-value mode-function)
+                            collect (list mode-function (second mode-key)
+                                          (third mode-key) (fourth mode-key)))))))))))))))
+
+;;; Explicit-stack tier.
+;;;
+;;; The tier above runs one activation per host frame, so deep semidet
+;;; recursion exhausts the host stack. This tier lowers the same verified
+;;; generated bodies of one mode group into a single TAGBODY: activations live
+;;; in a private adjustable arena, calls jump to a static entry label after
+;;; writing the callee frame, and returns dispatch on a dense integer token.
+;;; Only known semidet calls suspend; every other generated form stays ordinary
+;;; Lisp, and enumerated definitions keep their bounded Lisp recursion.
+
+(defvar *stack-blocks* nil)
+(defvar *stack-arena* nil)
+(defvar *stack-base* nil)
+(defvar *stack-top* nil)
+(defvar *stack-result* nil)
+(defvar *stack-success* nil)
+(defvar *stack-return* nil)
+(defvar *stack-resume* nil)
+(defvar *stack-token* 0)
+(defvar *stack-token-var* nil)
+(defvar *stack-exit-name* nil)
+(defvar *stack-mode-fail* nil)
+(defvar *stack-dispatch* nil)
+(defvar *stack-register* 0)
+(defvar *stack-block* nil)
+(defvar *stack-modes* nil)
+(defvar *stack-entries* nil)
+(defvar *stack-widths* nil)
+(defvar *stack-empty-shadow* (make-hash-table :test 'eq))
+
+(defun stack-new-label (name) (gensym name))
+(defun stack-emit (form)
+  (unless *stack-blocks* (error "Native stack lowerer emitted without a block"))
+  (push form (cdr (car *stack-blocks*))))
+(defun stack-tag (label) (push (cons label nil) *stack-blocks*))
+(defun stack-tagbody-forms ()
+  (loop for (label . forms) in (reverse *stack-blocks*)
+        append (cons label (nreverse forms))))
+(defun stack-alloc () (prog1 *stack-register* (incf *stack-register*)))
+(defun stack-slot (slot) `(aref ,*stack-arena* (+ ,*stack-base* ,slot)))
+(defun stack-copy-env (table)
+  (let ((result (make-hash-table :test (hash-table-test table))))
+    (maphash (lambda (key value) (setf (gethash key result) value)) table)
+    result))
+(defun stack-shadow (shadow names)
+  (let ((result (stack-copy-env shadow)))
+    (dolist (name names) (setf (gethash name result) t))
+    result))
+(defun stack-parse-let (form)
+  "Return (values names inits body) for a generated LET with simple bindings."
+  (let ((names nil) (inits nil))
+    (dolist (binding (second form))
+      (cond ((symbolp binding) (push binding names) (push nil inits))
+            ((and (consp binding) (symbolp (first binding)) (null (cddr binding)))
+             (push (first binding) names) (push (second binding) inits))
+            (t (error "Native stack lowerer: unsupported LET binding ~S" binding))))
+    (values (nreverse names) (nreverse inits) (cddr form))))
+
+(defun stack-exit-form (value env shadow)
+  "Translate a generated mode exit into a result publication and a jump."
+  (cond
+    ((and (consp value) (eq (first value) 'values))
+     (if (second value)
+         `(progn ,@(loop for out in (cddr value) for index from 0
+                         collect `(setf (aref ,*stack-result* ,index)
+                                        ,(stack-rewrite out env shadow)))
+                 (setf ,*stack-success* t)
+                 (go ,*stack-return*))
+         `(progn (setf ,*stack-success* nil) (go ,*stack-return*))))
+    ((null value) `(progn (setf ,*stack-success* nil) (go ,*stack-return*)))
+    (t (error "Native stack lowerer: unsupported exit value ~S" value))))
+
+(defun stack-rewrite (form env shadow)
+  "Rewrite a non-suspending generated form, spilling bound variables to slots."
+  (cond
+    ((symbolp form)
+     (cond ((gethash form shadow) form)
+           ((gethash form env) (stack-slot (gethash form env)))
+           (t form)))
+    ((not (consp form)) form)
+    ((eq (first form) 'quote) form)
+    ((eq (first form) 'function) form)
+    ((eq (first form) 'declare) nil)
+    ((eq (first form) 'let)
+     (multiple-value-bind (names inits body) (stack-parse-let form)
+       `(let ,(loop for name in names for init in inits
+                    collect (list name (stack-rewrite init env shadow)))
+          ,@(let ((inner (stack-shadow shadow names)))
+              (loop for item in body collect (stack-rewrite item env inner))))))
+    ((eq (first form) 'lambda)
+     (let ((inner (stack-shadow shadow (second form))))
+       `(lambda ,(second form)
+          ,@(loop for item in (cddr form) collect (stack-rewrite item env inner)))))
+    ((eq (first form) 'multiple-value-bind)
+     (let ((inner (stack-shadow shadow (second form))))
+       `(multiple-value-bind ,(second form) ,(stack-rewrite (third form) env shadow)
+          ,@(loop for item in (cdddr form) collect (stack-rewrite item env inner)))))
+    ((eq (first form) 'block)
+     `(block ,(second form)
+        ,@(loop for item in (cddr form) collect (stack-rewrite item env shadow))))
+    ((eq (first form) 'return-from)
+     (if (eq (second form) *stack-exit-name*)
+         (stack-exit-form (third form) env shadow)
+         `(return-from ,(second form) ,(stack-rewrite (third form) env shadow))))
+    ((eq (first form) 'setf)
+     `(setf ,@(loop for (place value) on (cdr form) by #'cddr
+                    append (list (cond ((and (symbolp place)
+                                             (not (gethash place shadow))
+                                             (gethash place env))
+                                        (stack-slot (gethash place env)))
+                                       ((consp place) (stack-rewrite place env shadow))
+                                       (t place))
+                                 (stack-rewrite value env shadow)))))
+    (t `(,(first form)
+         ,@(loop for item in (rest form) collect (stack-rewrite item env shadow))))))
+
+(defun stack-lower-sequence (forms k env)
+  (cond ((null forms) (stack-emit k))
+        ((null (cdr forms)) (stack-lower-statement (car forms) k env))
+        (t (let ((next (stack-new-label "SEQ")))
+             (stack-lower-statement (car forms) `(go ,next) env)
+             (stack-tag next)
+             (stack-lower-sequence (cdr forms) k env)))))
+
+(defun stack-lower-statement (form k env)
+  "Lower one generated statement. K is the form emitted on normal completion."
+  (cond
+    ((atom form) (stack-emit k))
+    (t (case (first form)
+         (declare (stack-emit k))
+         (progn (stack-lower-sequence (cdr form) k env))
+         (if
+          (let ((then (stack-new-label "THEN")) (otherwise (stack-new-label "ELSE")))
+            (stack-emit `(if ,(stack-rewrite (second form) env *stack-empty-shadow*)
+                             (go ,then) (go ,otherwise)))
+            (stack-tag then) (stack-lower-statement (third form) k env)
+            (stack-tag otherwise) (stack-lower-statement (fourth form) k env)))
+         (when
+          (stack-lower-statement `(if ,(second form) (progn ,@(cddr form)) nil) k env))
+         (let (stack-lower-let form k env))
+         (block (stack-lower-block form k env))
+         (return-from (stack-lower-return form env))
+         (multiple-value-bind (stack-lower-call form k env))
+         (setf (stack-emit (stack-rewrite form env *stack-empty-shadow*))
+               (stack-emit k))
+         (t (stack-emit (stack-rewrite form env *stack-empty-shadow*))
+            (stack-emit k))))))
+
+(defun stack-lower-let (form k env)
+  (multiple-value-bind (names inits body) (stack-parse-let form)
+    (let* ((temps (loop repeat (length names) collect (gensym "INIT")))
+           (slots (loop repeat (length names) collect (stack-alloc)))
+           (inner (stack-copy-env env)))
+      (stack-emit `(let ,(loop for temp in temps for init in inits
+                               collect (list temp
+                                             (stack-rewrite init env *stack-empty-shadow*)))
+                     ,@(loop for slot in slots for temp in temps
+                             collect `(setf ,(stack-slot slot) ,temp))))
+      (loop for name in names for slot in slots do (setf (gethash name inner) slot))
+      (stack-lower-sequence body k inner))))
+
+(defun stack-lower-block (form k env)
+  (let ((name (second form)))
+    (if (eq name *stack-exit-name*)
+        (stack-lower-sequence (cddr form) `(go ,*stack-mode-fail*) env)
+        (let ((end (stack-new-label "BLOCK")))
+          (let ((*stack-block* (acons name end *stack-block*)))
+            (stack-lower-sequence (cddr form) `(go ,end) env))
+          (stack-tag end)
+          (stack-emit k)))))
+
+(defun stack-lower-return (form env)
+  (let ((name (second form)) (value (third form)))
+    (if (eq name *stack-exit-name*)
+        (stack-emit (stack-exit-form value env *stack-empty-shadow*))
+        (let ((end (cdr (assoc name *stack-block*))))
+          (unless end (error "Native stack lowerer: unknown block ~S" name))
+          (when value (error "Native stack lowerer: unsupported block value ~S" value))
+          (stack-emit `(go ,end))))))
+
+(defun stack-lower-call (form k env)
+  "Lower a known semidet call site into frame setup, jump and token resume."
+  (destructuring-bind (variables call . body) (rest form)
+    (unless (and (consp call) (symbolp (first call)))
+      (error "Native stack lowerer: unsupported call ~S" call))
+    (let ((mode (gethash (first call) *stack-modes*)))
+      (unless mode (error "Native stack lowerer: unknown callee ~S" (first call)))
+      (destructuring-bind (arity mask enumeratep) mode
+        (when enumeratep
+          (error "Native stack lowerer: enumerated callee ~S in a semidet body"
+                 (first call)))
+        (let* ((ins (rest (rest call)))
+               (outs (rest variables))
+               (entry (or (gethash (first call) *stack-entries*)
+                          (error "Native stack lowerer: no entry for ~S"
+                                 (first call))))
+               (success (stack-new-label "RESUME"))
+               (failure (stack-new-label "FAIL"))
+               (continue (stack-new-label "BODY"))
+               (success-token (prog1 *stack-token* (incf *stack-token*)))
+               (failure-token (prog1 *stack-token* (incf *stack-token*)))
+               (ok-slot (stack-alloc))
+               (inner (stack-copy-env env)))
+          (unless (= (length outs) (- arity (logcount mask)))
+            (error "Native stack lowerer: output arity mismatch for ~S" (first call)))
+          (unless (= (length ins) (logcount mask))
+            (error "Native stack lowerer: input arity mismatch for ~S" (first call)))
+          (let ((out-slots (loop repeat (length outs) collect (stack-alloc))))
+            (push (cons success-token success) *stack-dispatch*)
+            (push (cons failure-token failure) *stack-dispatch*)
+            (stack-emit `(ensure-capacity (+ ,*stack-top* 3 ,(length ins))))
+            (loop for in in ins for index from 0
+                  do (stack-emit `(setf (aref ,*stack-arena*
+                                             (+ ,*stack-top* ,(+ 3 index)))
+                                       ,(stack-rewrite in env *stack-empty-shadow*))))
+            (stack-emit `(setf (aref ,*stack-arena* ,*stack-top*) ,*stack-base*
+                               (aref ,*stack-arena* (+ ,*stack-top* 1)) ,success-token
+                               (aref ,*stack-arena* (+ ,*stack-top* 2)) ,failure-token
+                               ,*stack-base* ,*stack-top*))
+            (stack-emit `(go ,entry))
+            (stack-tag success)
+            (loop for slot in out-slots for index from 0
+                  do (stack-emit `(setf ,(stack-slot slot)
+                                        (aref ,*stack-result* ,index))))
+            (loop for index below (length out-slots)
+                  do (stack-emit `(setf (aref ,*stack-result* ,index) nil)))
+            (stack-emit `(setf ,(stack-slot ok-slot) t))
+            (stack-emit `(go ,continue))
+            (stack-tag failure)
+            (stack-emit `(setf ,(stack-slot ok-slot) nil))
+            (loop for slot in out-slots
+                  do (stack-emit `(setf ,(stack-slot slot) nil)))
+            (stack-emit `(go ,continue))
+            (stack-tag continue)
+            (setf (gethash (first variables) inner) ok-slot)
+            (loop for out in outs for slot in out-slots
+                  do (setf (gethash out inner) slot))
+            (stack-lower-sequence body k inner)))))))
+
+(defun stack-lower-mode (definition fail)
+  "Lower one verified semidet definition into entries, prologues and clauses."
+  (let* ((function (first definition))
+         (parameters (rest (second definition)))
+         (mode (gethash function *stack-modes*))
+         (mask (second mode))
+         (entry (gethash function *stack-entries*))
+         (forms (loop for form in (cddr definition)
+                      unless (or (and (consp form) (eq (first form) 'declare))
+                                 (and (consp form) (eq (first form) 'native-budget-check)))
+                        collect form))
+         (clause-block (and (consp (first forms))
+                            (eq (first (first forms)) 'block)
+                            (second (first forms))))
+         (*stack-exit-name* (or clause-block function))
+         (*stack-mode-fail* fail)
+         (initial (+ 3 (length parameters))))
+    (declare (ignore mask))
+    (labels ((lower (content k)
+               (let ((env (make-hash-table :test 'eq)))
+                 (setf *stack-register* initial)
+                 (loop for parameter in parameters for slot from 3
+                       do (setf (gethash parameter env) slot))
+                 (stack-lower-sequence content k env)
+                 (setf (gethash function *stack-widths*)
+                       (max *stack-register*
+                            (gethash function *stack-widths* 0)))
+                 *stack-register*))
+             (prologue (label width body-label)
+               (stack-tag label)
+               (stack-emit `(ensure-capacity (+ ,*stack-base* ,width)))
+               (stack-emit `(setf ,*stack-top* (+ ,*stack-base* ,width)))
+               (stack-emit `(go ,body-label))))
+      (stack-tag entry)
+      (stack-emit '(native-stack-entry-check budget))
+      (if clause-block
+          (let* ((clauses (butlast (cddr (first forms))))
+                 (count (length clauses))
+                 (prologues (loop repeat count collect (stack-new-label "PROLOGUE")))
+                 (entries (loop repeat count collect (stack-new-label "CLAUSE"))))
+            (stack-emit `(go ,(first prologues)))
+            (loop for clause in clauses
+                  for index from 0
+                  for label in prologues
+                  for body-label in entries
+                  do (progn
+                       (stack-tag body-label)
+                       (let* ((next (or (nth (1+ index) prologues) fail))
+                              (width (lower (list clause) `(go ,next))))
+                         (prologue label width body-label)))))
+          (let ((label (stack-new-label "PROLOGUE"))
+                (body-label (stack-new-label "CLAUSE")))
+            (stack-emit `(go ,label))
+            (stack-tag body-label)
+            (prologue label (lower forms `(go ,fail)) body-label)))
+      (stack-tag fail)
+      (stack-emit `(setf ,*stack-success* nil))
+      (stack-emit `(go ,*stack-return*)))))
+
+(defun build-stack-function (template)
+  "Compile the explicit-stack lambda for TEMPLATE.
+Returns NIL when the host compiler rejects the generated form; unexpected
+conditions propagate to the query cleaner."
+  (let* ((entry (native-stack-template-entry template))
+         (definitions (native-stack-template-definitions template))
+         (modes (native-stack-template-modes template))
+         (output-count (native-stack-template-output-count template))
+         (result-width
+           (loop for mode in modes
+                 maximize (- (second mode) (logcount (third mode))) into width
+                 finally (return (max width output-count))))
+         (parameters (native-stack-template-parameters template))
+         (root-prologue (stack-new-label "ROOT"))
+         (begin (stack-new-label "BEGIN"))
+         (exit (gensym "STACK"))
+         (*stack-blocks* nil) (*stack-dispatch* nil) (*stack-token* 0)
+         (*stack-block* nil) (*stack-register* 0)
+         (*stack-modes* (make-hash-table :test 'eq))
+         (*stack-entries* (make-hash-table :test 'eq))
+         (*stack-widths* (make-hash-table :test 'eq))
+         (*stack-arena* (gensym "ARENA")) (*stack-base* (gensym "BASE"))
+         (*stack-top* (gensym "TOP")) (*stack-result* (gensym "RESULT"))
+         (*stack-success* (gensym "SUCCESS")) (*stack-return* (gensym "RETURN"))
+         (*stack-resume* (gensym "RESUME")) (*stack-token-var* (gensym "TOKEN"))
+         (*stack-exit-name* nil) (*stack-mode-fail* nil))
+    (stack-tag begin)
+    (stack-emit `(go ,root-prologue))
+    (dolist (mode modes)
+      (setf (gethash (first mode) *stack-modes*) (rest mode))
+      (unless (fourth mode)
+        (setf (gethash (first mode) *stack-entries*) (stack-new-label "ENTRY")
+              (gethash (first mode) *stack-widths*) 0)))
+    (dolist (mode modes)
+      (unless (fourth mode)
+        (stack-lower-mode (find (first mode) definitions :key #'first)
+                          (stack-new-label "MODEFAIL"))))
+    ;; Return protocol: publish outputs, clear the dying frame, dispatch.
+    (stack-tag *stack-return*)
+    (stack-emit `(let* ((origin ,*stack-base*)
+                        (parent (aref ,*stack-arena* origin))
+                        (resume (if ,*stack-success*
+                                    (aref ,*stack-arena* (+ origin 1))
+                                    (aref ,*stack-arena* (+ origin 2)))))
+                   (fill ,*stack-arena* nil :start origin :end ,*stack-top*)
+                   (setf ,*stack-top* origin ,*stack-base* parent)
+                   (if (minusp resume)
+                       (return-from ,exit
+                         (if ,*stack-success*
+                             (values t
+                                     ,@(loop for index below output-count
+                                             collect `(aref ,*stack-result* ,index)))
+                             (values nil)))
+                       (progn (setf ,*stack-token-var* resume)
+                              (go ,*stack-resume*)))))
+    (stack-tag *stack-resume*)
+    (stack-emit `(case ,*stack-token-var*
+                   ,@(loop for (token . label) in (nreverse *stack-dispatch*)
+                           collect `((,token) (go ,label)))
+                   (t (error "Native stack tier resumed on unknown token ~D"
+                             ,*stack-token-var*))))
+    ;; Root activation: header sentinels, inputs and the starting frame.
+    (stack-tag root-prologue)
+    (stack-emit `(when (> ,(gethash entry *stack-widths*)
+                          (native-budget-stack-slot-limit budget))
+                   (throw 'native-bailout nil)))
+    (stack-emit `(setf ,*stack-arena*
+                       (make-array (min (native-budget-stack-slot-limit budget)
+                                        (max 64 ,(gethash entry *stack-widths*)))
+                                   :adjustable t :initial-element nil)
+                       (aref ,*stack-arena* 0) -1
+                       (aref ,*stack-arena* 1) -1
+                       (aref ,*stack-arena* 2) -1))
+    (loop for parameter in parameters for slot from 3
+          do (stack-emit `(setf (aref ,*stack-arena* ,slot) ,parameter)))
+    (stack-emit `(setf ,*stack-base* 0 ,*stack-top* 0))
+    (stack-emit `(go ,(gethash entry *stack-entries*)))
+    (let ((form
+            `(lambda (constants budget depth ,@parameters)
+                    (declare (optimize (speed 3) (safety 1) (debug 0)))
+                    (declare (ignorable depth constants))
+                    (labels (,@(loop for definition in definitions
+                                     when (third (gethash (first definition)
+                                                          *stack-modes*))
+                                       collect definition))
+                      (block ,exit
+                        (let ((,*stack-arena* (make-array 0 :adjustable t
+                                                          :initial-element nil))
+                              (,*stack-result*
+                                (make-array ,result-width :initial-element nil))
+                              (,*stack-base* 0) (,*stack-top* 0)
+                              (,*stack-token-var* -1) (,*stack-success* nil))
+                          (declare (ignorable ,*stack-token-var*))
+                          (flet ((ensure-capacity (needed)
+                                   (cond ((> needed
+                                             (native-budget-stack-slot-limit budget))
+                                          (throw 'native-bailout nil))
+                                         ((> needed (length ,*stack-arena*))
+                                          (setf ,*stack-arena*
+                                                (adjust-array
+                                                 ,*stack-arena*
+                                                 (min (native-budget-stack-slot-limit budget)
+                                                      (max needed
+                                                           (* 2 (length ,*stack-arena*))))))))))
+                            (tagbody ,@(stack-tagbody-forms)))))))))
+      (multiple-value-bind (function warnings failure)
+          (compile nil form)
+        (declare (ignore warnings))
+        (and (not failure) function)))))
+
+(defun compile-stack-mode (mode)
+  "Return the cached explicit-stack function for MODE, compiling once.
+NIL means this mode group is not available on the stack tier."
+  (case (native-mode-stack-state mode)
+    (:uncompiled
+     (let ((template (native-mode-stack-template mode)))
+       (setf (native-mode-stack-template mode) nil)
+       (let ((function (and template (build-stack-function template))))
+         (setf (native-mode-stack-function mode) function
+               (native-mode-stack-state mode) (if function :ready :rejected))
+         function)))
+    (:ready (native-mode-stack-function mode))
+    (t nil)))
 
 ;;; Instrumentation identity. Native code bypasses the WAM term dispatcher, so
 ;;; any replacement of the dispatcher or its provider must fall back to the VM.
@@ -625,14 +1074,28 @@ T means the call was handled (success or logical failure)."
                     (return-from native-call nil))
                   (unless (iso-acyclic-p value) (return-from native-call nil)))
                 (push value inputs)))
-            (let* ((budget (make-native-budget *native-fuel-limit* *native-depth-limit*
-                                               *native-answer-limit*))
+            (let* ((budget (make-native-budget
+                            *native-fuel-limit* *native-depth-limit* *native-answer-limit*
+                            (min *native-stack-slot-limit*
+                                 (1- array-dimension-limit)
+                                 (1- array-total-size-limit))))
+                   (inputs (nreverse inputs))
                    (result (catch 'native-bailout
                              (multiple-value-list
                               (apply (native-mode-function mode)
-                                     (native-mode-constants mode) budget 0
-                                     (nreverse inputs))))))
-              (unless result
+                                     (native-mode-constants mode) budget 0 inputs)))))
+              ;; A host-depth overflow promotes the identical attempt to the heap
+              ;; tier once: same constants, same inputs, remaining budget only.
+              (when (eq result :depth)
+                (let ((stack (compile-stack-mode mode)))
+                  (when stack
+                    (setf result
+                          (catch 'native-bailout
+                            (multiple-value-list
+                             (apply stack (native-mode-constants mode)
+                                    budget 0 inputs)))))))
+              ;; MULTIPLE-VALUE-LIST always yields a cons; a bailout value does not.
+              (unless (consp result)
                 (let ((disabled (machine-native-disabled vm)))
                   (unless (and disabled (= generation (car disabled)))
                     (setf disabled (cons generation (make-hash-table :test 'equal))

@@ -16,7 +16,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 EXPECTED = dict(queens=92, tak=5, reverse=1200, qsort=2000, graph=1024, differentiate=12799)
 ROUND_ORDERS = (('wam', 'auto'), ('auto', 'wam'))
-NATIVE_REQUIRED = ('queens', 'tak')
+NATIVE_REQUIRED = ('queens', 'tak', 'reverse', 'qsort')
+NATIVE_COMPLETE = ('reverse', 'qsort')
 BENCHMARK_COMMAND = ['--dynamic-space-size', '2048', '--control-stack-size', '1',
                      '--script', 'benchmarks/prolog/competitive.lisp']
 
@@ -99,6 +100,12 @@ def main():
             if auto['cases'][name]['native_calls'] <= 0:
                 raise SystemExit(f"round {record['round']}: auto execution made no native "
                                  f"calls for {name}; compiled execution is not active")
+        for name in NATIVE_COMPLETE:
+            case = auto['cases'][name]
+            if case['native_calls'] != 1 or case['native_deoptimizations'] != 0:
+                raise SystemExit(f"round {record['round']}: {name} did not run completely "
+                                 f"natively: {case['native_calls']} calls, "
+                                 f"{case['native_deoptimizations']} deoptimizations")
 
     summary = {}
     for name in EXPECTED:

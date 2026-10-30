@@ -26,7 +26,7 @@
              (:blank #\Tab #\Newline)
              (:space #\Newline #\A)
              (:cntrl #\Tab #\A)
-             (:print #\Space #\Del)
+             (:print #\Space #\Rubout)
              (:graph #\A #\Space)
              (:punct #\! #\A)))
     (destructuring-bind (name member nonmember) case
@@ -47,14 +47,15 @@
             :description "space contains space")
   (run-case (class-form :space) (one #\Newline) '((0 1))
             :description "space contains newline")
-  ;; DEL is a control character, not printable or graphic.
-  (run-case (class-form :cntrl) (one #\Del) '((0 1))
+  ;; RUBOUT (DEL, code 127) is a control character, not printable or graphic.
+  ;; The portable standard name is RUBOUT; DEL is an implementation extension.
+  (run-case (class-form :cntrl) (one #\Rubout) '((0 1))
             :description "cntrl contains DEL")
   (run-case (class-form :cntrl) (one #\Space) nil
             :description "cntrl excludes space")
-  (run-case (class-form :print) (one #\Del) nil
+  (run-case (class-form :print) (one #\Rubout) nil
             :description "print excludes DEL")
-  (run-case (class-form :graph) (one #\Del) nil
+  (run-case (class-form :graph) (one #\Rubout) nil
             :description "graph excludes DEL")
   ;; Punctuation covers each punctuation interval.
   (dolist (character '(#\! #\- #\_ #\{ #\~))

@@ -50,6 +50,12 @@
 (defvar *constants* nil)
 (defvar *constant-index* nil)
 
+;;; Slot accessors are deliberately absent: CMUCL treats an INLINE
+;;; proclamation of a structure accessor as a redefinition and signals a
+;;; continuable error while loading the fasl, and the other compilers already
+;;; inline accessors of a known structure type.
+(declaim (inline native-integer native-budget-check native-stack-entry-check))
+
 (defstruct (native-mode (:constructor make-native-mode (function constants stack-template)))
   function constants stack-template
   ;; :UNCOMPILED, :READY or :REJECTED for the explicit-stack tier.
@@ -57,11 +63,6 @@
 (defstruct (native-budget (:constructor make-native-budget
                                         (fuel depth-limit answers-left stack-slot-limit)))
   fuel (depth-limit 0 :read-only t) answers-left (stack-slot-limit 0 :read-only t))
-
-(declaim (inline native-budget-fuel native-budget-depth-limit native-budget-answers-left
-                 native-budget-stack-slot-limit
-                 native-mode-function native-mode-constants native-integer native-budget-check
-                 native-stack-entry-check))
 (defun native-integer (value)
   (unless (integerp value) (throw 'native-bailout nil)) value)
 (defun native-budget-check (budget depth)
@@ -73,6 +74,20 @@ attempt on the explicit-stack tier without replenishing fuel or answers."
 (defun native-stack-entry-check (budget)
   "Charge one generated entry on the explicit-stack tier; depth is heap bound."
   (when (minusp (decf (native-budget-fuel budget))) (throw 'native-bailout nil)))
+
+(defun accepted-generated-function (function failure)
+  "Return the host result of compiling generated code, or NIL to reject it.
+CMUCL sets the failure flag for warnings, and its optimizer warns about
+constant folding of arithmetic that the generated runtime guard makes
+unreachable -- for example a literal division by zero. It still returns a
+callable function whose guard bails out first, so the warning alone must not
+reject an otherwise usable mode group."
+  #+cmucl
+  (declare (ignore failure))
+  #+cmucl
+  function
+  #-cmucl
+  (and (not failure) function))
 
 (defun native-fresh-graph (term)
   "Copy a ground cons graph into a private host graph, preserving sharing."
@@ -551,16 +566,17 @@ No VM bindings, effects or table operations occur inside this group."
                                   (,entry depth ,@parameters
                                           ,@(when enumeratep '(callback))))))
                   (declare (ignore warnings))
-                  (when failure (return-from compile-mode nil))
-                  (make-native-mode
-                   function constants
-                   (unless enumeratep
-                     (make-native-stack-template
-                      entry parameters (- arity (logcount mask)) definitions
-                      (loop for mode-key being the hash-keys of nodes
-                            using (hash-value mode-function)
-                            collect (list mode-function (second mode-key)
-                                          (third mode-key) (fourth mode-key)))))))))))))))
+                  (let ((function (accepted-generated-function function failure)))
+                    (unless function (return-from compile-mode nil))
+                    (make-native-mode
+                     function constants
+                     (unless enumeratep
+                       (make-native-stack-template
+                        entry parameters (- arity (logcount mask)) definitions
+                        (loop for mode-key being the hash-keys of nodes
+                              using (hash-value mode-function)
+                              collect (list mode-function (second mode-key)
+                                            (third mode-key) (fourth mode-key))))))))))))))))
 
 ;;; Explicit-stack tier.
 ;;;
@@ -968,7 +984,7 @@ conditions propagate to the query cleaner."
       (multiple-value-bind (function warnings failure)
           (compile nil form)
         (declare (ignore warnings))
-        (and (not failure) function)))))
+        (accepted-generated-function function failure)))))
 
 (defun compile-stack-mode (mode)
   "Return the cached explicit-stack function for MODE, compiling once.

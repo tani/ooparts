@@ -15,7 +15,7 @@ when they avoid an external dependency, even when that increases their count.
 |---|---|---|
 | SAT storage | `#+(and sbcl x86-64 (not ooparts-portable-sat))`: checked system-area pointers | Growable octet vectors, integer virtual addresses and explicit little-endian words |
 | SAT locking | Host recursive lock through `ooparts/host` | No lock on a single-threaded host |
-| Continuation environments | Bundled SB-CLTL2, CCL, CMUCL or Clasp CLTL2 interfaces | Native interpreter environments on ECL, ABCL and CLISP |
+| Continuation environments | Bundled SB-CLTL2, CCL and CMUCL interfaces | Native interpreter environments on ECL, ABCL, CLISP and Clasp |
 | Callable continuations | Host MOP funcallable objects | Same public calling convention on every supported host |
 | GC/thread regression checks | Host GC and thread operations | Thread checks depend on actual thread support |
 
@@ -66,11 +66,10 @@ to follow CMUCL's funcallable-instance calling convention.
 ## Host adapters
 
 `ooparts/continuation/environment` contains the compiler's small environment
-interface. SBCL, CCL, CMUCL and Clasp use their bundled CLTL2 operations.
+interface. SBCL, CCL and CMUCL use their bundled CLTL2 operations.
 Clasp's binding queries read categories without forcing optional type metadata.
-On ECL,
-ABCL and CLISP, synthetic LET/FLET/MACROLET/SYMBOL-MACROLET forms extend a native
-interpreter environment. The dummy bindings never evaluate user initializers
+On ECL, ABCL, CLISP and Clasp, synthetic LET/FLET/MACROLET/SYMBOL-MACROLET forms
+extend a native interpreter environment. The dummy bindings never evaluate user initializers
 or CPS bodies. Macro definitions are enclosed by the host, preserving macro
 lambda-list parsing and the outer lexical macro environment. The adapter passes
 native environments to macro expanders, SETF expanders and CONSTANTP.

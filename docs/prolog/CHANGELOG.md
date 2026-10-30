@@ -1,3 +1,16 @@
+# Automatic native predicate specialization
+
+- Compile eligible pure predicate groups into Common Lisp functions with fixed
+  arguments, direct matching/arithmetic, direct calls and indexed ground relations.
+- Add `:execution-mode :auto|:wam` to `make-database`, `OOPARTS_PROLOG_DISABLE_NATIVE`
+  as a process-level interpreted oracle, and `:native-calls`/`:native-deoptimizations`
+  in `query-statistics`.
+- Bound every attempt (fuel, logical depth, collected answers, arity) and keep the
+  complete WAM implementation for declined calls, transactional replay, cut scope,
+  `findall` bags, tabling, SLG and instrumentation.
+- Add native/interpreted differential regressions and a counterbalanced
+  `benchmarks/prolog/jit-compare.py` comparison on the shared workload.
+
 # OOPArts refactor — 2026-10-29
 
 - Use only the `ooparts` and `ooparts-tests` primary package-inferred systems.
@@ -5,7 +18,8 @@
 - Move the textual interface into `src/prolog/text/`; keep the public API in `ooparts/prolog`.
 - Centralize the Nix flake, provenance ledger, license notices and pinned vendor inventories.
 - Preserve the portable WAM backend and native/strict term models. The earlier
-  native compiler described below remains removed.
+  native compiler described below remains removed and is superseded by the
+  independent specialization described above.
 
 # Historical native-compiler experiment (removed)
 

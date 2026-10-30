@@ -36,7 +36,21 @@
         "src/prolog.lisp",
         "src/prolog/**"
       ],
-      "modifications": "Module ownership, inferred packages, unified layout and public facade; upstream revision not recorded at import."
+      "modifications": "Module ownership, inferred packages, unified layout and public facade; upstream revision not recorded at import. The source-level predicate specializer and its regression cases were ported from the recorded additional revision and adapted to the current model, engine and term-bridge interfaces.",
+      "additional_sources": [
+        {
+          "revision": "6da5c8e4ff692fb1da887835452fd625b33f2731",
+          "paths": [
+            "src/syntax/native.lisp",
+            "tests/native.lisp"
+          ],
+          "relationship": "ported source-level predicate specializer and its regression cases",
+          "ported_to": [
+            "src/prolog/syntax/native.lisp",
+            "tests/prolog/syntax/native.lisp"
+          ]
+        }
+      ]
     },
     {
       "name": "Logtalk ISO tests",

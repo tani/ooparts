@@ -360,6 +360,20 @@ Prolog calls do not use Lisp recursion. Unification, compilation, term export,
 graph copying and GC traversal also use explicit work lists. User callback
 recursion is outside this guarantee. First-argument indexing is not implemented.
 
+### Native specialization
+
+`make-database` also accepts `:execution-mode`: `:auto` (default) compiles
+eligible deterministic/semideterministic ground-input predicate groups to Common
+Lisp and `:wam` keeps the interpreted backend only. Either policy answers
+identically; `query-statistics` adds `:native-calls` and
+`:native-deoptimizations`. Unsupported, open, cyclic, effectful, tabled,
+instrumented or over-budget calls keep the WAM automatically. See
+[Native predicate specialization](NATIVE-JIT.md) for eligibility and limits.
+
+```lisp
+(query '((fac 10 ?r)) :database (make-database :execution-mode :wam))
+```
+
 ## Garbage collection and updates
 
 VM GC tracks variable cells and VM-created cons cells. Nonmoving mark/compact

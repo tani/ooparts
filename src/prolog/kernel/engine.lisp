@@ -17,7 +17,8 @@
     #:machine-args #:machine-builtin-context #:machine-choices #:machine-closed #:machine-code
     #:machine-continuation #:machine-cut #:machine-database #:machine-delays #:machine-gc-count
     #:machine-gc-reclaimed #:machine-heap #:machine-iso-handlers #:machine-max-choices
-    #:machine-max-depth #:machine-max-heap #:machine-max-live #:machine-max-trail #:machine-pc
+    #:machine-max-depth #:machine-max-heap #:machine-max-live #:machine-max-trail
+    #:machine-native-calls #:machine-native-deopts #:machine-native-disabled #:machine-pc
     #:machine-ready #:machine-scan #:machine-scopes #:machine-serial #:machine-slg
     #:machine-slg-bypass #:machine-slg-lineage #:machine-slg-paused #:machine-slg-root
     #:machine-slg-worker #:machine-slots #:machine-steps #:machine-trail #:machine-variables
@@ -26,7 +27,8 @@
   (:import-from #:ooparts/prolog/kernel/protocol
     #:ensure-registers #:execute-term-instruction #:iso-atom #:iso-atomic-equal #:iso-compound
     #:iso-execute #:iso-handle-exception #:iso-instruction-p #:iso-invoke #:iso-primitive-p
-    #:iso-resolve-name #:iso-syntax-p #:iso-unknown #:maybe-collect #:slg-call #:slg-check-cut
+    #:iso-resolve-name #:iso-syntax-p #:iso-unknown #:maybe-collect #:native-call
+    #:slg-call #:slg-check-cut
     #:slg-check-database #:slg-close #:slg-enter-cut-frame #:slg-negative #:slg-return-answer
     #:slg-statistics #:slg-table-goal #:standard-predicate #:table)
   (:import-from #:ooparts/prolog/api/state)
@@ -180,6 +182,10 @@
   (when (gethash (cons name arity) (database-tabled (machine-database vm)))
     (if (machine-slg-bypass vm) (setf (machine-slg-bypass vm) nil)
         (return-from invoke-predicate (slg-call vm name arity tailp))))
+  ;; A specializer handles the call completely (success or logical failure) or
+  ;; declines without touching any VM state.
+  (when (native-call vm name arity tailp)
+    (return-from invoke-predicate t))
   (let ((code (resolve-code vm name arity)))
     (unless code
       (return-from invoke-predicate
@@ -214,6 +220,8 @@
 ;; linkers cache ordinary calls after the first invocation, so resolve the
 ;; current function cell explicitly (also preventing FUNCALL simplification).
 (declaim (notinline execute-term-instruction))
+;; The specializer boundary is replaceable like the term dispatcher above.
+(declaim (notinline native-call))
 
 (defun run-machine (vm)
   (loop until (machine-closed vm) do
@@ -275,7 +283,7 @@
   (when (and (machine-slg vm) (not (machine-slg-worker vm)))
     (slg-close (machine-slg vm)))
   (unwind-trail vm 0)
-  (setf (machine-closed vm) t (machine-ready vm) nil
+  (setf (machine-closed vm) t (machine-ready vm) nil (machine-native-disabled vm) nil
         (machine-builtin-context vm) nil (machine-iso-handlers vm) nil (machine-continuation vm) nil (machine-slots vm) nil (machine-scan vm) nil (machine-scopes vm) nil
         (machine-code vm) #() (machine-args vm) #()
         (machine-slg-paused vm) nil (machine-slg-lineage vm) nil
@@ -317,4 +325,6 @@
         :max-heap-cells (machine-max-heap vm) :trail-cells (fill-pointer (machine-trail vm))
         :max-trail-cells (machine-max-trail vm) :gc-count (machine-gc-count vm)
         :gc-reclaimed (machine-gc-reclaimed vm) :max-live-cells (machine-max-live vm)
+        :native-calls (machine-native-calls vm)
+        :native-deoptimizations (machine-native-deopts vm)
         :slg (and (machine-slg vm) (slg-statistics (machine-slg vm)))))

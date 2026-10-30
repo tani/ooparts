@@ -1,8 +1,9 @@
 # Native compiler ablation — 2026-10-23
 
-> Historical record: predicate specialization and native JIT compilation have
-> since been removed. These results apply to the optimizer revisions cited below,
-> not the current WAM interpreter. Run reproduction commands in those revisions.
+> Historical record. The optimizer measured here was removed and has since been
+> replaced by the independent implementation described in [NATIVE-JIT.md](NATIVE-JIT.md).
+> These results apply only to the revisions cited below; run reproduction commands
+> in those revisions and do not reuse these figures for the current code.
 
 ## Decision
 

@@ -4,7 +4,8 @@
     #:host-goal-form #:iso-atom #:iso-atomic-equal #:iso-builtin-p #:iso-compound #:iso-error
     #:iso-execute #:iso-flag-value #:iso-goal #:iso-handle-exception #:iso-instruction-p
     #:iso-invoke #:iso-io #:iso-modify #:iso-predicate-name #:iso-primitive-p #:iso-resolve-name
-    #:iso-syntax-p #:iso-unknown #:lower-wam-code #:maybe-collect #:query #:slg-call
+    #:iso-syntax-p #:iso-unknown #:lower-wam-code #:maybe-collect #:native-call #:provider-symbol
+    #:query #:slg-call
     #:slg-check-cut #:slg-check-database #:slg-close #:slg-enter-cut-frame #:slg-negative
     #:slg-return-answer #:slg-statistics #:slg-table-goal #:standard-predicate #:table
     #:variable-symbol-p #:iso-list-cons #:iso-empty-list))
@@ -12,6 +13,9 @@
 (defvar *providers* (make-hash-table :test 'eq))
 (defun register-provider (interface provider)
   (setf (gethash interface *providers*) provider))
+(defun provider-symbol (interface)
+  "Return the registered provider symbol for INTERFACE, or NIL when uninstalled."
+  (gethash interface *providers*))
 (defun ensure-registers (&rest arguments)
   (let ((provider (gethash 'ensure-registers *providers*)))
     (unless provider (error "Uninstalled execution interface: ~S" 'ensure-registers))
@@ -108,6 +112,11 @@
   (let ((provider (gethash 'maybe-collect *providers*)))
     (unless provider (error "Uninstalled execution interface: ~S" 'maybe-collect))
     (apply (symbol-function provider) arguments)))
+(defun native-call (&rest arguments)
+  ;; An uninstalled specializer declines, retaining interpreted execution.
+  (let ((provider (gethash 'native-call *providers*)))
+    (and provider (apply (symbol-function provider) arguments))))
+
 (defun query (&rest arguments)
   (let ((provider (gethash 'query *providers*)))
     (unless provider (error "Uninstalled execution interface: ~S" 'query))

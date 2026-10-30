@@ -146,26 +146,62 @@ disabled and thresholds 1, 8 and 4096. Existing callback, SLG, logical-update an
 stress tests remain in the full suite. The 54 serialized derived observations
 match the initial ISO-baseline revision byte for byte.
 
-# Native optimizer validation — 2026-10-23
+# Native specializer validation — 2026-10-30
 
-SBCL 2.2.9, Linux x86-64: **4,625 checks pass** with a 1 MiB control stack.
-With `OOPARTS_PROLOG_DISABLE_NATIVE=1`, **4,618 checks pass**; seven checks specifically
-asserting native execution/deoptimization are skipped. The existing 54 serialized
-derived observations match upstream `9e14c1e` exactly.
+Portable automatic specialization is implemented in
+[`src/prolog/syntax/native.lisp`](../../src/prolog/syntax/native.lisp) and tested
+by `tests/prolog/syntax/native.lisp` (278 differential checks). Every semantic
+observation runs on fresh `:auto` and `:wam` databases and compares ordered
+answers, duplicates, truth values, delays, normalized ISO exception terms,
+graph/atom identity and cursor statistics.
 
-`tests/syntax/native.lisp` compares native execution with the interpreter for arithmetic,
-bignums, floats and errors, cut/failure interactions, 49 combinations of guards
-and cuts, output aliasing and constrained outputs, open and rational terms,
-recursive collectors, and dependency invalidation. Pure tail and non-tail calls
-that exceed the native depth budget resume on the explicit VM. Both paths run
-with forced VM GC. Existing callback, SLG, rational-tree, instrumentation and
-logical-update tests remain in the complete suite.
+| Host | `:auto` | `OOPARTS_PROLOG_DISABLE_NATIVE=1` |
+| --- | ---: | ---: |
+| SBCL 2.5.4 (local, script and `nix run .#test-prolog-sbcl`) | 5,911 | 5,887 |
+| CLISP 2.49.95 | 5,911 | 5,887 |
+| ABCL 1.9.3 | 5,911 | 5,887 |
+| ECL 24.5.10 | 5,908 | 5,884 |
 
-The native compiler is enabled by default only on SBCL. Other Lisp implementations
-retain the portable WAM path; their CI matrix is not a local validation result.
-After [ablation](NATIVE-ABLATION.md), the VM clause, unification and copying algorithms
-are restored to upstream; the same 4,625 / 4,618 checks and 54 observations pass.
-The previous release's validation record follows.
+The delta is limited to assertions that require actual compiled execution. ECL
+additionally skips three exception-shape assertions because its interpreted
+`(mod 1 0)` returns the dividend instead of signaling; the native path still
+must reproduce that interpreted outcome, and it does. CCL, CMUCL, Clasp and MKCL
+are unavailable for this host/platform; no result is claimed for them.
+
+Coverage includes the public smoke (`fac(10,R)` = 3628800, compiled mode cached,
+second query reuses it, `:wam` builds no cache), semidet cut/failure placement,
+no answer lookahead and delayed errors, `findall` bag validation and graph
+isolation, ground-input aliasing with a single published root, atom-name
+matching across Lisp packages, depth/fuel/answer bailouts with transactional
+replay, clause-replacement cache invalidation, dispatcher and provider
+instrumentation, forced managed GC, high-arity rejection, and tabled/arithmetic
+boundaries. Deep pure recursion inside the depth budget runs natively; beyond it
+the interpreter answers without host stack exhaustion.
+
+ISO adapters: `tools/prolog/iso/run.py --term-model iso --strict --jobs 2`
+selects 782 upstream cases and reports **724 PASS, 2 FAIL, 56 SKIP** both with
+and without the native path, with an identical failure set (the pinned float
+`log(0)` evaluation expectations, which predate this change).
+
+Specialization measurements: `benchmarks/prolog/jit-compare.py --repeats 7
+--batch 20` on SBCL 2.5.4, Linux aarch64, two counterbalanced fresh-process
+rounds, same sources, validated results.
+
+| Workload | `:wam` median | `:auto` median | Speedup | Native calls/deopts |
+| --- | ---: | ---: | ---: | --- |
+| 8 queens | 106.7 ms | 0.98 ms | 108.9x | 1 / 0 |
+| Takeuchi (16,10,4) | 203.1 ms | 0.82 ms | 248.0x | 1 / 0 |
+| Naive reverse, 1200 | 2344 ms | 2790 ms | 0.84x | 3 / 2 |
+| Quicksort, 2000 | 247.1 ms | 244.3 ms | 1.01x | 4002 / 2 |
+| Graph, 1024 paths | 541.6 ms | 541.9 ms | 1.00x | 0 / 3 |
+| Symbolic differentiation | 42.7 ms | 0.374 ms | 114.2x | 1 / 0 |
+
+Generated search is fully specialized; reverse exceeds the logical depth budget
+and is replayed by the interpreter, which costs the reported 16%. The same table
+is reproducible from the recorded JSON; no archived measurement was modified and
+no SWI-Prolog parity is claimed.
+
+The previous native-compiler record follows and describes a superseded revision.
 
 # Prolog validation — 0.10.0, 2026-10-13
 

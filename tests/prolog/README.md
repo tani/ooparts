@@ -14,7 +14,7 @@ package matches its path under `tests/`.
 |---|---|
 | `api/` | Interactive query interface |
 | `kernel/` | WAM, GC, SLG and cut |
-| `syntax/` | DCG, lexical LET and term syntax |
+| `syntax/` | DCG, lexical LET, term syntax and native specialization |
 | `adapters/` | Builtins, collection, cons operations and strict ISO terms |
 | `library/` | Ordinary derived predicates and adapter wrappers |
 | `text/` | Text reader/writer and source loading |

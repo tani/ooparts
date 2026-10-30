@@ -11,7 +11,7 @@
     #:copy-iso-stream #:copy-lexical-binding #:copy-logic-var #:copy-machine #:copy-predicate
     #:copy-scoped-goals #:copy-sequence-goals #:copy-slg-answer #:copy-slg-consumer
     #:copy-slg-context #:copy-slg-table #:copy-slg-waiter #:copy-slot-ref #:database
-    #:database-generation #:database-iso-state #:database-p #:database-predicates
+    #:database-execution-mode #:database-generation #:database-iso-state #:database-native-cache #:database-p #:database-predicates
     #:database-tabled #:disjunction-goal #:disjunction-goal-branches #:disjunction-goal-p
     #:host-goal #:host-goal-arguments #:host-goal-function #:host-goal-output #:host-goal-p
     #:host-goal-testp #:iso-exception #:iso-exception-term #:iso-handler #:iso-handler-catcher
@@ -28,6 +28,7 @@
     #:machine-database #:machine-delays #:machine-gc-count #:machine-gc-floor #:machine-gc-limit
     #:machine-gc-reclaimed #:machine-heap #:machine-iso-handlers #:machine-max-choices
     #:machine-max-depth #:machine-max-heap #:machine-max-live #:machine-max-trail #:machine-mode
+    #:machine-native-calls #:machine-native-deopts #:machine-native-disabled
     #:machine-p #:machine-pc #:machine-ready #:machine-scan #:machine-scopes #:machine-serial
     #:machine-slg #:machine-slg-bypass #:machine-slg-lineage #:machine-slg-owner
     #:machine-slg-paused #:machine-slg-root #:machine-slg-worker #:machine-slots #:machine-steps
@@ -115,12 +116,19 @@
 (defvar *term-model* :native)
 (defstruct (database (:constructor %make-database))
   (term-model :native :type (member :native :iso) :read-only t)
+  (execution-mode :auto :type (member :auto :wam) :read-only t)
   (predicates (make-hash-table :test 'equal))
-  (tabled (make-hash-table :test 'equal)) (generation 0) iso-state)
-(defun make-database (&rest options &key (term-model :native) &allow-other-keys)
-  "Create a database with an immutable :NATIVE or :ISO term model."
+  (tabled (make-hash-table :test 'equal)) (generation 0) iso-state
+  ;; Compiled native modes are generation qualified; never query state.
+  native-cache)
+(defun make-database (&rest options &key (term-model :native) (execution-mode :auto)
+                      &allow-other-keys)
+  "Create a database with an immutable term model and execution policy.
+EXECUTION-MODE is :AUTO (specialize eligible predicates) or :WAM (interpreted only)."
   (unless (member term-model '(:native :iso))
     (error "Unknown term model: ~S" term-model))
+  (unless (member execution-mode '(:auto :wam))
+    (error "Unknown execution mode: ~S" execution-mode))
   (apply #'%make-database options))
 (defstruct (machine (:constructor %make-machine))
   database code iso-handlers builtin-context (pc 0) args slots continuation (cut 0) scopes
@@ -132,4 +140,5 @@
   (trail (make-array 64 :adjustable t :fill-pointer 0))
   (choices (make-array 16 :adjustable t :fill-pointer 0))
   variables (ready nil) (closed nil) (steps 0) (max-depth 0)
+  (native-disabled nil) (native-calls 0) (native-deopts 0)
   (max-choices 0) (max-heap 0))

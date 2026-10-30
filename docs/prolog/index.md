@@ -7,7 +7,8 @@
 - [Builtin reference](BUILTINS.md): supported predicates, arithmetic and Lisp-friendly names.
 - [Validation](VALIDATION.md): test coverage, stress tests and current limitations.
 - [ISO compatibility](ISO-COMPATIBILITY.md): pinned upstream tests, deliberate differences and unresolved cases.
-- [Historical native compiler ablation](NATIVE-ABLATION.md): measurements of the removed optimizer.
+- [Native predicate specialization](NATIVE-JIT.md): automatic JIT policy, eligibility, budgets and controls.
+- [Historical native compiler ablation](NATIVE-ABLATION.md): measurements of a superseded optimizer revision.
 - [Historical SWI comparison](COMPETITIVE-BENCHMARKS.md): archived native-compiler results and reproduction.
 - [Benchmarks](BENCHMARKS.md): measured performance, allocation profiles, bottlenecks and reproduction commands.
 - [Type declaration experiment](TYPE-DECLARATIONS.md): SBCL measurements without algorithm changes.

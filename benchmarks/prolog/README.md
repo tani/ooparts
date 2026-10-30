@@ -9,6 +9,7 @@ directories.
 | `run.lisp`, `summarize.lisp` | Baseline workloads and CSV summaries |
 | `profile.lisp`, `diagnose.lisp` | SBCL profiling and temporary diagnostic substitutions |
 | `competitive*.lisp`, `competitive*.pl`, `compare.py` | Shared Prolog workloads and SWI comparison |
+| `jit-compare.py` | Same-checkout `:auto` versus `:wam` specialization comparison |
 | `ablate.py`, `ablations/` | Optimizer ablation driver, patches and measurements |
 | `type-declarations/` | Type-declaration experiment and measurements |
 | `results/baseline.*` | Baseline raw observations and summary |
@@ -29,10 +30,13 @@ root. Existing measurements retain their original bytes, versions and source
 fingerprints; moving them does not constitute a new benchmark run.
 
 See [baseline analysis](../../docs/prolog/BENCHMARKS.md),
-[SWI comparison](../../docs/prolog/COMPETITIVE-BENCHMARKS.md) and
+[SWI comparison](../../docs/prolog/COMPETITIVE-BENCHMARKS.md),
+[native specialization](../../docs/prolog/NATIVE-JIT.md) and the
 [historical native compiler ablation](../../docs/prolog/NATIVE-ABLATION.md).
-The specialization/JIT implementation has been removed. Archived native-compiler
-results do not describe the current WAM interpreter; use a new output path when
-measuring it. The current comparison defaults to one query per timed sample;
-`BENCH_BATCH` overrides this in both engines. `ablate.py` and its patches
-reproduce historical revisions only.
+Archived native-compiler results describe a superseded revision and do not
+measure the current implementation; use a new output path when measuring it.
+`competitive.lisp` selects `:auto` or `:wam` execution through `BENCH_EXECUTION`.
+`jit-compare.py` runs both policies in counterbalanced fresh processes.
+The comparison defaults to one query per timed sample; `BENCH_BATCH` overrides
+this in both engines. `ablate.py` and its patches reproduce historical revisions
+only.

@@ -122,6 +122,27 @@ quicksort and graph cases are bounded fallbacks dominated by interpretation and
 stay within measurement noise. This conservative behaviour is the designed
 tradeoff, not an outstanding optimization.
 
+### SWI-Prolog reference
+
+`benchmarks/prolog/compare.py --sbcl sbcl --swipl swipl` on the same host, five
+samples, batch 1 (used only as a reference; no parity gate applies):
+
+| Workload | `:wam` | `:auto` | SWI `-O` | `:auto` vs SWI |
+| --- | ---: | ---: | ---: | ---: |
+| 8 queens | 151.4 ms | 1.23 ms | 2.41 ms | 1.96x faster |
+| Takeuchi (16,10,4) | 244.5 ms | 0.89 ms | 4.10 ms | 4.62x faster |
+| Naive reverse, 1200 | 2264 ms | 2465 ms | 19.1 ms | 129x slower |
+| Quicksort, 2000 | 222.4 ms | 226.8 ms | 3.75 ms | 60x slower |
+| Graph, 1024 paths | 572.9 ms | 570.4 ms | 0.33 ms | 1729x slower |
+| Symbolic differentiation | 47.2 ms | 0.46 ms | 0.80 ms | 1.76x faster |
+
+The three wins are the fully specialized workloads. The losses are outside the
+compiled fragment: reverse and quicksort are list recursion deeper than the
+logical depth budget, and the graph case repeatedly calls a fact relation from
+its second argument, which SWI answers by first-argument indexing while this
+implementation scans every clause. Closing those gaps needs first-argument
+indexing and a larger safe recursion envelope, not more native code.
+
 ## Host notes
 
 `tests/prolog/syntax/native.lisp` runs identically on the portable hosts the

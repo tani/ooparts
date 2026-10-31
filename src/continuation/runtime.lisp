@@ -1,11 +1,14 @@
 (uiop:define-package #:ooparts/continuation/runtime
   (:use #:cl)
+  ;; MKCL has no FUNCALLABLE-STANDARD-OBJECT class; its CLOS makes any
+  ;; standard instance funcallable instead (see the class definitions below).
+  #-mkcl
   (:import-from
    #+sbcl #:sb-mop
    #+ccl #:ccl
    #+cmucl #:pcl
    #+abcl #:mop
-   #+(or clisp ecl clasp mkcl) #:clos
+   #+(or clisp ecl clasp) #:clos
    #:funcallable-standard-object #:funcallable-standard-class
    #:set-funcallable-instance-function)
   (:import-from #:ooparts/continuation/conditions #:cps-error #:missing-reset #:native-boundary #:unsupported-form #:inactive-control-target #:unsupported-form-form #:unsupported-form-reason)
@@ -50,12 +53,30 @@
 (defvar *native-unwinding-prompts* nil)
 #+(or abcl ecl) (defvar *pending-unbindings* nil)
 
+#-mkcl
 (defclass cps-function (funcallable-standard-object)
   ((code :initarg :code :reader cps-code))
   (:metaclass funcallable-standard-class))
+#-mkcl
 (defclass captured-continuation (cps-function)
   ((segment :initarg :segment :reader captured-segment))
   (:metaclass funcallable-standard-class))
+;; MKCL's CLOS has no funcallable metaobject: every standard instance can be
+;; given a funcallable definition, individually, after allocation.  Ordinary
+;; slot accessors stop reading such an instance, so the readers below use the
+;; primitive that still reaches its slot vector.
+#+mkcl
+(defclass cps-function ()
+  ((code :initarg :code)))
+#+mkcl
+(defclass captured-continuation (cps-function)
+  ((segment :initarg :segment)))
+#+mkcl
+(defun cps-code (function)
+  (clos::funcallable-standard-instance-access function 0))
+#+mkcl
+(defun captured-segment (function)
+  (clos::funcallable-standard-instance-access function 1))
 (defun cps-function-p (x) (typep x 'cps-function))
 (defun continuation-p (x) (typep x 'captured-continuation))
 
@@ -73,9 +94,15 @@
   (let ((f (if capturedp
                (make-instance 'captured-continuation :code code :segment segment)
                (make-instance 'cps-function :code code))))
+    ;; MKCL accepts any standard instance, but its setter is an internal
+    ;; CLOS entry point rather than an exported MOP generic function.
+    #+mkcl
+    (clos::set-funcallable-instance-function
+     f #'(lambda (&rest args) (run (lambda (k) (apply code k args)))))
+    ;; CMUCL requires INSTANCE-LAMBDA to recover a funcallable object's
+    ;; closure environment; an ordinary closure uses a different convention.
+    #-mkcl
     (set-funcallable-instance-function
-     ;; CMUCL requires INSTANCE-LAMBDA to recover a funcallable object's
-     ;; closure environment; an ordinary closure uses a different convention.
      f #'(#+cmucl kernel:instance-lambda #-cmucl lambda
           (&rest args) (run (lambda (k) (apply code k args)))))
     f))

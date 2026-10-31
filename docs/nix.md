@@ -33,10 +33,10 @@ Components and the systems they cover:
 | `all` | `ooparts` | `ooparts-tests` |
 
 Implementations are whatever nixpkgs provides and supports on the selected
-platform: SBCL, ECL, ABCL, CCL, CLISP, Clasp, CMUCL and MKCL. MKCL exposes only
-the `prolog`, `sat` and `regexp` components; its continuation environment
-adapter has not been implemented and validated yet, so no MKCL continuation or
-aggregate variant is defined.
+platform: SBCL, ECL, ABCL, CCL, CLISP, Clasp, CMUCL and MKCL. Every component is
+offered for every available implementation, so MKCL gets `continuation` and
+`all` recipes as well; its continuation support depends on the internal adapters
+in `src/continuation/environment.lisp` and `src/continuation/runtime.lisp`.
 
 ## Outputs
 

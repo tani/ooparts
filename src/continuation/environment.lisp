@@ -134,6 +134,48 @@
                   ((or local (fboundp name)) :function))
             (not (null local)))))
 
+#+mkcl
+(defun mkcl-special-names (declarations)
+  "Names mentioned by (SPECIAL ...) entries of a DECLARE list."
+  (loop for declaration in declarations
+        when (and (consp declaration) (eq (car declaration) 'special))
+          append (cdr declaration)))
+
+#+mkcl
+(defun variable-information (name &optional environment)
+  "Return the binding category needed by CPS special-variable analysis.
+
+MKCL exposes the macro &ENVIRONMENT value as a list whose first element is
+the variable frame; entries are (NAME KIND SPECIALP LOCATION) for ordinary
+bindings, (NAME :SPECIAL ...) for declared specials and
+(NAME SI:SYMBOL-MACRO FUNCTION) for symbol macros.  Reading the frame
+directly is cheaper and more precise than the compiler's CMP-ENV-SEARCH-VAR,
+which only reports a location."
+  (let ((entry (and environment
+                    ;; The frame may end in MKCL's COMPILER::CB marker, so a
+                    ;; plain ASSOC over every element is not safe.
+                    (find-if (lambda (entry)
+                               (and (consp entry) (eq (car entry) name)))
+                             (car environment)))))
+    (cond ((and entry (eq (cadr entry) :special)) (values :special t))
+          ((si:specialp name) (values :special (not (null environment))))
+          ((and entry (eq (cadr entry) 'si::symbol-macro)) (values :symbol-macro t))
+          (entry (values :lexical t))
+          ((constantp name environment) (values :constant nil))
+          (t (values nil nil)))))
+
+#+mkcl
+(defun function-information (name &optional environment)
+  "Report whether a function name is shadowed by a local binding.
+
+MACRO-FUNCTION already honors the macro environment, including a local
+function binding that masks a global macro, so only the local flag needs the
+compiler's search."
+  (let ((local (and environment (compiler::cmp-env-search-function name environment))))
+    (values (cond ((macro-function name environment) :macro)
+                  ((or local (fboundp name)) :function))
+            (not (null local)))))
+
 (defun augment-context (environment &key variable function symbol-macro macro-definitions declare)
   #+(or sbcl ccl cmucl)
   (let* (#+cmucl (environment (or environment (c::make-null-environment)))
@@ -167,7 +209,27 @@
             `((declare (ignorable ,@(mapcar (lambda (name) `(function ,name)) function)))))
         (symbol-macrolet ,symbol-macro
           (macrolet ,macro-definitions (context-result)))))
-   environment))
+   environment)
+  #+mkcl
+  (let* ((specials (mkcl-special-names declare))
+         ;; MKCL's macro environment is a plain list of frames; copying it
+         ;; keeps augmentation persistent, as the other hosts' AUGMENT-* are.
+         (result (if environment (copy-tree environment) (list nil))))
+    (dolist (name (reverse variable))
+      (push (list name (if (member name specials) :special nil) t (cons 0 0))
+            (car result)))
+    ;; A DECLARE may mark an already visible binding special without binding it.
+    (dolist (name (reverse (remove-if (lambda (name) (member name variable)) specials)))
+      (push (list name :special t (cons 0 0)) (car result)))
+    (dolist (name (reverse function))
+      (push (list name 'function) (cdr result)))
+    ;; The host helpers know how to close macro definitions and symbol macros
+    ;; over RESULT; they only prepend entries, so the copy above stays private.
+    (dolist (definition symbol-macro)
+      (compiler::cmp-env-register-symbol-macro (car definition) (cadr definition) result))
+    (if macro-definitions
+        (si::cmp-env-register-macrolet macro-definitions result)
+        result)))
 
 (defun expand-once (form environment)
   (macroexpand-1 form environment))

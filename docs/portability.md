@@ -16,7 +16,7 @@ when they avoid an external dependency, even when that increases their count.
 |---|---|---|
 | SAT storage | `#+(and sbcl x86-64 (not ooparts-portable-sat))`: checked system-area pointers | Growable octet vectors, integer virtual addresses and explicit little-endian words |
 | SAT locking | Host recursive lock through `ooparts/host` | No lock on a single-threaded host |
-| Continuation environments | Bundled SB-CLTL2, CCL and CMUCL interfaces | Native interpreter environments on ECL, ABCL, CLISP and Clasp |
+| Continuation environments | Bundled SB-CLTL2, CCL and CMUCL interfaces | Native interpreter environments on ECL, ABCL, CLISP and Clasp; MKCL reads its macro environment (a list of frames) directly |
 | Callable continuations | Host MOP funcallable objects | Same public calling convention on every supported host |
 | GC/thread regression checks | Host GC and thread operations | Thread checks depend on actual thread support |
 
@@ -90,11 +90,13 @@ It uses a no-op lock only when the implementation has no thread support.
 Callable continuations directly use the implementation's MOP; no compatibility
 library patches host classes or generic functions.
 
-The Nix flake exposes the aggregate on available SBCL, ECL, ABCL, CCL, CLISP,
-CMUCL and Clasp implementations. Availability depends on the selected platform.
-MKCL exposes Prolog and SAT; its continuation environment adapter has not yet
-been implemented and validated. Availability of a Nix attribute is not itself
-evidence of a successful run.
+The Nix flake exposes the aggregate on every available implementation: SBCL,
+ECL, ABCL, CCL, CLISP, Clasp, CMUCL and MKCL. Availability depends on the selected
+platform. MKCL offers the same components as the others, including
+`continuation` and `all`; that support relies on MKCL's `COMPILER` package
+internals and its internal CLOS entries rather than ECL's private `C` package,
+because MKCL 1.1.11 defines only `:mkcl` and has no funcallable metaobject class.
+Availability of a Nix attribute is not itself evidence of a successful run.
 
 The license ledger retains previously consulted libraries as references, not
 runtime dependencies. Optional comparison programs and translator tools remain

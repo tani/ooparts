@@ -7,6 +7,16 @@ stacks and C helpers are not used. Reader conditionals select the implementation
 own environment and MOP interfaces; no external Lisp libraries are required.
 See [portability](../portability.md) for host adapters and validation.
 
+Every implementation the repository builds is supported. The host adapters in
+`src/continuation/environment.lisp` supply CLtL2-style environment queries per
+implementation: native `augment-environment` and `variable-information` on SBCL,
+CCL and CMUCL, interpreter environments on ECL, ABCL, CLISP and Clasp, and on
+MKCL the macro environment itself, which is a list of binding frames read
+directly with `COMPILER::CMP-ENV-SEARCH-VAR` and `SI:SPECIALP`. MKCL also needs
+its own funcallable-instance path in `src/continuation/runtime.lisp`, because its
+CLOS has no funcallable metaobject class and any standard instance can be given a
+funcallable definition after allocation.
+
 The compiler conservatively adapts the direct-versus-CPS idea of Asai and Uehara
 (PEPM 2018). It does not implement their polymorphic answer-type inference.
 Unknown calls use the CPS path; effect-free regions remain ordinary native

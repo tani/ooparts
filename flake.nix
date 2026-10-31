@@ -38,11 +38,11 @@
             regexp = { library = "ooparts/regexp"; tests = "ooparts-tests/regexp"; };
             all = { library = "ooparts"; tests = "ooparts-tests"; };
           };
-          # MKCL exposes Prolog, SAT and regexp. Its continuation environment
-          # adapter has not been implemented and validated yet.
-          supported = component: impl:
-            component == "prolog" || component == "sat" || component == "regexp"
-            || impl != "mkcl";
+          # Every component is offered for every available implementation.
+          # MKCL needs the internal adapters in src/continuation/environment.lisp
+          # and src/continuation/runtime.lisp because its compiler package and
+          # macro-environment representation differ from ECL's.
+          supported = component: impl: true;
           recipes = lib.listToAttrs (lib.concatMap (component:
             lib.mapAttrsToList (impl: options: let
               settings = components.${component};

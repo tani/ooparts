@@ -1,7 +1,7 @@
 (uiop:define-package #:ooparts-tests/advice/behavior
   (:use #:cl)
   (:import-from #:ooparts/advice #:advice-add #:advice-remove #:advice-member-p
-                #:advice-mapc #:define-advice)
+                #:advice-mapc #:define-advice #:advice-status)
   (:import-from #:ooparts/host #:threads-supported-p #:call-in-thread #:collect-garbage)
   (:export #:run-audit))
 (in-package #:ooparts-tests/advice/behavior)
@@ -587,6 +587,29 @@
                      (invoke (first pair) (second pair)) *counter*)
                 (clear-advice (first pair)))))))))
 
+(defun audit-preexisting ()
+  (dolist (policy '(:default :fast :inline))
+    (let* ((package (find-package (format nil "OOPARTS-ADVICE-PREEXISTING-~A" policy)))
+           (target (and package (find-symbol "TARGET" package))))
+      (when target
+        (advice-add target :around #'twice '(:name :double))
+        (unwind-protect
+             (dolist (entry '("CALLER" "GETTER"))
+               (observe (format nil "preexisting.~(~A~).~(~A~)" policy entry)
+                 (invoke (find-symbol entry package) 10)))
+          (advice-remove target :double))
+        (observe (format nil "preexisting.~(~A~).after-remove" policy)
+          (invoke (find-symbol "CALLER" package) 10)))))
+  (with-function (name)
+    (advice-add name :around #'twice '(:name :double))
+    (observe "status.active" (advice-status name))
+    (fmakunbound name)
+    (observe "status.pending" (advice-status name))
+    (setf (fdefinition name) #'base)
+    (observe "status.reconnected" (advice-status name))
+    (advice-remove name :double)
+    (observe "status.removed" (advice-status name))))
+
 (defun run-audit (directory)
   (let ((*directory* (uiop:ensure-directory-pathname directory))
         (*records* nil) (*serial* 0))
@@ -605,6 +628,7 @@
     (audit-validation)
     (audit-names-and-threads)
     (audit-compilation)
+    (audit-preexisting)
     (format t "~&AUDIT-COMPLETE|~D~%" (length *records*))
     (finish-output)
     t))

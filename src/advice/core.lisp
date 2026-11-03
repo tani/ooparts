@@ -1,13 +1,16 @@
 (uiop:define-package #:ooparts/advice/core
   (:use #:cl)
-  (:import-from #:ooparts/advice/backend #:attach #:detach)
+  (:import-from #:ooparts/advice/backend #:attach #:detach #:present-p
+                #:refresh-references #:*changing-definition* #:raw-definition)
   (:import-from #:ooparts/host #:make-recursive-lock #:with-recursive-lock-held)
   (:export #:advice-add #:advice-remove #:advice-member-p #:advice-mapc
-           #:define-advice))
+           #:*prepare-function* #:define-advice #:advice-status #:resolve-function #:reconcile-definitions))
 (in-package #:ooparts/advice/core)
 
 (defstruct piece function where properties)
-(defstruct target entries chain installation)
+(defstruct target entries chain installation dispatcher)
+(defvar *reconciling* nil)
+(defvar *prepare-function* nil)
 (defvar *targets* (make-hash-table :test #'equal))
 (defvar *registry-lock* (make-recursive-lock "OOPArts advice registry"))
 
@@ -71,8 +74,7 @@
   (when (and (symbolp name)
              (or (special-operator-p name) (macro-function name)))
     (error "Advice requires a function, not a macro or special operator: ~S" name))
-  (unless (fboundp name)
-    (error 'undefined-function :name name)))
+  name)
 
 (defun check-piece (where function properties)
   (unless (member where '(:before :after :around :override :filter-args
@@ -91,13 +93,56 @@
     (unless (or (null name) (symbolp name) (stringp name))
       (error "Advice name must be a symbol or string: ~S" name))))
 
+(defun ordinary-binding-p (name)
+  (and (fboundp name)
+       (or (not (symbolp name))
+           (and (not (macro-function name)) (not (special-operator-p name))))))
+
+(defun reconcile-state (name state)
+  (unless (or *changing-definition* *reconciling*)
+    (let ((*reconciling* t))
+      (cond
+        ((not (ordinary-binding-p name))
+         (detach name (target-installation state))
+         (setf (target-installation state) nil)
+         (refresh-references))
+        ((not (present-p name (target-installation state)))
+         (detach name (target-installation state))
+         (setf (target-installation state) (attach name (target-dispatcher state)))
+         (refresh-references)))))
+  state)
+
+(defun reconcile-definitions (&optional name)
+  "Reconnect registered advice after a definition change; preserve undefined targets as pending."
+  (unless (or *changing-definition* *reconciling*)
+    (with-recursive-lock-held (*registry-lock*)
+      (if name
+          (let ((state (gethash name *targets*)))
+            (when state (reconcile-state name state)))
+          (maphash #'reconcile-state *targets*))))
+  name)
+
+(defun resolve-function (name)
+  "Resolve NAME dynamically, first repairing any registered dispatcher."
+  (reconcile-definitions name)
+  (raw-definition name))
+
+(defun advice-status (name)
+  "Return :ACTIVE, :PENDING, or NIL for registered advice on NAME."
+  (with-recursive-lock-held (*registry-lock*)
+    (let ((state (gethash name *targets*)))
+      (when state
+        (reconcile-state name state)
+        (if (present-p name (target-installation state)) :active :pending)))))
+
 (defun advice-add (name where function &optional properties)
-  "Add FUNCTION at WHERE to an existing global function NAME.
+  "Add FUNCTION at WHERE to global function NAME, pending if NAME is undefined.
 PROPERTIES is a plist; :NAME identifies an advice and :DEPTH defaults to zero.
 Lower depths are outermost; the newest advice is outermost at equal depth.
 An existing name is replaced, or an existing function when :NAME is absent."
   (check-target name)
   (check-piece where function properties)
+  (when *prepare-function* (funcall *prepare-function* name))
   (with-recursive-lock-held (*registry-lock*)
     (let* ((state (or (gethash name *targets*) (make-target)))
            (new-name (getf properties :name))
@@ -111,14 +156,14 @@ An existing name is replaced, or an existing function when :NAME is absent."
                                       (target-entries state)))
                      #'< :key (lambda (piece) (getf (piece-properties piece) :depth 0))))
            (chain (compose-chain entries)))
-      (unless (gethash name *targets*)
-        (setf (target-chain state) chain
-              (target-installation state)
-              (attach name (lambda (base &rest args)
-                             (apply (target-chain state) base args)))))
+      (unless (target-dispatcher state)
+        (setf (target-dispatcher state)
+              (lambda (base &rest args) (apply (target-chain state) base args))))
+      (setf (target-chain state) chain)
+      (reconcile-state name state)
       (setf (target-entries state) entries
-            (target-chain state) chain
-            (gethash (copy-tree name) *targets*) state)))
+            (gethash (copy-tree name) *targets*) state)
+      (refresh-references)))
   nil)
 
 (defun advice-remove (name function-or-name)
@@ -132,14 +177,18 @@ An existing name is replaced, or an existing function when :NAME is absent."
               (setf (target-chain state) (compose-chain entries)
                     (target-entries state) entries)
               (progn
+                (setf (target-chain state) (compose-chain nil)
+                      (target-entries state) nil)
                 (detach name (target-installation state))
-                (remhash name *targets*)))))))
+                (remhash name *targets*))))))
+    (refresh-references))
   nil)
 
 (defun advice-member-p (function-or-name name)
   "Return true if NAME has advice matching FUNCTION-OR-NAME."
   (with-recursive-lock-held (*registry-lock*)
     (let ((state (gethash name *targets*)))
+      (when state (reconcile-state name state))
       (and state
            (not (null (find-if (lambda (piece) (matches-p piece function-or-name))
                                (target-entries state))))))))
@@ -149,7 +198,9 @@ An existing name is replaced, or an existing function when :NAME is absent."
 Iterate over a snapshot, so callbacks may safely add or remove advice."
   (let ((entries (with-recursive-lock-held (*registry-lock*)
                    (let ((state (gethash name *targets*)))
-                     (when state (copy-list (target-entries state)))))))
+                     (when state
+                       (reconcile-state name state)
+                       (copy-list (target-entries state)))))))
     (dolist (piece entries)
       (funcall function (piece-function piece) (copy-list (piece-properties piece)))))
   nil)

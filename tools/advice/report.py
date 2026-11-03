@@ -33,6 +33,10 @@ def cell(text):
 
 def section(key):
     prefix = key.split('.')[0]
+    if prefix == 'preexisting':
+        return 'Code compiled before library loading'
+    if prefix == 'status':
+        return 'Active and pending registration'
     if prefix == 'compile':
         return 'Compilation: ' + key.split('.')[1]
     return {'combinator': 'Composition, values, arguments and control flow',
@@ -56,7 +60,7 @@ def section(key):
 
 
 def summary_table(hosts, versions):
-    lines = ['| Runtime | Version | Default same-file call | DEFUN retains advice | Last removal restores base | Generic identity retained |',
+    lines = ['| Runtime | Version | Instrumented same-file call | DEFUN retains advice | Last removal restores base | Generic identity retained |',
              '|---|---|---|---|---|---|']
     for name in ORDER:
         h = hosts[name]
@@ -65,6 +69,20 @@ def summary_table(hosts, versions):
         remove = 'Yes' if outcome(h, 'object.current-after-last-removal') == '(11 :SECONDARY)' else '**No**'
         generic = 'Yes' if outcome(h, 'generic.identity-preserved') == '(T)' else 'No'
         lines.append(f'| {LABELS[name]} | {versions[name]} | {direct} | {redefine} | {remove} | {generic} |')
+    return lines
+
+
+def preexisting_table(hosts):
+    lines = ['| Runtime | Existing default caller | Existing fast caller | Existing INLINE caller | Existing default FDEFINITION getter |',
+             '|---|---|---|---|---|']
+    for name in ORDER:
+        values = [outcome(hosts[name], key) for key in
+                  ['preexisting.default.caller', 'preexisting.fast.caller',
+                   'preexisting.inline.caller', 'preexisting.default.getter']]
+        lines.append('| ' + LABELS[name] + ' | ' + ' | '.join(
+            'Advice' if value == '(22 :SECONDARY)' else
+            'Bypass' if value == '(11 :SECONDARY)' else cell(value)
+            for value in values) + ' |')
     return lines
 
 
@@ -109,12 +127,15 @@ def main():
              'These are measurements of the current OOPArts backends, not of each host\'s native advice facility.', '',
              f'**{len(keys)} comparison rows, {total} observations across eight runtimes:** '
              f'{same} rows have identical outcomes; {different} rows differ or include an unavailable control. '
-             'N/A cells are not counted as measurements.', '']
+             'N/A denotes a missing or explicitly unsupported control.', '']
     lines += summary_table(hosts, versions)
+    lines += ['', 'Calls compiled **before** the library was loaded (separate fixtures):', '',
+              *preexisting_table(hosts)]
     lines += ['', '* Bootstrap: ' + (cell(Path(setup['bootstrap']).name) if setup.get('bootstrap') else 'none') + '.',
               '* Emulated runtimes: ' + (', '.join(LABELS[name] for name in emulated) or 'none') + '.',
-              '* In the 2026-11-03 snapshot, MKCL used GNU11 mode because the locked package\'s default C compiler '
-              'mode rejected its generated calls. This does not patch Lisp lookup or optimization policy. '
+              '* MKCL used GNU11 mode because the locked package\'s default C compiler '
+              'mode rejected its generated calls. The GNU11 bootstrap itself does not patch Lisp lookup; '
+              'the library separately repairs cached references and instruments future calls. '
               'CMUCL used QEMU i386 because this execution host cannot run the package\'s 32-bit ELF directly; '
               'CMUCL emitted a personality-setting warning. Native i386 was not measured.',
               '* CLISP reports an older source date in `lisp-implementation-version`; the Nix package is '
@@ -131,6 +152,9 @@ def main():
               '`tests/advice/behavior.lisp`.',
               '- Shared rows are listed once under **Same on all eight**. Every other row includes all eight columns. '
               'Both types are observations, not proofs that every optimization or platform behaves the same.',
+              '- `preexisting.*` fixtures are compiled before library loading with original compiler behavior. '
+              'All `compile.*` fixtures are compiled with the library\'s compilation mode enabled, before or after '
+              'adding advice as indicated. They measure instrumented calls, not unchanged host compilation.',
               '- `default` uses fresh host defaults. Other policies first set speed/space/safety/debug/compilation-speed '
               'to 1, then apply their named changes: `fast` = speed 3, safety 1, debug 0; '
               '`debug3` = debug 3; `speed0` = speed 0; `inline` = fast + INLINE target; '
@@ -142,9 +166,9 @@ def main():
               '- `local-saved-function` evaluates `(let ((saved #\'target)) (funcall installer) (funcall saved x))`; '
               'the installer adds advice. `local-saved-fdefinition` uses FDEFINITION instead. '
               'These deliberately distinguish compiler rewriting from an actual object captured through an opaque boundary.',
-              '- INLINE requests can be ignored. An advised result in an INLINE row does not establish '
-              'that actual inline expansion was intercepted. Same-file redefinition and inline controls '
-              'explore implementation behavior beyond portable ANSI assumptions.', '']
+              '- Prepared calls are redirected before INLINE/self-call expansion. Their advised INLINE results '
+              'therefore do not mean that old expanded instructions were patched. In preexisting fixtures INLINE '
+              'requests may also be ignored. Same-file redefinition controls explore behavior beyond portable ANSI assumptions.', '']
     for title, rows in groups.items():
         lines += ['### ' + title, '']
         common = [row for row in rows if row[2]]
@@ -180,11 +204,13 @@ def main():
             f'Measured with the locked unstable Nixpkgs: {len(keys)} behavior rows and {total} observations. '
             f'{same} rows agree across all eight runtimes; {different} differ or include an unavailable control.', '',
             *summary_table(hosts, versions), '',
-            'The portable backend can leave stale registry entries after redefinition, and TRACE can prevent '
-            'removal. Captured wrappers and compiler-rewritten function references also require care. '
+            'Native SBCL/CCL encapsulation, revocable portable dispatchers and definition reconciliation '
+            'support redefinition and TRACE coexistence. Compilation instrumentation is enabled by default '
+            'and redirects future application calls through dynamic lookup, including the measured INLINE and recursive cases. '
+            'Old ECL/MKCL direct calls still need recompilation, and genuinely retained old ordinary function objects remain unchanged. '
             'The [complete comparison and known limitations](docs/advice/README.md#recorded-behavior-comparison) '
             'document every measured row, including errors. MKCL uses GNU11 compiler flags; CMUCL was measured '
-            'under QEMU i386 in the recorded 2026-11-03 snapshot. These are measurements, not uniform guarantees for arbitrary compiled code.',
+            'under QEMU i386. Dynamic lookup trades optimization for interception; no uniform guarantee covers arbitrary old compiled code.',
             '<!-- END ADVICE SUMMARY -->', ''])
         begin, end = '<!-- BEGIN ADVICE SUMMARY -->', '<!-- END ADVICE SUMMARY -->'
         if begin in current:

@@ -48,6 +48,11 @@ OOPArts adapters; see [portability](docs/portability.md).
 - [GNU Emacs modern advice](https://www.gnu.org/software/emacs/manual/html_node/elisp/Advising-Named-Functions.html)
   is an API and behavior reference for the independently implemented Common
   Lisp advice library. No Emacs source is distributed here.
+- [CCL native encapsulation](https://github.com/Clozure/ccl/blob/v1.13/lib/encapsulate.lisp)
+  and [ABCL compiler internals](https://github.com/armedbear/abcl/blob/fc3d78e55a5b338536286b5ef3bc3a041ba174f7/src/org/armedbear/lisp/precompiler.lisp)
+  are host-interface references for independently written adapters. The advice
+  library invokes CCL native advice and wraps ABCL compiler entry points in
+  memory; no upstream source files are copied or modified.
 - [QEMU user-mode emulation](https://www.qemu.org/) is an optional development
   tool used to run the Nixpkgs 32-bit CMUCL binary in the recorded advice audit.
   It is not bundled or required by any Lisp library or regression system.

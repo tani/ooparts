@@ -7,7 +7,7 @@ matches its path, and public packages have no nicknames.
 
 | Library | System and public package | Platform | Documentation |
 |---|---|---|---|
-| Advice | `ooparts/advice` | SBCL 2.6.6+ native; portable wrapper elsewhere | [docs](docs/advice/README.md) |
+| Advice | `ooparts/advice` | SBCL 2.6.6+ / CCL native; compilation instrumentation on eight hosts | [docs](docs/advice/README.md) |
 | Continuation | `ooparts/continuation` | Portable Common Lisp | [docs](docs/continuation/README.md) |
 | Prolog | `ooparts/prolog` | Portable Common Lisp | [docs](docs/prolog/README.md) |
 | SAT | `ooparts/sat` | Portable Common Lisp; native SBCL x86-64 fast path | [docs](docs/sat/README.md) |
@@ -27,20 +27,20 @@ See the [per-library documentation](docs/README.md) for more examples.
 <!-- BEGIN ADVICE SUMMARY -->
 ## Advice behavior across implementations
 
-Measured with the locked unstable Nixpkgs: 218 behavior rows and 1684 observations. 153 rows agree across all eight runtimes; 65 differ or include an unavailable control.
+Measured with the locked unstable Nixpkgs: 231 behavior rows and 1788 observations. 199 rows agree across all eight runtimes; 32 differ or include an unavailable control.
 
-| Runtime | Version | Default same-file call | DEFUN retains advice | Last removal restores base | Generic identity retained |
+| Runtime | Version | Instrumented same-file call | DEFUN retains advice | Last removal restores base | Generic identity retained |
 |---|---|---|---|---|---|
 | SBCL | 2.6.8 | Advice | Yes | Yes | Yes |
-| CCL | Version 1.13 LinuxX8664 | Advice | No | Yes | No |
-| ECL | 26.5.5 | Bypass | No | Yes | No |
-| MKCL | 1.1.11* | Bypass | No | Yes | No |
-| ABCL | 1.9.3 | Advice | No | Yes | No |
-| CLISP | 2.49.95+ (2024-11-03) (built on localhost [127.0.0.1]) | Advice | No | Yes | No |
-| Clasp | clasp-boehmprecise-3.0.1-non-cst | Advice | No | Yes | No |
-| CMUCL | 21d (21D Unicode) / emulated* | Advice | No | **No** | No |
+| CCL | Version 1.13 LinuxX8664 | Advice | Yes | Yes | Yes |
+| ECL | 26.5.5 | Advice | Yes | Yes | No |
+| MKCL | 1.1.11* | Advice | Yes | Yes | No |
+| ABCL | 1.9.3 | Advice | Yes | Yes | No |
+| CLISP | 2.49.95+ (2024-11-03) (built on localhost [127.0.0.1]) | Advice | Yes | Yes | No |
+| Clasp | clasp-boehmprecise-3.0.1-non-cst | Advice | Yes | Yes | No |
+| CMUCL | 21d (21D Unicode) / emulated* | Advice | Yes | Yes | No |
 
-The portable backend can leave stale registry entries after redefinition, and TRACE can prevent removal. Captured wrappers and compiler-rewritten function references also require care. The [complete comparison and known limitations](docs/advice/README.md#recorded-behavior-comparison) document every measured row, including errors. MKCL uses GNU11 compiler flags; CMUCL was measured under QEMU i386 in the recorded 2026-11-03 snapshot. These are measurements, not uniform guarantees for arbitrary compiled code.
+Native SBCL/CCL encapsulation, revocable portable dispatchers and definition reconciliation support redefinition and TRACE coexistence. Compilation instrumentation is enabled by default and redirects future application calls through dynamic lookup, including the measured INLINE and recursive cases. Old ECL/MKCL direct calls still need recompilation, and genuinely retained old ordinary function objects remain unchanged. The [complete comparison and known limitations](docs/advice/README.md#recorded-behavior-comparison) document every measured row, including errors. MKCL uses GNU11 compiler flags; CMUCL was measured under QEMU i386. Dynamic lookup trades optimization for interception; no uniform guarantee covers arbitrary old compiled code.
 <!-- END ADVICE SUMMARY -->
 
 ## Performance

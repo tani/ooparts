@@ -146,6 +146,20 @@
       "relationship": "API and behavior reference only; independently implemented in Common Lisp, no Emacs source distributed",
       "license": "NOASSERTION",
       "note": "Consult GNU documentation and source license terms; this entry is a reference, not a source import."
+    },
+    {
+      "name": "CCL native encapsulation",
+      "source": "https://github.com/Clozure/ccl/blob/v1.13/lib/encapsulate.lisp",
+      "relationship": "Host-interface reference for independently written native advice and compilation adapters; no upstream source copied or modified on disk.",
+      "license": "NOASSERTION",
+      "note": "Invokes host internals; ABCL entry points are wrapped in memory. Consult upstream licensing for the host implementation."
+    },
+    {
+      "name": "ABCL compiler and environment interfaces",
+      "source": "https://github.com/armedbear/abcl/blob/fc3d78e55a5b338536286b5ef3bc3a041ba174f7/src/org/armedbear/lisp/precompiler.lisp",
+      "relationship": "Host-interface reference for independently written native advice and compilation adapters; no upstream source copied or modified on disk.",
+      "license": "NOASSERTION",
+      "note": "Invokes host internals; ABCL entry points are wrapped in memory. Consult upstream licensing for the host implementation."
     }
   ],
   "optional_external_tools": [

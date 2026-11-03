@@ -1,7 +1,8 @@
 (uiop:define-package #:ooparts-tests/advice
   (:use #:cl)
   (:import-from #:ooparts/advice #:advice-add #:advice-remove #:advice-member-p
-                #:advice-mapc #:define-advice)
+                #:advice-mapc #:define-advice #:advice-status)
+  (:import-from #:ooparts-tests/advice/reconciliation)
   (:export #:run-tests))
 (in-package #:ooparts-tests/advice)
 
@@ -108,7 +109,7 @@
 
 (defun test-native-lookup ()
   (let ((original (fdefinition 'compiled-target))
-        (saved-function #'compiled-target))
+        (saved-function (eval '(function compiled-target))))
     (unwind-protect
          (progn
            (advice-add 'compiled-target :around #'double-result '(:name :double))
@@ -176,9 +177,11 @@
     (check nil (advice-member-p 'identity-advice name)))
   (check t (handler-case (progn (advice-add 'if :before #'identity-advice) nil)
              (error () t)))
-  (check t (handler-case
-               (progn (advice-add (gensym) :before #'identity-advice) nil)
-             (undefined-function () t))))
+  (let ((name (gensym)))
+    (advice-add name :before #'identity-advice)
+    (check :pending (advice-status name))
+    (check nil (fboundp name))
+    (advice-remove name #'identity-advice)))
 
 #+sbcl
 (defun test-trace-coexistence ()
@@ -202,5 +205,6 @@
     (test-definitions)
     (test-validation)
     #+sbcl (test-trace-coexistence)
+    (ooparts-tests/advice/reconciliation:run-tests)
     (format t "~D advice checks passed.~%" *checks*)
     t))

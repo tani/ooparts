@@ -83,7 +83,10 @@ def main():
               'run_date': datetime.now(timezone(timedelta(hours=9))).date().isoformat(),
               'source_sha256': {
                   name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-                  for name in ['src/advice/core.lisp', 'src/advice/backend.lisp', 'src/host.lisp']},
+                  for name in ['src/advice.lisp', 'src/advice/core.lisp',
+                               'src/advice/backend.lisp', 'src/advice/compilation.lisp',
+                               'src/host.lisp', 'tests/advice/behavior.lisp',
+                               'tools/advice/preexisting.lisp']},
               'setup': {'bootstrap': str(args.bootstrap.resolve()) if args.bootstrap else None,
                         'emulated': args.emulated},
               'implementations': results}

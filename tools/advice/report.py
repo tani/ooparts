@@ -89,7 +89,8 @@ def preexisting_table(hosts):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('report', type=Path)
-    parser.add_argument('--update-readme', action='store_true')
+    parser.add_argument('--update-readme', action='store_true',
+                        help='Update docs/advice/README.md only')
     args = parser.parse_args()
     report = json.loads(args.report.read_text())
     hosts = report['implementations']
@@ -196,28 +197,6 @@ def main():
             current = current[:a] + text.rstrip() + current[b:]
         else:
             current += '\n' + text
-        path.write_text(current)
-        path = ROOT / 'README.md'
-        current = path.read_text()
-        root_section = '\n'.join([
-            '<!-- BEGIN ADVICE SUMMARY -->', '## Advice behavior across implementations', '',
-            f'Measured with the locked unstable Nixpkgs: {len(keys)} behavior rows and {total} observations. '
-            f'{same} rows agree across all eight runtimes; {different} differ or include an unavailable control.', '',
-            *summary_table(hosts, versions), '',
-            'Native SBCL/CCL encapsulation, revocable portable dispatchers and definition reconciliation '
-            'support redefinition and TRACE coexistence. Compilation instrumentation is enabled by default '
-            'and redirects future application calls through dynamic lookup, including the measured INLINE and recursive cases. '
-            'Old ECL/MKCL direct calls still need recompilation, and genuinely retained old ordinary function objects remain unchanged. '
-            'The [complete comparison and known limitations](docs/advice/README.md#recorded-behavior-comparison) '
-            'document every measured row, including errors. MKCL uses GNU11 compiler flags; CMUCL was measured '
-            'under QEMU i386. Dynamic lookup trades optimization for interception; no uniform guarantee covers arbitrary old compiled code.',
-            '<!-- END ADVICE SUMMARY -->', ''])
-        begin, end = '<!-- BEGIN ADVICE SUMMARY -->', '<!-- END ADVICE SUMMARY -->'
-        if begin in current:
-            a, b = current.index(begin), current.index(end) + len(end)
-            current = current[:a] + root_section.rstrip() + current[b:]
-        else:
-            current = current.replace('## Performance\n', root_section + '\n## Performance\n')
         path.write_text(current)
     print(f'{len(keys)} rows; {total} observations; {same} identical; {different} different/N/A.')
     print(destination)

@@ -44,8 +44,9 @@ See [test layout](../../tests/prolog/README.md), [ISO driver](iso-runner.md),
 [recorded validation](../testing.md). The unified root [flake](../../flake.nix)
 provides `lib-prolog-<impl>`, `test-prolog-<impl>` and `repl-prolog-<impl>`
 packages/apps for available implementations. `nix run .#prolog` starts the SBCL
-text CLI; `nix run .#test-prolog-sbcl` runs its Lisp suite. Component and platform
-restrictions are documented in the [project README](../../README.md).
+text CLI; `nix run .#test-prolog-sbcl` runs its Lisp suite. Component commands are documented in the
+[library README](README.md#command-line-and-nix); shared platform selection is
+documented in the [Nix guide](../nix.md).
 
 Nix builds only the selected inferred component and restores both primary ASD
 files after Nixpkgs' installation filter. Keeping the parent definitions permits

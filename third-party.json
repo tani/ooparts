@@ -139,6 +139,13 @@
       "relationship": "consulted matching implementation only; no source distributed",
       "license": "NOASSERTION",
       "note": "No license is established for the consulted code; the described algorithms are implemented independently."
+    },
+    {
+      "name": "GNU Emacs modern advice API",
+      "source": "https://www.gnu.org/software/emacs/manual/html_node/elisp/Advising-Named-Functions.html",
+      "relationship": "API and behavior reference only; independently implemented in Common Lisp, no Emacs source distributed",
+      "license": "NOASSERTION",
+      "note": "Consult GNU documentation and source license terms; this entry is a reference, not a source import."
     }
   ],
   "optional_external_tools": [
@@ -163,6 +170,11 @@
       "name": "pycparser and GCC",
       "source": "tools/sat/translate.py",
       "relationship": "development-only translator and C reference compiler; not Lisp runtime dependencies"
+    },
+    {
+      "name": "QEMU user-mode emulation",
+      "source": "https://www.qemu.org/",
+      "relationship": "Optional development tool for the recorded 32-bit CMUCL behavior audit; not bundled or a Lisp runtime dependency."
     }
   ],
   "external_dependencies": []

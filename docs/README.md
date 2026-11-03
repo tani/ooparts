@@ -7,6 +7,7 @@ start. This page indexes the detailed documentation.
 
 | Library | Documentation | Scope |
 |---|---|---|
+| Advice | [docs/advice/README.md](advice/README.md) | Modern advice API, native SBCL encapsulation and portable wrappers |
 | Continuation | [docs/continuation/README.md](continuation/README.md) | Single-prompt `shift`/`reset`, capture and reinstatement semantics |
 | Prolog | [docs/prolog/README.md](prolog/README.md) | Stack-safe S-expression Prolog, DCGs, tabling, WAM-derived execution |
 | SAT | [docs/sat/README.md](sat/README.md) | Translated SATCH solver with resource-managed storage |

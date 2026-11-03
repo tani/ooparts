@@ -45,6 +45,12 @@ OOPArts adapters; see [portability](docs/portability.md).
 
 ## References and optional dependencies
 
+- [GNU Emacs modern advice](https://www.gnu.org/software/emacs/manual/html_node/elisp/Advising-Named-Functions.html)
+  is an API and behavior reference for the independently implemented Common
+  Lisp advice library. No Emacs source is distributed here.
+- [QEMU user-mode emulation](https://www.qemu.org/) is an optional development
+  tool used to run the Nixpkgs 32-bit CMUCL binary in the recorded advice audit.
+  It is not bundled or required by any Lisp library or regression system.
 - [PAIP Lisp](https://github.com/norvig/paip-lisp) is an MIT-licensed design/API
   reference for Prolog. No PAIP source files are distributed here.
 - [Allegro Prolog](https://franz.com/products/prolog/) is an interface reference.

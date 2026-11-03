@@ -1,12 +1,13 @@
 # OOPArts
 
-Common Lisp libraries for delimited continuations, Prolog, SAT and POSIX extended
+Common Lisp libraries for function advice, delimited continuations, Prolog, SAT and POSIX extended
 regular expressions. All modules use ASDF package-inferred systems; the only
 explicit systems are `ooparts` and `ooparts-tests`. A module's package name
 matches its path, and public packages have no nicknames.
 
 | Library | System and public package | Platform | Documentation |
 |---|---|---|---|
+| Advice | `ooparts/advice` | SBCL 2.6.6+ native; portable wrapper elsewhere | [docs](docs/advice/README.md) |
 | Continuation | `ooparts/continuation` | Portable Common Lisp | [docs](docs/continuation/README.md) |
 | Prolog | `ooparts/prolog` | Portable Common Lisp | [docs](docs/prolog/README.md) |
 | SAT | `ooparts/sat` | Portable Common Lisp; native SBCL x86-64 fast path | [docs](docs/sat/README.md) |
@@ -22,6 +23,25 @@ Register the checkout with ASDF, then load any library by its system name:
 ```
 
 See the [per-library documentation](docs/README.md) for more examples.
+
+<!-- BEGIN ADVICE SUMMARY -->
+## Advice behavior across implementations
+
+Measured with the locked unstable Nixpkgs: 218 behavior rows and 1684 observations. 153 rows agree across all eight runtimes; 65 differ or include an unavailable control.
+
+| Runtime | Version | Default same-file call | DEFUN retains advice | Last removal restores base | Generic identity retained |
+|---|---|---|---|---|---|
+| SBCL | 2.6.8 | Advice | Yes | Yes | Yes |
+| CCL | Version 1.13 LinuxX8664 | Advice | No | Yes | No |
+| ECL | 26.5.5 | Bypass | No | Yes | No |
+| MKCL | 1.1.11* | Bypass | No | Yes | No |
+| ABCL | 1.9.3 | Advice | No | Yes | No |
+| CLISP | 2.49.95+ (2024-11-03) (built on localhost [127.0.0.1]) | Advice | No | Yes | No |
+| Clasp | clasp-boehmprecise-3.0.1-non-cst | Advice | No | Yes | No |
+| CMUCL | 21d (21D Unicode) / emulated* | Advice | No | **No** | No |
+
+The portable backend can leave stale registry entries after redefinition, and TRACE can prevent removal. Captured wrappers and compiler-rewritten function references also require care. The [complete comparison and known limitations](docs/advice/README.md#recorded-behavior-comparison) document every measured row, including errors. MKCL uses GNU11 compiler flags; CMUCL was measured under QEMU i386 in the recorded 2026-11-03 snapshot. These are measurements, not uniform guarantees for arbitrary compiled code.
+<!-- END ADVICE SUMMARY -->
 
 ## Performance
 
@@ -43,7 +63,7 @@ Reproduce commands and allocation figures: [Prolog benchmarks](docs/prolog/BENCH
 
 ## Documentation
 - [Documentation index](docs/README.md)
-- [Continuation](docs/continuation/README.md), [Prolog](docs/prolog/README.md), [SAT](docs/sat/README.md), [regexp](docs/regexp/README.md)
+- [Advice](docs/advice/README.md), [Continuation](docs/continuation/README.md), [Prolog](docs/prolog/README.md), [SAT](docs/sat/README.md), [regexp](docs/regexp/README.md)
 - [Testing](docs/testing.md), [portability](docs/portability.md), [Nix](docs/nix.md), [layout](docs/layout.md)
 - [Third-party provenance](THIRD_PARTY.md) and [MIT license](LICENSE)
 

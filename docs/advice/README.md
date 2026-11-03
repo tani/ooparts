@@ -229,6 +229,37 @@ All caches, generated sources/FASLs, logs, JSON and standalone Markdown reports
 stay under ignored `build/`. Avoid running two audits/test processes for the same
 implementation against the same ASDF cache concurrently.
 
+## Provenance and license
+
+[Budden tools / cl-advice](https://github.com/lisp-mirror/budden-tools/blob/213ab2b52a1b0c0b496efd30c3b5143f5c8e1ff2/cl-advice/README.md)
+by Denis Budyak was a source and design reference during development. We examined
+its
+[implementation](https://github.com/lisp-mirror/budden-tools/blob/213ab2b52a1b0c0b496efd30c3b5143f5c8e1ff2/cl-advice/cl-advice.lisp),
+including the callable `next` convention, `(next &rest args)`
+decorator protocol, native SBCL/CCL advice and portable function-definition
+wrapping. Its callable `next` and encapsulation design informed this
+implementation, alongside the modern Emacs interface and OOPArts' registry and
+combinator composition.
+
+The implementation was developed with access to that source; no clean-room
+independence is claimed. We retain the upstream copyright (2015-2017 Denis
+Budyak) and the complete [MIT notice](../../licenses/budden-cl-advice-MIT.txt)
+for provenance and for any portions adapted from the consulted source. The
+[attribution notice](../../licenses/budden-cl-advice-NOTICE.txt) records this
+scope. OOPArts' original code remains [MIT licensed](../../LICENSE).
+
+The relevant license is the one in
+[`cl-advice/LICENSE`](https://github.com/lisp-mirror/budden-tools/blob/213ab2b52a1b0c0b496efd30c3b5143f5c8e1ff2/cl-advice/LICENSE), rather than the Budden tools root license,
+which distinguishes code by its origin. The checked source revision is
+`213ab2b52a1b0c0b496efd30c3b5143f5c8e1ff2`. This is the snapshot used for the
+provenance review; the exact revision consulted at the start of development was
+not recorded.
+
+Upstream implementation files are not vendored, and cl-advice is not a runtime
+or test dependency. The current CCL backend uses `ccl::advise-2`; it does not
+replace `ccl::advise-global-def` with Budden's patch. The SBCL backend uses native
+encapsulation without adopting Budden's definition-source lookup patch.
+
 ## References and evidence
 
 - [Emacs named-function advice](https://www.gnu.org/software/emacs/manual/html_node/elisp/Advising-Named-Functions.html)

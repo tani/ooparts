@@ -45,14 +45,21 @@ OOPArts adapters; see [portability](docs/portability.md).
 
 ## References and optional dependencies
 
+- [Budden tools / cl-advice](https://github.com/lisp-mirror/budden-tools/blob/213ab2b52a1b0c0b496efd30c3b5143f5c8e1ff2/cl-advice/README.md), by Denis Budyak,
+  was a consulted source and design reference for the advice library. Its upstream
+  [MIT copyright and permission notice](licenses/budden-cl-advice-MIT.txt) are
+  retained alongside an [attribution notice](licenses/budden-cl-advice-NOTICE.txt).
+  The [component README](docs/advice/README.md#provenance-and-license) records the
+  source-informed design and review scope. It is not an external Lisp dependency;
+  upstream implementation files are not vendored.
 - [GNU Emacs modern advice](https://www.gnu.org/software/emacs/manual/html_node/elisp/Advising-Named-Functions.html)
   is an API and behavior reference for the independently implemented Common
   Lisp advice library. No Emacs source is distributed here.
 - [CCL native encapsulation](https://github.com/Clozure/ccl/blob/v1.13/lib/encapsulate.lisp)
   and [ABCL compiler internals](https://github.com/armedbear/abcl/blob/fc3d78e55a5b338536286b5ef3bc3a041ba174f7/src/org/armedbear/lisp/precompiler.lisp)
-  are host-interface references for independently written adapters. The advice
+  are host-interface references for the adapters. The advice
   library invokes CCL native advice and wraps ABCL compiler entry points in
-  memory; no upstream source files are copied or modified.
+  memory; upstream implementation files are not vendored or modified on disk.
 - [QEMU user-mode emulation](https://www.qemu.org/) is an optional development
   tool used to run the Nixpkgs 32-bit CMUCL binary in the recorded advice audit.
   It is not bundled or required by any Lisp library or regression system.

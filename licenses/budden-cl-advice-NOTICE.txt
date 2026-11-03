@@ -1,0 +1,28 @@
+Budden tools / cl-advice: consulted source and retained attribution
+
+Author: Denis Budyak
+Copyright (C) 2015-2017 Денис Будяк (budden73@gmail.com)
+License: MIT; the complete upstream notice is in budden-cl-advice-MIT.txt.
+
+Source reviewed:
+https://github.com/lisp-mirror/budden-tools/tree/213ab2b52a1b0c0b496efd30c3b5143f5c8e1ff2/cl-advice
+License reviewed:
+https://github.com/lisp-mirror/budden-tools/blob/213ab2b52a1b0c0b496efd30c3b5143f5c8e1ff2/cl-advice/LICENSE
+
+Relationship to OOPArts:
+Budden tools / cl-advice source was read during development of ooparts/advice.
+The development record explicitly adopts its callable NEXT decorator protocol
+and discusses its native encapsulation and portable function-wrapper approach.
+OOPArts combines this source-informed design with an Emacs-style interface and
+its own registry, combinator composition and dispatcher lifecycle management.
+
+The upstream copyright and full MIT permission notice are retained for
+provenance and for any portions adapted from the consulted source. This
+attribution covers the acknowledged influence on ooparts/advice; it does not
+attribute every OOPArts file to the upstream author or claim a clean-room origin.
+Upstream implementation files are not vendored, and cl-advice is not loaded as
+a runtime or test dependency. OOPArts' original code remains MIT licensed.
+
+Provenance review: 2026-11-04.
+The pinned revision above identifies the source checked for this notice. The
+exact revision consulted at the beginning of development was not recorded.

@@ -31,7 +31,8 @@
             && lib.meta.availableOn pkgs.stdenv.hostPlatform candidate.value
             && !(candidate.value.meta.broken or false)
           ) implementations;
-          lispFor = impl: if impl == "abcl" then pkgs.abcl.override { jdk = pkgs.jdk17; } else pkgs.${impl};
+          # The locked ABCL package already selects OpenJDK 17 internally.
+          lispFor = impl: pkgs.${impl};
           components = {
             advice = { library = "ooparts/advice"; tests = "ooparts-tests/advice"; };
             curses = { library = "ooparts/curses"; tests = "ooparts-tests/curses"; };

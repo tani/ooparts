@@ -38,6 +38,9 @@
 (defvar *native-fuel-limit* 1000000)
 (defvar *native-depth-limit* 256)
 (defvar *native-answer-limit* 65536)
+;;; GOALS-FORM emits continuations recursively. Bound its source input before
+;;; entering the emitter, independently of the generated code's runtime depth.
+(defvar *native-clause-goal-limit* 128)
 ;;; The explicit-stack tier keeps activations in a heap arena, so its bound is
 ;;; the arena size in slots rather than the host stack depth.
 (defvar *native-stack-slot-limit* 1048576)
@@ -165,14 +168,16 @@ Symbols overlap by canonical atom name, not by host symbol identity."
 (defun check-clause (clause seen)
   "Validate the source clause graph before any recursive mode is emitted."
   (dolist (argument (cdr (car clause))) (check-template argument seen))
-  (dolist (goal (flatten-body (cdr clause)))
-    (cond ((or (variable-symbol-p goal) (logic-var-p goal)) (throw 'not-functional nil))
-          ((symbolp goal))
-          ((consp goal)
-           (unless (and (symbolp (car goal)) (finite-list-p goal))
-             (throw 'not-functional nil))
-           (dolist (argument (cdr goal)) (check-template argument seen)))
-          (t (throw 'not-functional nil)))))
+  (let ((body (flatten-body (cdr clause))))
+    (when (> (length body) *native-clause-goal-limit*) (throw 'not-functional nil))
+    (dolist (goal body)
+      (cond ((or (variable-symbol-p goal) (logic-var-p goal)) (throw 'not-functional nil))
+            ((symbolp goal))
+            ((consp goal)
+             (unless (and (symbolp (car goal)) (finite-list-p goal))
+               (throw 'not-functional nil))
+             (dolist (argument (cdr goal)) (check-template argument seen)))
+            (t (throw 'not-functional nil))))))
 
 (defun contains-variable-p (tree variable)
   (let ((seen (make-hash-table :test 'eq)) (work (list tree)) (steps 0))

@@ -55,10 +55,13 @@ kind. Compilation is attempted only for a closed group of pure clauses:
   divisors abort the attempt, leaving the authoritative WAM exception and context.
 - Source templates must be proper, finite, unshared cons trees of depth at most
   64. Graph-shaped or cyclic source terms stay interpreted.
-- Size limits protect the host: at most 128 compiled modes per group, arity at
+- Size limits protect the host: at most 128 goals per flattened source clause
+  and 128 compiled modes per group, arity at
   most `(min 64 (- call-arguments-limit 4) (- lambda-parameters-limit 4)
   (1- multiple-values-limit))`, and at most 1,048,576 explicit-stack slots per
   attempt.
+  Oversized source clauses remain on the WAM before recursive code generation
+  starts; the runtime depth limit cannot protect the compiler's own stack.
 
 ## Two execution tiers
 

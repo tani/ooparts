@@ -459,3 +459,21 @@ undefined STO and applicability skips are unchanged. Thirteen driver tests cover
 isolation, error/result checking, timeouts, source integrity and strict-mode
 selection. See [ISO compatibility](ISO-COMPATIBILITY.md) for reproduction and
 license/provenance details.
+
+## Native source compilation bounds
+
+The aggregate CI run after adding `ooparts/curry` exposed an ABCL stack
+overflow on ARM Linux and macOS while specializing a clause containing 2,000
+conjoined `true` goals. The textual parser and WAM compiler had already flattened
+the conjunction; the native source emitter still recursed once per goal.
+
+Native compilation now rejects flattened clause bodies longer than 128 goals
+before entering that emitter. Execution continues on the existing WAM, keeping
+the runtime recursion budget separate from source compilation bounds. A local
+ABCL 1.9.3 embedding with an actual 512 KiB Java thread stack reproduced the
+loader failure before the change and passed the complete loader suite afterward.
+This diagnostic launcher does not modify ABCL and is not part of the library.
+
+Sixteen new differential checks compare 2,048-goal clauses in `:auto` and `:wam`
+modes under both term models, covering success, failure, ordered answers, truth
+values and delays, and verifying that oversized bodies remain interpreted.

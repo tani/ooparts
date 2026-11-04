@@ -803,6 +803,28 @@
       (when (stringp (second wam))
         (check (stringp (second auto)) "float operand preserves the exception")))))
 
+(defun test-long-clause-bodies ()
+  ;; The source emitter itself needs a size bound even when runtime recursion
+  ;; is absent. Compare both successes and failures with the WAM oracle.
+  (dolist (model '(:native :iso))
+    (dolist (succeedp '(t nil))
+      (let ((observations nil))
+        (dolist (mode '(:auto :wam))
+          (let ((*database* (make-database :term-model model :execution-mode mode)))
+            (ooparts/prolog/syntax/compiler:add-clause
+             '(long-clause ?x)
+             (append (loop repeat 2048 collect '(= ?x 7))
+                     (unless succeedp '((fail))))
+             t)
+            (let ((data (query-list '((long-clause ?answer)) *database*)))
+              (push (subseq data 0 3) observations)
+              (check (zerop (native-calls (fourth data)))
+                     "oversized source clauses stay on the WAM"))))
+        (check (equal (first observations) (second observations))
+               "long clauses preserve ordered answers, truth values and delays")
+        (check (= (if succeedp 1 0) (length (first (first observations))))
+               "long clause success and failure are preserved")))))
+
 ;;; 14. Every semantic case runs regardless of native availability; only the
 ;;; execution-specific assertions above are gated by NATIVE-POSSIBLE-P.
 (defun run-native-tests ()
@@ -821,6 +843,7 @@
     (test-gc)
     (test-high-arity)
     (test-slg-and-arithmetic)
+    (test-long-clause-bodies)
     (run-native-stack-tests)
     (format t "~D native specializer checks passed.~%"
             (- (symbol-value 'ooparts-tests/prolog/support/assertions:*checks*)

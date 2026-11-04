@@ -165,7 +165,8 @@ third-party system definitions.
 
 `prepare-advice-function` prepares future calls to an existing name. It cannot
 rewrite a caller already compiled to inline code or a direct entry point.
-Disabling removes owned compiler macros and runtime patches; already
+Disabling removes owned compiler macros and runtime patches, subject to the
+CMUCL ownership limitation below; already
 instrumented functions/FASLs still call the resolver and require this library.
 Re-enabling does not retrospectively prepare all definitions compiled while the
 mode was disabled; prepare those names explicitly or recompile their DEFUNs.
@@ -186,6 +187,8 @@ mode was disabled; prepare those names explicitly or recompile their DEFUNs.
 | Copying an advised definition to another name | Native setters and portable closures differ. Copying a function definition does not copy its advice registration. |
 | Metadata, aliases, exotic FTYPE/ABI changes, locked application packages, arbitrary FFI entries, saved images | No uniform guarantee. The audit records documentation and alias differences, but does not establish these other cases. |
 | MAPC nested property objects | Only the outer plist is copied; nested mutable objects remain shared. |
+| TRACE output after UNTRACE | Further compiled probes found output retained on ECL, ABCL and Clasp, and tracing of another advised function on CMUCL. The existing audit records return values; see the further investigation below. |
+| CMUCL compiler-macro ownership | A locally stored expander can be non-EQ to the installed expander, leaving prepared-target compiler macros after DISABLE. Reading back the registered expander corrected this targeted probe. |
 | Foreign definition/TRACE implementations | Reconcile explicitly if they bypass notifications. Wrapper nesting and trace output/stack presentation remain host-dependent. |
 
 The old behavior matrix remains available at
@@ -195,6 +198,112 @@ are reattachment after redefinition/unbinding, inactive saved dispatchers after
 removal, TRACE coexistence, native CCL generic functions, and dynamically
 resolved future compiled calls. These fixes do not imply equality of arbitrary
 old machine code or preexisting function-object identity.
+
+## Further convergence investigation
+
+**Preliminary research, 2026-11-04.** Isolated prototypes used the same locked
+Linux runtime versions as the comparison below; CMUCL ran under QEMU i386.
+The library implementation has not incorporated these experiments. The generated
+current-behavior tables continue to describe the shipped implementation.
+
+### Compiled calls
+
+| Remaining difference | Intervention tried | Session result |
+|---|---|---|
+| MKCL fast/speed-0/INLINE `(funcall #'target ...)` | Intercept `compiler::c1funcall` before it emits a global/direct call, preserving local function bindings | All three bypassing observations changed from 11 to 22, with the secondary value preserved |
+| ABCL debug-3/speed-0 function literals | Rewrite at `pre::precompile-function-call`, while `pre::*precompile-env*` still describes local function bindings | Both bypassing observations changed from 11 to 22 |
+| CMUCL INLINE/block function literals | Add a FUNCALL compiler macro, retain the registered expander and recognize renamed FLET/LABELS bindings | Both bypassing observations changed from 11 to 22 |
+| MKCL debug-3 self-recursion | Refresh references in the retained base function using `si::update-function-references` | The n=3 fixture entered advice four times instead of once; removal restored zero advice calls |
+
+The MKCL debug-3 generated C uses an indirect cached self-reference. Once a
+wrapper replaces the global definition, the existing symbol scan misses the
+retained base function and its cache. Updating that base addresses this case;
+it does not rewrite existing direct C calls or inline expansions.
+
+A CMUCL ownership probe found the stored compiler-macro expander non-EQ to the
+registered one; the prepared-target macro survived disabling compilation mode.
+Recording the result of `compiler-macro-function` after installation made that
+ownership check succeed and removed the target macro on disable. Integration
+would need this rule for all owned registrations, including standard-function
+compiler macros.
+
+A simple FUNCALL compiler macro was insufficient: ABCL debug-3 FLET/LABELS calls
+were incorrectly redirected to the global target. CMUCL's general function
+information query also rejected a LABELS placeholder. The revised probes used
+ABCL's earlier environment and recognized CMUCL's renamed local function keys.
+Fast/debug-3/INLINE controls on each host then produced the expected global
+result 22, local FLET result 10 and local LABELS result 3.
+
+The combined session tally reran the 231-row observer and reported 1,788
+observations: 204 rows agreed across all eight hosts and 27 differed or included
+N/A, compared with the current implementation's 199/32. Exactly eight
+observations changed, all listed above. Instrumented direct/function-literal
+calls, FDEFINITION/SYMBOL-FUNCTION getters and self-recursion agreed across the
+measured policies. NOTINLINE was only a control. The preexisting-code fixtures
+were unchanged. These are preliminary session results, not replacement audit
+artifacts or a release validation.
+
+### Generic functions
+
+Separate one-required-argument probes retained the generic-function object,
+repeated calls with different argument classes, added primary and AROUND methods,
+removed a method and disabled interception.
+
+| Runtime | Result and remaining work |
+|---|---|
+| SBCL, CCL | Current native backends already preserve identity |
+| ECL, CLISP | Dispatch wrapping plus dependent notifications passed these repeated-call and method-change probes; a custom subclass was another successful experiment |
+| ABCL | Dispatch wrapping plus dependent notifications passed; an initially prepared custom subclass also passed. Changing an existing generic function's class was rejected |
+| MKCL | An uncached effective-method dispatcher initially preserved identity and intercepted calls, but subsequent DEFMETHOD failed. The standard dispatch/dependent route used by the other prototypes was unavailable |
+| Clasp | The first wrapped call succeeded, but cache updates replaced interception. Dependent notifications and an initially prepared subclass did not solve this; changing the existing generic function's class was rejected |
+| CMUCL | Direct dispatch wrapping and the subclass variant failed with argument/context errors; one probe signaled a segmentation violation. Only QEMU was tested |
+
+A computed discriminating function cannot be treated uniformly as an ordinary
+closure. The CMUCL protocol specifies installation and encapsulation constraints.
+The three promising host results still need registry/removal integration and
+validation of other lambda lists, custom generic classes/method combinations,
+concurrent updates and TRACE interaction.
+
+### TRACE output cleanup
+
+The existing TRACE audit checks advised and unadvised return values. New compiled
+probes also removed advice, called UNTRACE, checked output on the same target,
+and advised a second target to check whether tracing leaked to it. These probes
+used the current library, without the compiler prototype.
+
+| Runtime | Output stops: TRACE before advice | Output stops: TRACE after advice | Other advised target stays untraced |
+|---|---|---|---|
+| SBCL | Yes | Yes | Yes |
+| CCL | Yes | Yes | Yes |
+| ECL | Yes | No | Yes |
+| MKCL | Yes | Yes | Yes |
+| ABCL | No | No | Yes |
+| CLISP | Yes | Yes | Yes |
+| Clasp | Yes | No | Yes |
+| CMUCL | Yes | Yes | No |
+
+Correct return values and revoked advice do not establish complete native TRACE
+cleanup. CMUCL reported tracing of shared closure code; an additional sequence
+that compiled/called fresh code after the TRACE observer also failed with a
+debugger-frame error. Compiler shadowing controls were therefore assessed in a
+fresh state before TRACE, rather than treating this sequence as a passed test.
+
+The next priorities are compiler-macro ownership, lexically correct literal-call
+conversion and retained-base cache repair, followed by TRACE cleanup and generic
+adapters. No performance conclusion was drawn, and these proposals do not repair
+arbitrary old machine code.
+
+**Evidence limitation:** the execution environment was reset after the probes,
+losing the transient prototype files, raw logs and installed runtimes. The
+findings above were recovered from the session's recorded tool output. Final
+artifact reconciliation and a rerun with archived probes/logs remain incomplete;
+the retained current-behavior audit below is unchanged.
+
+Source inspection included [MKCL call conversion](https://github.com/jcbeaudoin/MKCL/blob/master/src/cmp/cmpcall.lsp),
+[MKCL expression conversion](https://github.com/jcbeaudoin/MKCL/blob/master/src/cmp/cmpeval.lsp),
+[CMUCL call conversion](https://github.com/rtoy/cmucl/blob/master/src/compiler/ir1tran.lisp),
+[CMUCL dispatch protocol](https://github.com/rtoy/cmucl/blob/master/src/pcl/methods.lisp),
+and [Clasp generic-function updates](https://github.com/clasp-developers/clasp/blob/3.0.1/src/lisp/kernel/clos/generic.lisp).
 
 ## Validation and reproduction
 

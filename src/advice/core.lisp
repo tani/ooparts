@@ -4,7 +4,7 @@
                 #:refresh-references #:*changing-definition* #:raw-definition)
   (:import-from #:ooparts/host #:make-recursive-lock #:with-recursive-lock-held)
   (:export #:advice-add #:advice-remove #:advice-member-p #:advice-mapc
-           #:*prepare-function* #:define-advice #:advice-status #:resolve-function #:reconcile-definitions))
+           #:call-with-detached-advice #:*prepare-function* #:define-advice #:advice-status #:resolve-function #:reconcile-definitions))
 (in-package #:ooparts/advice/core)
 
 (defstruct piece function where properties)
@@ -109,7 +109,7 @@
         ((not (present-p name (target-installation state)))
          (detach name (target-installation state))
          (setf (target-installation state) (attach name (target-dispatcher state)))
-         (refresh-references)))))
+         (refresh-references (target-installation state))))))
   state)
 
 (defun reconcile-definitions (&optional name)
@@ -122,10 +122,28 @@
           (maphash #'reconcile-state *targets*))))
   name)
 
+(defun call-with-detached-advice (names function)
+  "Expose native TRACE wrappers to UNTRACE, then reconnect registered advice."
+  (with-recursive-lock-held (*registry-lock*)
+    (unwind-protect
+         (let ((*changing-definition* t))
+           (flet ((suspend (name state)
+                    (when state
+                      (detach name (target-installation state))
+                      (setf (target-installation state) nil))))
+             (if names
+                 (dolist (name names) (suspend name (gethash name *targets*)))
+                 (maphash #'suspend *targets*)))
+           (funcall function))
+      (reconcile-definitions))))
+
 (defun resolve-function (name)
   "Resolve NAME dynamically, first repairing any registered dispatcher."
   (reconcile-definitions name)
-  (raw-definition name))
+  ;; CMUCL's native getter intentionally omits FWRAPPERS. Keep that getter
+  ;; intact for host internals, but include native TRACE in application calls.
+  #+cmucl (kernel:fdefn-function (kernel:fdefn-or-lose name))
+  #-cmucl (raw-definition name))
 
 (defun advice-status (name)
   "Return :ACTIVE, :PENDING, or NIL for registered advice on NAME."
@@ -163,7 +181,7 @@ An existing name is replaced, or an existing function when :NAME is absent."
       (reconcile-state name state)
       (setf (target-entries state) entries
             (gethash (copy-tree name) *targets*) state)
-      (refresh-references)))
+      (refresh-references (target-installation state))))
   nil)
 
 (defun advice-remove (name function-or-name)

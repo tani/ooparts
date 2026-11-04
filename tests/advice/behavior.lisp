@@ -1,7 +1,8 @@
 (uiop:define-package #:ooparts-tests/advice/behavior
   (:use #:cl)
   (:import-from #:ooparts/advice #:advice-add #:advice-remove #:advice-member-p
-                #:advice-mapc #:define-advice #:advice-status)
+                #:advice-mapc #:define-advice #:advice-status #:prepare-advice-function
+                #:disable-advice-compilation #:enable-advice-compilation)
   (:import-from #:ooparts/host #:threads-supported-p #:call-in-thread #:collect-garbage)
   (:export #:run-audit))
 (in-package #:ooparts-tests/advice/behavior)
@@ -511,6 +512,8 @@
                (getter (intern "GETTER" package))
                (sharp (intern "SHARP" package))
                (symbol-function-getter (intern "SYMBOL-FUNCTION-GETTER" package))
+               (flet-sharp (intern "FLET-SHARP" package))
+               (labels-sharp (intern "LABELS-SHARP" package))
                (local-sharp (intern "LOCAL-SHARP" package))
                (local-fdef (intern "LOCAL-FDEF" package))
                (recursive (intern "RECURSIVE" package))
@@ -540,6 +543,11 @@
                      (defun ,caller (x) (,target x))
                      (defun ,getter (x) (funcall (fdefinition ',target) x))
                      (defun ,sharp (x) (funcall #',target x))
+                     (defun ,flet-sharp (x)
+                       (flet ((,target (x) x)) (funcall #',target x)))
+                     (defun ,labels-sharp (x)
+                       (labels ((,target (n) (if (zerop n) 0 (1+ (funcall #',target (1- n))))))
+                         (funcall #',target x)))
                      (defun ,symbol-function-getter (x) (funcall (symbol-function ',target) x))
                      (defun ,local-sharp (x installer)
                        (let ((saved #',target)) (funcall installer) (funcall saved x)))
@@ -560,6 +568,8 @@
                  (observe (format nil "compile.~(~A~).direct" policy) (invoke caller 10))
                  (observe (format nil "compile.~(~A~).fdefinition" policy) (invoke getter 10))
                  (observe (format nil "compile.~(~A~).sharp" policy) (invoke sharp 10))
+                 (observe (format nil "compile.~(~A~).flet-sharp" policy) (invoke flet-sharp 10))
+                 (observe (format nil "compile.~(~A~).labels-sharp" policy) (invoke labels-sharp 3))
                  (observe (format nil "compile.~(~A~).symbol-function" policy) (invoke symbol-function-getter 10))
                  (observe (format nil "compile.~(~A~).separate-file" policy) (invoke separate 10))
                  (compile-source (merge-pathnames "late.lisp" *directory*)
@@ -610,6 +620,44 @@
     (advice-remove name :double)
     (observe "status.removed" (advice-status name))))
 
+(defun trace-output-probe (order active)
+  ;; Use distinct compiled bases as well as dispatchers: some native tracers
+  ;; patch function code in place instead of replacing a function binding.
+  (with-function (name (compile nil '(lambda (x) (values (1+ x) :secondary))))
+    (let ((*trace-output* (make-string-output-stream)))
+      (unwind-protect
+           (progn
+             (when (eq order :trace-first) (eval `(trace ,name)))
+             (advice-add name :around #'twice '(:name :double))
+             (when (eq order :advice-first) (eval `(trace ,name)))
+             (let ((result (multiple-value-list (invoke name 10)))
+                   (traced (plusp (length (get-output-stream-string *trace-output*)))))
+               (unless active (advice-remove name :double))
+               (eval `(untrace ,name))
+               (get-output-stream-string *trace-output*)
+               (let ((after (multiple-value-list (invoke name 10)))
+                     (quiet (zerop (length (get-output-stream-string *trace-output*)))))
+                 (with-function (other (compile nil '(lambda (x) (values (1+ x) :secondary))))
+                   (advice-add other :around #'twice)
+                   (invoke other 10)
+                   (values result traced after quiet
+                           (zerop (length (get-output-stream-string *trace-output*))))))))
+        (when (member name (eval '(trace)) :test #'equal) (eval `(untrace ,name)))))))
+
+(defun audit-convergence ()
+  (dolist (order '(:trace-first :advice-first))
+    (dolist (active '(nil t))
+      (observe (format nil "trace.output.~(~A~).~A" order (if active "active" "removed"))
+        (trace-output-probe order active))))
+  (with-function (name)
+    (prepare-advice-function name)
+    (observe "registry.compiler-macro-owned" (not (null (compiler-macro-function name))))
+    (unwind-protect
+         (progn
+           (disable-advice-compilation)
+           (observe "registry.compiler-macro-released" (null (compiler-macro-function name))))
+      (enable-advice-compilation))))
+
 (defun run-audit (directory)
   (let ((*directory* (uiop:ensure-directory-pathname directory))
         (*records* nil) (*serial* 0))
@@ -629,6 +677,7 @@
     (audit-names-and-threads)
     (audit-compilation)
     (audit-preexisting)
+    (audit-convergence)
     (format t "~&AUDIT-COMPLETE|~D~%" (length *records*))
     (finish-output)
     t))

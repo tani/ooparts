@@ -86,6 +86,8 @@ def main():
                   for name in ['src/advice.lisp', 'src/advice/core.lisp',
                                'src/advice/backend.lisp', 'src/advice/compilation.lisp',
                                'src/host.lisp', 'tests/advice/behavior.lisp',
+                               'tests/advice/reconciliation.lisp',
+                               'tools/lisp.py', 'tools/advice/audit.py',
                                'tools/advice/preexisting.lisp']},
               'setup': {'bootstrap': str(args.bootstrap.resolve()) if args.bootstrap else None,
                         'emulated': args.emulated},

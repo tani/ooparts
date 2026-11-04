@@ -41,7 +41,8 @@ def lisp_command(script, arguments=(), *, implementation='sbcl', lisp=None,
     executable = lisp or sbcl or os.environ.get(implementation.upper()) or {
         'cmucl': 'lisp', 'clasp': 'clasp'}.get(implementation, implementation)
     mode = 'portable' if portable_sat else 'native'
-    cache = ROOT / 'build' / 'lisp-cache' / mode
+    cache = Path(os.environ.get('OOPARTS_LISP_CACHE_DIRECTORY',
+                                ROOT / 'build' / 'lisp-cache')) / mode
     cache.mkdir(parents=True, exist_ok=True)
     source = '(pushnew :ooparts-portable-sat *features*)\n' if portable_sat else ''
     if bootstrap:

@@ -123,12 +123,13 @@ obtained on entry. Arbitrary simultaneous redefinition races are not covered.
 |---|---|
 | SBCL 2.6.6+ | `sb-int:encapsulate` / `unencapsulate`, with a separate native marker for each installation. Ordinary native global lookup survives redefinition and composes with TRACE. |
 | CCL 1.13 | Native `ccl::advise-2` / `%unadvise-1` around advice, using an inner function binding and an OOPArts marker. Native generic-function identity and DEFMETHOD are preserved. Enabled compilation mode sets `*loading-removes-encapsulation*` to NIL globally until disabled, so loading replacement FASLs retains encapsulation. |
-| ECL, CLISP, Clasp, CMUCL | Revocable FDEFINITION wrapper; managed FDEFINITION getter reconciles stale installations before returning a function. |
-| MKCL | The portable wrapper and getter, plus `si::update-function-references` for discoverable user-named compiled functions after registry changes. This repairs reference caches, not generated direct C calls or undiscoverable anonymous callers. |
-| ABCL | The portable wrapper and getter, `sys::*fset-hooks*` definition notifications, and an in-memory wrapper around `pre::precompile-function-call` to redirect global calls before ABCL expands inline/self calls. Lexical FLET/LABELS entries and application compiler macros are preserved. |
+| ECL, CLISP, Clasp | Revocable FDEFINITION wrapper; managed FDEFINITION getter reconciles stale installations before returning a function. Application TRACE/UNTRACE temporarily detach only the affected advice installations, suppress intermediate notifications, and reconnect in an UNWIND-PROTECT cleanup. A TRACE query does not detach anything. |
+| CMUCL | Revocable primary-definition wrapper. Application resolution reads the actual FDEFN including native FWRAPPERS; the host's original FDEFINITION getter remains intact because native wrapper maintenance needs its unwrapped primary. Application TRACE expansion defaults to native encapsulation instead of breakpoints in shared code; explicit TRACE options retain precedence. Each installation gets separate compiled wrapper code; backend primary swaps migrate the matching encapsulated TRACE record without invoking native retracing. |
+| MKCL | The portable wrapper and getter, plus `si::update-function-references` for discoverable user-named compiled functions after registry changes, including the retained base that is no longer reachable from its global name. An in-memory `compiler::c1funcall` adapter redirects immediate global function literals before direct-call conversion, preserving lexical functions. TRACE/UNTRACE use the same suspension boundary as ECL. This repairs reference caches, not generated direct C calls or undiscoverable anonymous callers. |
+| ABCL | The portable wrapper and getter, `sys::*fset-hooks*` definition notifications, and an in-memory wrapper around `pre::precompile-function-call` to redirect global calls and immediate function literals before ABCL expands inline/self calls. Backend writes suppress automatic native TRACE rewrapping. Lexical FLET/LABELS entries and application compiler macros are preserved. |
 
 These host interfaces are internal and version-dependent. No upstream source
-files or machine instructions are modified. On portable hosts the global
+files or machine instructions are modified. On ECL, MKCL, ABCL, CLISP and Clasp the global
 CL:FDEFINITION function binding is temporarily replaced; compiler macros cover
 future FDEFINITION and FMAKUNBOUND calls, including host primitives that bypass
 that function binding. Disabling compilation mode restores the bindings and
@@ -142,7 +143,7 @@ before their bodies are compiled. A per-name compiler macro redirects global
 calls to a dynamic resolver. Definition FASLs restore this preparation when
 loaded. The same indirection covers ordinary calls, high-speed calls, INLINE
 requests and self-recursion at default/fast/INLINE policies in the measured
-fixtures, without NOTINLINE. MKCL debug-3 recursion remains an exception.
+fixtures, without NOTINLINE. Immediate `(funcall #'name ...)` and MKCL debug-3 recursion now also agree in these fixtures. FLET/LABELS function literals retain their lexical meaning at every measured policy.
 
 This changes optimization: prepared calls intentionally retain dynamic lookup
 instead of expanding inline or becoming direct self calls. Each such call
@@ -165,8 +166,7 @@ third-party system definitions.
 
 `prepare-advice-function` prepares future calls to an existing name. It cannot
 rewrite a caller already compiled to inline code or a direct entry point.
-Disabling removes owned compiler macros and runtime patches, subject to the
-CMUCL ownership limitation below; already
+Disabling removes owned compiler macros and runtime patches. Ownership records the expander read back after registration, which handles CMUCL's closure materialization; later application replacements are retained. Already
 instrumented functions/FASLs still call the resolver and require this library.
 Re-enabling does not retrospectively prepare all definitions compiled while the
 mode was disabled; prepare those names explicitly or recompile their DEFUNs.
@@ -177,8 +177,6 @@ mode was disabled; prepare those names explicitly or recompile their DEFUNs.
 |---|---|
 | Code compiled before library loading | Native global calls often work; ECL's measured ordinary same-file caller still bypasses advice, as does MKCL's fast direct caller. Recompile these callers with compilation mode enabled. The audit separates these fixtures from instrumented fixtures. |
 | Already expanded inline or block-local code | Old instructions are not rewritten. Future instrumentation prevents those expansions for prepared calls; it cannot retroactively intercept their old copies. |
-| Immediate `(funcall #'name ...)` | Some MKCL, ABCL and CMUCL policies still compile function literals that bypass advice. Ordinary prepared named calls and dynamic FDEFINITION getters agree in those same fixtures. |
-| MKCL debug-3 self-recursion | Still enters advice only once in the measured n=3 fixture; default/fast/INLINE instrumented recursion enters four times. |
 | Application compiler macro or excluded package | Its existing expansion can bypass the resolver. The library preserves that expansion; no universal interception guarantee is made. |
 | Ordinary function object genuinely captured before advice | Remains the old object on every measured host. A compiler-rewritten local `#'name` binding may behave differently. Redefining a global name does not mutate arbitrary retained function objects. |
 | Saved dispatcher after redefinition | Old installations are revoked; portable saved wrappers retain their own captured base. Native wrappers can follow a host-managed underlying binding. Consult the object/redefinition rows for exact differences. |
@@ -187,8 +185,6 @@ mode was disabled; prepare those names explicitly or recompile their DEFUNs.
 | Copying an advised definition to another name | Native setters and portable closures differ. Copying a function definition does not copy its advice registration. |
 | Metadata, aliases, exotic FTYPE/ABI changes, locked application packages, arbitrary FFI entries, saved images | No uniform guarantee. The audit records documentation and alias differences, but does not establish these other cases. |
 | MAPC nested property objects | Only the outer plist is copied; nested mutable objects remain shared. |
-| TRACE output after UNTRACE | Further compiled probes found output retained on ECL, ABCL and Clasp, and tracing of another advised function on CMUCL. The existing audit records return values; see the further investigation below. |
-| CMUCL compiler-macro ownership | A locally stored expander can be non-EQ to the installed expander, leaving prepared-target compiler macros after DISABLE. Reading back the registered expander corrected this targeted probe. |
 | Foreign definition/TRACE implementations | Reconcile explicitly if they bypass notifications. Wrapper nesting and trace output/stack presentation remain host-dependent. |
 
 The old behavior matrix remains available at
@@ -201,47 +197,25 @@ old machine code or preexisting function-object identity.
 
 ## Further convergence investigation
 
-**Preliminary research, 2026-11-04.** Isolated prototypes used the same locked
-Linux runtime versions as the comparison below; CMUCL ran under QEMU i386.
-The library implementation has not incorporated these experiments. The generated
-current-behavior tables continue to describe the shipped implementation.
+The compiler and TRACE repairs from the 2026-11-04 investigation are integrated.
+The current matrix below comes from rerunnable probes and retained machine-readable
+results under `build/advice/delivery-audit/` (the validation archive retains the report and logs). Generated evidence remains outside version control.
+The earlier generic-function experiments described separately below remain preliminary.
 
-### Compiled calls
+### Compiled calls and compiler ownership
 
-| Remaining difference | Intervention tried | Session result |
+| Former difference | Integrated repair | Validation |
 |---|---|---|
-| MKCL fast/speed-0/INLINE `(funcall #'target ...)` | Intercept `compiler::c1funcall` before it emits a global/direct call, preserving local function bindings | All three bypassing observations changed from 11 to 22, with the secondary value preserved |
-| ABCL debug-3/speed-0 function literals | Rewrite at `pre::precompile-function-call`, while `pre::*precompile-env*` still describes local function bindings | Both bypassing observations changed from 11 to 22 |
-| CMUCL INLINE/block function literals | Add a FUNCALL compiler macro, retain the registered expander and recognize renamed FLET/LABELS bindings | Both bypassing observations changed from 11 to 22 |
-| MKCL debug-3 self-recursion | Refresh references in the retained base function using `si::update-function-references` | The n=3 fixture entered advice four times instead of once; removal restored zero advice calls |
+| MKCL fast/speed-0/INLINE function literals | Intercept `compiler::c1funcall`, checking `cmp-env-search-function` first | Global calls preserve both values; FLET and recursive LABELS remain local |
+| ABCL debug-3/speed-0 function literals; global INLINE information leaking into local calls | Recognize immediate literals in the early precompiler adapter; preserve local function values explicitly before source transformation | Same global and lexical controls, including FLET/LABELS under INLINE |
+| CMUCL INLINE/block function literals | Owned FUNCALL compiler macro with `lexenv-find-function`, which recognizes renamed local keys | Same global and lexical controls, including block compilation |
+| MKCL debug-3 self-recursion | Refresh the retained base's cached references as well as discoverable named functions | Four advice entries for n=3; removal restores the unadvised result |
+| CMUCL compiler macros surviving disable | Store the expander read back from `compiler-macro-function` | Owned macros disappear on disable; application replacements survive |
 
-The MKCL debug-3 generated C uses an indirect cached self-reference. Once a
-wrapper replaces the global definition, the existing symbol scan misses the
-retained base function and its cache. Updating that base addresses this case;
-it does not rewrite existing direct C calls or inline expansions.
-
-A CMUCL ownership probe found the stored compiler-macro expander non-EQ to the
-registered one; the prepared-target macro survived disabling compilation mode.
-Recording the result of `compiler-macro-function` after installation made that
-ownership check succeed and removed the target macro on disable. Integration
-would need this rule for all owned registrations, including standard-function
-compiler macros.
-
-A simple FUNCALL compiler macro was insufficient: ABCL debug-3 FLET/LABELS calls
-were incorrectly redirected to the global target. CMUCL's general function
-information query also rejected a LABELS placeholder. The revised probes used
-ABCL's earlier environment and recognized CMUCL's renamed local function keys.
-Fast/debug-3/INLINE controls on each host then produced the expected global
-result 22, local FLET result 10 and local LABELS result 3.
-
-The combined session tally reran the 231-row observer and reported 1,788
-observations: 204 rows agreed across all eight hosts and 27 differed or included
-N/A, compared with the current implementation's 199/32. Exactly eight
-observations changed, all listed above. Instrumented direct/function-literal
-calls, FDEFINITION/SYMBOL-FUNCTION getters and self-recursion agreed across the
-measured policies. NOTINLINE was only a control. The preexisting-code fixtures
-were unchanged. These are preliminary session results, not replacement audit
-artifacts or a release validation.
+These repairs do not rewrite old direct C calls or expanded inline code. Compiler
+adapters deliberately retain dynamic resolution and preserve existing application
+compiler macros. The audit separates new immediate calls, genuinely saved function
+objects, preexisting callers and lexical functions. No performance conclusion is drawn.
 
 ### Generic functions
 
@@ -266,44 +240,39 @@ concurrent updates and TRACE interaction.
 
 ### TRACE output cleanup
 
-The existing TRACE audit checks advised and unadvised return values. New compiled
-probes also removed advice, called UNTRACE, checked output on the same target,
-and advised a second target to check whether tracing leaked to it. These probes
-used the current library, without the compiler prototype.
+Return values alone are insufficient to validate native TRACE coexistence. The
+additional probes check initial trace output, UNTRACE with advice active and after
+removal, and output from another advised target. Regression controls also retain
+an unrelated dispatcher across TRACE/UNTRACE to detect accidental revocation.
 
-| Runtime | Output stops: TRACE before advice | Output stops: TRACE after advice | Other advised target stays untraced |
-|---|---|---|---|
-| SBCL | Yes | Yes | Yes |
-| CCL | Yes | Yes | Yes |
-| ECL | Yes | No | Yes |
-| MKCL | Yes | Yes | Yes |
-| ABCL | No | No | Yes |
-| CLISP | Yes | Yes | Yes |
-| Clasp | Yes | No | Yes |
-| CMUCL | Yes | Yes | No |
+ECL, MKCL, CLISP and Clasp expose the affected native definition while TRACE or
+UNTRACE updates its bookkeeping, then restore registered advice even on an error.
+ABCL backend writes suppress automatic retracing. CMUCL application TRACE defaults
+to its supported encapsulation mode, avoiding shared-code breakpoint mutation;
+application calls include the native wrapper while host internals retain the
+original primary-definition getter. Explicit `:encapsulate nil` selects native
+breakpoint behavior and is outside this uniform-output guarantee.
 
-Correct return values and revoked advice do not establish complete native TRACE
-cleanup. CMUCL reported tracing of shared closure code; an additional sequence
-that compiled/called fresh code after the TRACE observer also failed with a
-debugger-frame error. Compiler shadowing controls were therefore assessed in a
-fresh state before TRACE, rather than treating this sequence as a passed test.
+The `trace.output.*` rows below record all four installation/removal combinations.
+A successful row contains the advised initial values, T for initial output, the
+expected post-UNTRACE values, T for silence, and T for unrelated-target silence.
+Tracing already compiled outside these application hooks and host-specific TRACE
+options remain subject to the host's behavior.
 
-The next priorities are compiler-macro ownership, lexically correct literal-call
-conversion and retained-base cache repair, followed by TRACE cleanup and generic
-adapters. No performance conclusion was drawn, and these proposals do not repair
-arbitrary old machine code.
-
-**Evidence limitation:** the execution environment was reset after the probes,
-losing the transient prototype files, raw logs and installed runtimes. The
-findings above were recovered from the session's recorded tool output. Final
-artifact reconciliation and a rerun with archived probes/logs remain incomplete;
-the retained current-behavior audit below is unchanged.
+**Evidence limitation for the earlier generic-function experiments:** those
+prototype files and logs were lost in an execution-environment reset. Their findings
+were recovered from recorded session output; they are not integrated or counted
+as validation of this revision. Current compiler/TRACE results are independently
+rerun and retained with source hashes.
 
 Source inspection included [MKCL call conversion](https://github.com/jcbeaudoin/MKCL/blob/master/src/cmp/cmpcall.lsp),
-[MKCL expression conversion](https://github.com/jcbeaudoin/MKCL/blob/master/src/cmp/cmpeval.lsp),
-[CMUCL call conversion](https://github.com/rtoy/cmucl/blob/master/src/compiler/ir1tran.lisp),
-[CMUCL dispatch protocol](https://github.com/rtoy/cmucl/blob/master/src/pcl/methods.lisp),
-and [Clasp generic-function updates](https://github.com/clasp-developers/clasp/blob/3.0.1/src/lisp/kernel/clos/generic.lisp).
+[MKCL lexical environments](https://github.com/jcbeaudoin/MKCL/blob/master/src/cmp/cmpenv.lsp),
+[ABCL tracing](https://github.com/armedbear/abcl/blob/master/src/org/armedbear/lisp/trace.lisp),
+[CMUCL lexical lookup](https://github.com/rtoy/cmucl/blob/master/src/compiler/macros.lisp),
+[CMUCL tracing](https://github.com/rtoy/cmucl/blob/master/src/code/ntrace.lisp),
+[CMUCL native wrappers](https://github.com/rtoy/cmucl/blob/master/src/code/fwrappers.lisp),
+and [Clasp tracing](https://github.com/clasp-developers/clasp/blob/3.0.1/src/lisp/kernel/lsp/trace.lisp).
+These are API/protocol references; no upstream implementation code was imported.
 
 ## Validation and reproduction
 
@@ -317,19 +286,22 @@ nix develop .#sbcl --command python3 tools/advice/audit.py \
   --implementation sbcl --output-dir build/advice/audit-sbcl
 
 # Eight hosts. GNU11 bootstrap affects MKCL only.
+# Use a separate cache if other test runners are active.
+OOPARTS_LISP_CACHE_DIRECTORY="$PWD/build/advice/audit-cache" \
 nix develop --command python3 tools/advice/audit.py \
   --implementation sbcl ccl ecl mkcl abcl clisp clasp cmucl \
   --bootstrap tools/advice/mkcl-gnu11.lisp \
   --output-dir build/advice/audit
+python3 tools/advice/verify.py build/advice/audit/results.json
 python3 tools/advice/report.py build/advice/audit/results.json --update-readme
 ```
 
 The regression suite covers combinators, multiple/zero values, ordering,
 mutation, SETF names, pending/active transitions, saved dispatcher revocation,
-TRACE in both installation orders, lexical shadowing and compiler-hook lifetime.
+TRACE output in both installation orders and with active/removed advice, unrelated saved dispatchers, immediate FLET/LABELS literals and compiler-hook ownership across disable/enable.
 The behavior audit records differences and normalized errors rather than treating
 every difference as a regression. Its runner checks completion and duplicate
-records. The report generator checks source hashes and lists every probe once.
+records. The report generator checks source hashes and lists every probe once. `tools/advice/verify.py` additionally fails on disagreement with the claimed compiled-call, lexical-scope, recursion, TRACE-output and compiler-ownership guarantees; it leaves intentionally host-dependent observations unconstrained.
 
 The current host required QEMU i386 for CMUCL. Select executables or wrappers
 with `--runtime-map map.json` and label emulation with `--emulated cmucl`.
@@ -421,7 +393,7 @@ executed by this audit.
 
 Audited on 2026-11-04, with Nixpkgs commit `0bb2eedc20e4739f29e8045034f2828ad7054f8f` on Linux. These are measurements of the current OOPArts backends, not of each host's native advice facility.
 
-**231 comparison rows, 1788 observations across eight runtimes:** 199 rows have identical outcomes; 32 rows differ or include an unavailable control. N/A denotes a missing or explicitly unsupported control.
+**251 comparison rows, 1936 observations across eight runtimes:** 222 rows have identical outcomes; 29 rows differ or include an unavailable control. N/A denotes a missing or explicitly unsupported control.
 
 | Runtime | Version | Instrumented same-file call | DEFUN retains advice | Last removal restores base | Generic identity retained |
 |---|---|---|---|---|---|
@@ -531,6 +503,8 @@ Same on all eight:
 | `designator.symbol-follows-redefinition` | `(22 :SECONDARY)` |
 | `designator.object-keeps-old-definition` | `(11 :SECONDARY)` |
 | `designator.symbol-fmakunbound` | `error: UNDEFINED-FUNCTION` |
+| `registry.compiler-macro-owned` | `(T)` |
+| `registry.compiler-macro-released` | `(T)` |
 
 ### Function objects, identity and aliases
 
@@ -691,6 +665,10 @@ Same on all eight:
 |---|---|
 | `trace.trace-first` | `((22 :SECONDARY) (11 :SECONDARY))` |
 | `trace.advice-first` | `((22 :SECONDARY) (11 :SECONDARY))` |
+| `trace.output.trace-first.removed` | `((22 :SECONDARY) T (11 :SECONDARY) T T)` |
+| `trace.output.trace-first.active` | `((22 :SECONDARY) T (22 :SECONDARY) T T)` |
+| `trace.output.advice-first.removed` | `((22 :SECONDARY) T (11 :SECONDARY) T T)` |
+| `trace.output.advice-first.active` | `((22 :SECONDARY) T (22 :SECONDARY) T T)` |
 
 ### Compilation: default
 
@@ -701,6 +679,8 @@ Same on all eight:
 | `compile.default.direct` | `(22 :SECONDARY)` |
 | `compile.default.fdefinition` | `(22 :SECONDARY)` |
 | `compile.default.sharp` | `(22 :SECONDARY)` |
+| `compile.default.flet-sharp` | `(10)` |
+| `compile.default.labels-sharp` | `(3)` |
 | `compile.default.symbol-function` | `(22 :SECONDARY)` |
 | `compile.default.separate-file` | `(22 :SECONDARY)` |
 | `compile.default.compiled-after-add` | `(22 :SECONDARY)` |
@@ -723,6 +703,9 @@ Same on all eight:
 |---|---|
 | `compile.fast.direct` | `(22 :SECONDARY)` |
 | `compile.fast.fdefinition` | `(22 :SECONDARY)` |
+| `compile.fast.sharp` | `(22 :SECONDARY)` |
+| `compile.fast.flet-sharp` | `(10)` |
+| `compile.fast.labels-sharp` | `(3)` |
 | `compile.fast.symbol-function` | `(22 :SECONDARY)` |
 | `compile.fast.separate-file` | `(22 :SECONDARY)` |
 | `compile.fast.compiled-after-add` | `(22 :SECONDARY)` |
@@ -735,7 +718,6 @@ Different outcomes or unavailable controls:
 
 | Probe ID | SBCL | CCL | ECL | MKCL | ABCL | CLISP | Clasp | CMUCL |
 |---|---|---|---|---|---|---|---|---|
-| `compile.fast.sharp` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(11 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` |
 | `compile.fast.local-saved-function` | `(22 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(22 :SECONDARY)` |
 
 ### Compilation: debug3
@@ -746,20 +728,22 @@ Same on all eight:
 |---|---|
 | `compile.debug3.direct` | `(22 :SECONDARY)` |
 | `compile.debug3.fdefinition` | `(22 :SECONDARY)` |
+| `compile.debug3.sharp` | `(22 :SECONDARY)` |
+| `compile.debug3.flet-sharp` | `(10)` |
+| `compile.debug3.labels-sharp` | `(3)` |
 | `compile.debug3.symbol-function` | `(22 :SECONDARY)` |
 | `compile.debug3.separate-file` | `(22 :SECONDARY)` |
 | `compile.debug3.compiled-after-add` | `(22 :SECONDARY)` |
 | `compile.debug3.reloaded-caller-fasl` | `(22 :SECONDARY)` |
 | `compile.debug3.local-saved-fdefinition` | `(11 :SECONDARY)` |
+| `compile.debug3.recursion-count` | `(4)` |
 | `compile.debug3.mutual-count` | `(2)` |
 
 Different outcomes or unavailable controls:
 
 | Probe ID | SBCL | CCL | ECL | MKCL | ABCL | CLISP | Clasp | CMUCL |
 |---|---|---|---|---|---|---|---|---|
-| `compile.debug3.sharp` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(11 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` |
 | `compile.debug3.local-saved-function` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(22 :SECONDARY)` |
-| `compile.debug3.recursion-count` | `(4)` | `(4)` | `(4)` | `(1)` | `(4)` | `(4)` | `(4)` | `(4)` |
 
 ### Compilation: speed0
 
@@ -769,6 +753,9 @@ Same on all eight:
 |---|---|
 | `compile.speed0.direct` | `(22 :SECONDARY)` |
 | `compile.speed0.fdefinition` | `(22 :SECONDARY)` |
+| `compile.speed0.sharp` | `(22 :SECONDARY)` |
+| `compile.speed0.flet-sharp` | `(10)` |
+| `compile.speed0.labels-sharp` | `(3)` |
 | `compile.speed0.symbol-function` | `(22 :SECONDARY)` |
 | `compile.speed0.separate-file` | `(22 :SECONDARY)` |
 | `compile.speed0.compiled-after-add` | `(22 :SECONDARY)` |
@@ -781,7 +768,6 @@ Different outcomes or unavailable controls:
 
 | Probe ID | SBCL | CCL | ECL | MKCL | ABCL | CLISP | Clasp | CMUCL |
 |---|---|---|---|---|---|---|---|---|
-| `compile.speed0.sharp` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` |
 | `compile.speed0.local-saved-function` | `(22 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(11 :SECONDARY)` | `(22 :SECONDARY)` |
 
 ### Compilation: inline
@@ -792,6 +778,9 @@ Same on all eight:
 |---|---|
 | `compile.inline.direct` | `(22 :SECONDARY)` |
 | `compile.inline.fdefinition` | `(22 :SECONDARY)` |
+| `compile.inline.sharp` | `(22 :SECONDARY)` |
+| `compile.inline.flet-sharp` | `(10)` |
+| `compile.inline.labels-sharp` | `(3)` |
 | `compile.inline.symbol-function` | `(22 :SECONDARY)` |
 | `compile.inline.separate-file` | `(22 :SECONDARY)` |
 | `compile.inline.compiled-after-add` | `(22 :SECONDARY)` |
@@ -800,12 +789,6 @@ Same on all eight:
 | `compile.inline.local-saved-fdefinition` | `(11 :SECONDARY)` |
 | `compile.inline.recursion-count` | `(4)` |
 | `compile.inline.mutual-count` | `(2)` |
-
-Different outcomes or unavailable controls:
-
-| Probe ID | SBCL | CCL | ECL | MKCL | ABCL | CLISP | Clasp | CMUCL |
-|---|---|---|---|---|---|---|---|---|
-| `compile.inline.sharp` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(11 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(22 :SECONDARY)` | `(11 :SECONDARY)` |
 
 ### Compilation: notinline
 
@@ -816,6 +799,8 @@ Same on all eight:
 | `compile.notinline.direct` | `(22 :SECONDARY)` |
 | `compile.notinline.fdefinition` | `(22 :SECONDARY)` |
 | `compile.notinline.sharp` | `(22 :SECONDARY)` |
+| `compile.notinline.flet-sharp` | `(10)` |
+| `compile.notinline.labels-sharp` | `(3)` |
 | `compile.notinline.symbol-function` | `(22 :SECONDARY)` |
 | `compile.notinline.separate-file` | `(22 :SECONDARY)` |
 | `compile.notinline.compiled-after-add` | `(22 :SECONDARY)` |
@@ -838,7 +823,9 @@ Different outcomes or unavailable controls:
 |---|---|---|---|---|---|---|---|---|
 | `compile.block.direct` | `(22 :SECONDARY)` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `(22 :SECONDARY)` |
 | `compile.block.fdefinition` | `(22 :SECONDARY)` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `(22 :SECONDARY)` |
-| `compile.block.sharp` | `(22 :SECONDARY)` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `(11 :SECONDARY)` |
+| `compile.block.sharp` | `(22 :SECONDARY)` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `(22 :SECONDARY)` |
+| `compile.block.flet-sharp` | `(10)` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `(10)` |
+| `compile.block.labels-sharp` | `(3)` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `(3)` |
 | `compile.block.symbol-function` | `(22 :SECONDARY)` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `(22 :SECONDARY)` |
 | `compile.block.separate-file` | `(22 :SECONDARY)` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `(22 :SECONDARY)` |
 | `compile.block.compiled-after-add` | `(22 :SECONDARY)` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `N/A` | `(22 :SECONDARY)` |

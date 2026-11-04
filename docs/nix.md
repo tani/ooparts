@@ -1,9 +1,14 @@
 # Nix flake
 
 The single root `flake.nix` (flake-parts) builds every library, test suite,
-REPL and regression check. Implementations come from nixpkgs; a variant exists
+REPL and regression check. All implementations come from the locked
+`nixos-unstable` nixpkgs input; a variant exists
 only when the selected platform provides an available, unbroken
 implementation.
+
+The flake targets x86-64 Linux, ARM64 Linux and Apple Silicon macOS.
+The selected unstable Nixpkgs has dropped Intel macOS (`x86_64-darwin`), so
+that platform is not advertised by this flake.
 
 ```sh
 nix develop
@@ -26,6 +31,7 @@ Components and the systems they cover:
 
 | Component | Library system | Test system |
 |---|---|---|
+| `advice` | `ooparts/advice` | `ooparts-tests/advice` |
 | `prolog` | `ooparts/prolog` | `ooparts-tests/prolog` |
 | `continuation` | `ooparts/continuation` | `ooparts-tests/continuation` |
 | `sat` | `ooparts/sat` | `ooparts-tests/sat` |

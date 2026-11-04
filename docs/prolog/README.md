@@ -96,10 +96,25 @@ platform, using `lib-prolog-<implementation>` and `test-prolog-<implementation>`
 
 ## Performance
 
-[Benchmark analysis](BENCHMARKS.md) is the canonical measurement document: it
-holds the workload tables, allocation profiles, bottlenecks and the reproduction
-commands. The [project README](../../README.md) links that analysis only as an
-overview; it is not the measurement source.
+Recorded 2026-10-30. Warmed CPU milliseconds per query on
+`benchmarks/prolog/competitive.pl`, with identical source and search order in both
+engines: 30 samples, `BENCH_BATCH=3`,
+SBCL 2.5.4 vs SWI-Prolog 9.2.9 `-O`, aarch64-linux. `:auto` is the default
+execution mode; the ratios are a reference, not a parity gate.
+
+| Workload | `ooparts/prolog` `:auto` | SWI-Prolog `-O` | Ratio |
+| --- | ---: | ---: | ---: |
+| 8 queens, all solutions | 1.07 ms | 2.41 ms | 2.25x faster |
+| Takeuchi (16,10,4) | 0.87 ms | 4.16 ms | 4.77x faster |
+| Naive reverse, 1200 | 71.6 ms | 18.7 ms | 3.82x slower |
+| Quicksort, 2000 | 6.18 ms | 3.75 ms | 1.65x slower |
+| Graph, 1024 paths | 1.00 ms | 0.33 ms | 3.01x slower |
+| Symbolic differentiation | 0.42 ms | 0.82 ms | 1.98x faster |
+
+[BENCHMARKS.md](BENCHMARKS.md) is the canonical measurement document, with
+allocation profiles, bottlenecks, full precision and reproduction commands.
+These figures retain their recorded runtime and hardware; they are not new
+measurements of the current source or Nix toolchain.
 
 ## Validation
 

@@ -163,6 +163,49 @@
       "source": "https://github.com/mirror/ncurses/blob/master/include/Caps",
       "relationship": "Capability names/types and termcap aliases extracted as interface data; no implementation code ported",
       "license": "NOASSERTION"
+    },
+    {
+      "name": "GNU Emacs modern advice API",
+      "source": "https://www.gnu.org/software/emacs/manual/html_node/elisp/Advising-Named-Functions.html",
+      "relationship": "API and behavior reference only; independently implemented in Common Lisp, no Emacs source distributed",
+      "license": "NOASSERTION",
+      "note": "Consult GNU documentation and source license terms; this entry is a reference, not a source import."
+    },
+    {
+      "name": "CCL native encapsulation",
+      "source": "https://github.com/Clozure/ccl/blob/v1.13/lib/encapsulate.lisp",
+      "relationship": "Host-interface reference for native advice and compilation adapters; upstream implementation files are not vendored or modified on disk.",
+      "license": "NOASSERTION",
+      "note": "Invokes host internals; ABCL entry points are wrapped in memory. Consult upstream licensing for the host implementation."
+    },
+    {
+      "name": "ABCL compiler and environment interfaces",
+      "source": "https://github.com/armedbear/abcl/blob/fc3d78e55a5b338536286b5ef3bc3a041ba174f7/src/org/armedbear/lisp/precompiler.lisp",
+      "relationship": "Host-interface reference for native advice and compilation adapters; upstream implementation files are not vendored or modified on disk.",
+      "license": "NOASSERTION",
+      "note": "Invokes host internals; ABCL entry points are wrapped in memory. Consult upstream licensing for the host implementation."
+    },
+    {
+      "name": "Budden tools / cl-advice",
+      "source": "https://github.com/lisp-mirror/budden-tools/tree/213ab2b52a1b0c0b496efd30c3b5143f5c8e1ff2/cl-advice",
+      "author": "Denis Budyak",
+      "copyright": "Copyright (C) 2015-2017 Денис Будяк (budden73@gmail.com)",
+      "license": "MIT",
+      "license_evidence": "https://github.com/lisp-mirror/budden-tools/blob/213ab2b52a1b0c0b496efd30c3b5143f5c8e1ff2/cl-advice/LICENSE",
+      "license_files": [
+        "licenses/budden-cl-advice-MIT.txt",
+        "licenses/budden-cl-advice-NOTICE.txt"
+      ],
+      "license_sha256": "c4065433dccde3205c0d36388a6088f6d9a6a925d28ad5c750b2cda523e2a724",
+      "relationship": "Consulted source and design reference for ooparts/advice, including callable NEXT, native encapsulation and portable function-definition wrappers. Upstream copyright and MIT notice retained for provenance and any adapted portions; no clean-room independence claim.",
+      "distribution": "Upstream license and attribution text retained; upstream implementation files are not vendored. No runtime or test dependency.",
+      "affected_paths": [
+        "src/advice/",
+        "docs/advice/README.md"
+      ],
+      "reviewed_source_revision": "213ab2b52a1b0c0b496efd30c3b5143f5c8e1ff2",
+      "reviewed_on": "2026-11-04",
+      "note": "The reviewed revision identifies the source checked for this attribution, not a documented import or original consultation revision. The exact initial consultation revision was not recorded. The cl-advice subdirectory license was checked separately from the mixed-origin root license."
     }
   ],
   "optional_external_tools": [
@@ -187,6 +230,11 @@
       "name": "pycparser and GCC",
       "source": "tools/sat/translate.py",
       "relationship": "development-only translator and C reference compiler; not Lisp runtime dependencies"
+    },
+    {
+      "name": "QEMU user-mode emulation",
+      "source": "https://www.qemu.org/",
+      "relationship": "Optional development tool for the recorded 32-bit CMUCL behavior audit; not bundled or a Lisp runtime dependency."
     }
   ],
   "external_dependencies": []

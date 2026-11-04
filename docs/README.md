@@ -7,7 +7,9 @@ start. This page indexes the detailed documentation.
 
 | Library | Documentation | Scope |
 |---|---|---|
+| Advice | [docs/advice/README.md](advice/README.md) | Modern advice API and cross-implementation behavior |
 | Continuation | [docs/continuation/README.md](continuation/README.md) | Single-prompt `shift`/`reset`, capture and reinstatement semantics |
+| Curses | [docs/curses/README.md](curses/README.md) | VT100/xterm terminal UI |
 | Prolog | [docs/prolog/README.md](prolog/README.md) | Stack-safe S-expression Prolog, DCGs, tabling, WAM-derived execution |
 | SAT | [docs/sat/README.md](sat/README.md) | Translated SATCH solver with resource-managed storage |
 | regexp | [docs/regexp/README.md](regexp/README.md) | POSIX.1-2024 extended regular expressions in portable Common Lisp |
@@ -38,5 +40,3 @@ Additional per-library material sits beside those files, for example
   [SAT testing notes](sat/testing.md), and the regression sections of the
   continuation and regexp READMEs. Aggregate commands and counts are in
   [testing](testing.md).
-
-- [Curses terminal UI](curses/README.md)

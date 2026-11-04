@@ -2,14 +2,15 @@
   description = "OOPArts: package-inferred Common Lisp libraries and tests";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
   };
 
   outputs = inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [ flake-parts.flakeModules.easyOverlay ];
-      systems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
+      systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ];
       perSystem = { config, pkgs, lib, system, ... }:
         let
           src = lib.cleanSource ./.;
@@ -32,6 +33,7 @@
           ) implementations;
           lispFor = impl: if impl == "abcl" then pkgs.abcl.override { jdk = pkgs.jdk17; } else pkgs.${impl};
           components = {
+            advice = { library = "ooparts/advice"; tests = "ooparts-tests/advice"; };
             curses = { library = "ooparts/curses"; tests = "ooparts-tests/curses"; };
             prolog = { library = "ooparts/prolog"; tests = "ooparts-tests/prolog"; };
             continuation = { library = "ooparts/continuation"; tests = "ooparts-tests/continuation"; };

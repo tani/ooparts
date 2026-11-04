@@ -1,6 +1,6 @@
 (asdf:defsystem "ooparts"
   :class :package-inferred-system
-  :description "OOPArts: continuation, Prolog and SAT libraries"
+  :description "OOPArts: advice, continuation, Prolog, regexp and SAT libraries"
   :version "0.2.0"
   :license "MIT"
   :pathname "src/"

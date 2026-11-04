@@ -1,0 +1,210 @@
+(uiop:define-package #:ooparts-tests/advice
+  (:use #:cl)
+  (:import-from #:ooparts/advice #:advice-add #:advice-remove #:advice-member-p
+                #:advice-mapc #:define-advice #:advice-status)
+  (:import-from #:ooparts-tests/advice/reconciliation)
+  (:export #:run-tests))
+(in-package #:ooparts-tests/advice)
+
+(defvar *checks* 0)
+(defun check (expected actual)
+  (incf *checks*)
+  (assert (equal expected actual) () "Expected ~S, got ~S" expected actual))
+
+(defmacro with-target ((name definition) &body body)
+  `(let ((,name (gensym "ADVICE-TARGET-")))
+     (setf (fdefinition ,name) ,definition)
+     (unwind-protect (progn ,@body)
+       (let ((functions nil))
+         (advice-mapc (lambda (function properties)
+                       (declare (ignore properties)) (push function functions)) ,name)
+         (dolist (function functions) (advice-remove ,name function)))
+       (fmakunbound ,name))))
+
+(defun test-combinators ()
+  (dolist (where '(:before :after :around :override :filter-args :filter-return
+                   :before-while :before-until :after-while :after-until))
+    (let ((events nil))
+      (with-target (name (lambda (x) (push :base events) (values (1+ x) :secondary)))
+        (advice-add
+         name where
+         (case where
+           (:around (lambda (next x) (push :advice events) (funcall next (+ x 10))))
+           (:filter-args (lambda (args) (push :advice events) (list (+ (first args) 10))))
+           (:filter-return (lambda (x) (push :advice events) (values (* 2 x) :filtered)))
+           (otherwise (lambda (x) (declare (ignore x)) (push :advice events) (values t :advice)))))
+        (check (case where
+                 ((:around :filter-args) '(21 :secondary))
+                 (:filter-return '(22 :filtered))
+                 ((:override :before-until :after-while) '(t :advice))
+                 (otherwise '(11 :secondary)))
+               (multiple-value-list (funcall name 10)))
+        (check (case where
+                 ((:override :before-until) '(:advice))
+                 ((:after :after-while :filter-return) '(:base :advice))
+                 (:after-until '(:base))
+                 (otherwise '(:advice :base)))
+               (reverse events)))))
+  ;; Check the opposite branch of each short-circuit combinator.
+  (dolist (where '(:before-while :before-until :after-while :after-until))
+    (with-target (name (lambda () (values nil :base)))
+      (advice-add name where (lambda () (values nil :advice)))
+      (check (case where ((:before-while :after-until) '(nil :advice))
+                         (otherwise '(nil :base)))
+             (multiple-value-list (funcall name)))))
+  (dolist (where '(:before :after :around))
+    (with-target (name (lambda () (values)))
+      (advice-add name where
+                  (if (eq where :around) (lambda (next) (funcall next)) #'identity-advice))
+      (check nil (multiple-value-list (funcall name))))))
+
+(defun identity-advice (&rest args) (declare (ignore args)) :ignored)
+
+(defun test-order-and-registry ()
+  (let ((events nil))
+    (with-target (name (lambda () (push :base events) :result))
+      (dolist (spec '((:middle 0) (:outer -10) (:inner 10) (:newest 0)))
+        (let ((label (first spec)))
+          (advice-add name :before (lambda () (push label events))
+                      (list :name label :depth (second spec)))))
+      (check :result (funcall name))
+      (check '(:outer :newest :middle :inner :base) (reverse events))
+      (check t (advice-member-p :middle name))
+      (advice-add name :before #'identity-advice '(:name :middle :depth 20 :custom t))
+      (let ((seen nil))
+        (advice-mapc (lambda (function properties)
+                      (push (getf properties :name) seen)
+                      (setf (getf properties :name) :changed)
+                      (advice-remove name function)) name)
+        (check '(:outer :newest :inner :middle) (reverse seen)))
+      (check nil (advice-member-p :middle name))
+      (check nil (advice-remove name :absent))
+      (check :result (funcall name))))
+  (with-target (name (lambda () :base))
+    (let ((function (lambda () :advice)))
+      (advice-add name :before function)
+      (advice-add name :after function)
+      (let ((count 0))
+        (advice-mapc (lambda (&rest args) (declare (ignore args)) (incf count)) name)
+        (check 1 count))
+      (advice-add name :before function '(:name :one))
+      (advice-add name :before function '(:name :two))
+      (advice-remove name function)
+      (check nil (advice-member-p :one name))
+      (check nil (advice-member-p :two name)))))
+
+(defun compiled-target (x) (values (1+ x) :secondary))
+(defun compiled-caller (x) (compiled-target x))
+(defun compiled-lookup (x) (funcall (fdefinition 'compiled-target) x))
+
+(defun double-result (next &rest args)
+  (multiple-value-bind (first second) (apply next args) (values (* 2 first) second)))
+
+(defun call-saved (function &rest args)
+  ;; Keep the function value opaque to the caller's named-call optimization.
+  (apply function args))
+
+(defun call-current (name &rest args)
+  (apply (fdefinition name) args))
+
+(defun test-native-lookup ()
+  (let ((original (fdefinition 'compiled-target))
+        (saved-function (eval '(function compiled-target))))
+    (unwind-protect
+         (progn
+           (advice-add 'compiled-target :around #'double-result '(:name :double))
+           #+sbcl (check '(22 :secondary) (multiple-value-list (compiled-caller 10)))
+           #+sbcl (check '(22 :secondary) (multiple-value-list (compiled-lookup 10)))
+           (check '(22 :secondary) (multiple-value-list (call-current 'compiled-target 10)))
+           (check '(11 :secondary) (multiple-value-list (call-saved original 10)))
+           (check '(11 :secondary) (multiple-value-list (call-saved saved-function 10)))
+           #+sbcl
+           (progn
+             ;; DEFUN redefinition keeps the advice, and removal exposes the latest base.
+             (eval '(defun compiled-target (x) (values (+ x 2) :secondary)))
+             (check '(24 :secondary) (multiple-value-list (compiled-caller 10)))
+             (check '(24 :secondary) (multiple-value-list (compiled-lookup 10)))
+             (advice-remove 'compiled-target :double)
+             (check '(12 :secondary) (multiple-value-list (compiled-caller 10)))))
+      (advice-remove 'compiled-target :double)
+      (setf (fdefinition 'compiled-target) original)))
+  ;; NEXT remains callable after an around advice has returned.
+  (let ((saved-next nil))
+    (with-target (name (lambda (x) (+ x 1)))
+      (advice-add name :around (lambda (next x) (setf saved-next next) (funcall next x)))
+      (check 11 (funcall name 10))
+      (check 21 (funcall saved-next 20)))))
+
+(defun setf-target (object) (car object))
+(defun (setf setf-target) (value object) (setf (car object) value))
+
+(defun test-definitions ()
+  (let ((seen nil))
+    (advice-add '(setf setf-target) :before
+                (lambda (value object) (declare (ignore object)) (push value seen))
+                '(:name :watch))
+    (unwind-protect
+         (let ((object (list 1)))
+           #+sbcl (setf (setf-target object) 2)
+           #-sbcl (call-current '(setf setf-target) 2 object)
+           (check '(2) seen)
+           (check '(2) object))
+      (advice-remove '(setf setf-target) :watch)))
+  (unwind-protect
+       (progn
+         (eval '(define-advice compiled-target (:around (next x) triple -10)
+                  (* 3 (funcall next x))))
+         (check 33 (call-current 'compiled-target 10))
+         (check t (advice-member-p 'triple 'compiled-target)))
+    (advice-remove 'compiled-target 'triple))
+  ;; AFTER is a normal-return hook, so a base error skips it.
+  (let ((called nil))
+    (with-target (name (lambda () (error "expected base error")))
+      (advice-add name :after (lambda () (setf called t)))
+      (handler-case (funcall name) (error () nil))
+      (check nil called))))
+
+(defun test-validation ()
+  (with-target (name (lambda () :base))
+    (dolist (spec '((:unknown identity-advice nil)
+                    (:before identity-advice (:depth invalid))
+                    (:before identity-advice (:name 42))
+                    (:before identity-advice (:name))))
+      (check t (handler-case
+                   (progn (advice-add name (first spec) (second spec) (third spec)) nil)
+                 (error () t))))
+    (check :base (funcall name))
+    (check nil (advice-member-p 'identity-advice name)))
+  (check t (handler-case (progn (advice-add 'if :before #'identity-advice) nil)
+             (error () t)))
+  (let ((name (gensym)))
+    (advice-add name :before #'identity-advice)
+    (check :pending (advice-status name))
+    (check nil (fboundp name))
+    (advice-remove name #'identity-advice)))
+
+#+sbcl
+(defun test-trace-coexistence ()
+  (with-target (name (lambda (x) (values (1+ x) :secondary)))
+    (let ((*trace-output* (make-string-output-stream)))
+      (eval `(trace ,name))
+      (unwind-protect
+           (progn
+             (advice-add name :around #'double-result '(:name :double))
+             (check '(22 :secondary) (multiple-value-list (call-current name 10)))
+             (advice-remove name :double)
+             (check '(11 :secondary) (multiple-value-list (call-current name 10)))
+             (check t (plusp (length (get-output-stream-string *trace-output*)))))
+        (eval `(untrace ,name))))))
+
+(defun run-tests ()
+  (let ((*checks* 0))
+    (test-combinators)
+    (test-order-and-registry)
+    (test-native-lookup)
+    (test-definitions)
+    (test-validation)
+    #+sbcl (test-trace-coexistence)
+    (ooparts-tests/advice/reconciliation:run-tests)
+    (format t "~D advice checks passed.~%" *checks*)
+    t))

@@ -1,6 +1,6 @@
 # Portability
 
-All four libraries — continuation, Prolog, SAT and regexp — use
+All five libraries -- advice, continuation, Prolog, SAT and regexp -- use
 package-inferred systems. The public continuation system remains
 `ooparts/continuation` (singular). No compatibility nicknames or additional
 explicit systems are introduced.
@@ -14,6 +14,7 @@ when they avoid an external dependency, even when that increases their count.
 
 | Component | Native path | Portable path |
 |---|---|---|
+| Advice | SBCL 2.6.6+ native encapsulation, including redefinition tracking | FDEFINITION wrapper; compiled-call and redefinition limitations are documented in [advice](advice/README.md) |
 | SAT storage | `#+(and sbcl x86-64 (not ooparts-portable-sat))`: checked system-area pointers | Growable octet vectors, integer virtual addresses and explicit little-endian words |
 | SAT locking | Host recursive lock through `ooparts/host` | No lock on a single-threaded host |
 | Continuation environments | Bundled SB-CLTL2, CCL and CMUCL interfaces | Native interpreter environments on ECL, ABCL, CLISP and Clasp; MKCL reads its macro environment (a list of frames) directly |

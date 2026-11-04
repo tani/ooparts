@@ -96,6 +96,11 @@
                   cp -R ${src} source
                   chmod -R u+w source
                   cd source
+                  python3 -m unittest discover -s tests/curses -p 'test_*.py' -v
+                  python3 tools/curses/coverage.py --implementation ${
+                    if impl == "cmucl_binary" then "cmucl"
+                    else if impl == "clasp-common-lisp" then "clasp" else impl
+                  } --lisp ${runtime}/bin/${options.program}
                   python3 tools/curses/test-terminal.py --implementation ${
                     if impl == "cmucl_binary" then "cmucl"
                     else if impl == "clasp-common-lisp" then "clasp" else impl

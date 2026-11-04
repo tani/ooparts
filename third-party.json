@@ -157,6 +157,12 @@
       "source": "https://github.com/cffi/cffi",
       "relationship": "Native implementation API reference only; not loaded, patched, vendored or distributed",
       "license": "MIT"
+    },
+    {
+      "name": "ncurses Caps identifiers",
+      "source": "https://github.com/mirror/ncurses/blob/master/include/Caps",
+      "relationship": "Capability names/types and termcap aliases extracted as interface data; no implementation code ported",
+      "license": "NOASSERTION"
     }
   ],
   "optional_external_tools": [

@@ -1,0 +1,243 @@
+{
+  "implementation": "clisp",
+  "reference": {
+    "source": "https://github.com/mirror/ncurses/blob/master/man/ncurses.3x",
+    "sha256": "ef8d9398c463109319c8cd2b9e68b7422556de640cc99fe3d74f69f2b0f063dd",
+    "selection": "Unique, unstarred routines in the Routine Name Index (SVr4/X/Open); deprecated aliases retained."
+  },
+  "api": {
+    "defined": 379,
+    "total": 379,
+    "percent": 100.0,
+    "missing": [],
+    "exercised_percent": 100.0,
+    "unexercised": []
+  },
+  "features": {
+    "passed": 53,
+    "total": 53,
+    "percent": 100.0,
+    "results": {
+      "lifecycle": {
+        "status": "pass",
+        "detail": ""
+      },
+      "environment-layout": {
+        "status": "pass",
+        "detail": ""
+      },
+      "ripoffline-layout": {
+        "status": "pass",
+        "detail": ""
+      },
+      "soft-labels": {
+        "status": "pass",
+        "detail": ""
+      },
+      "palette-definition": {
+        "status": "pass",
+        "detail": ""
+      },
+      "extended-pairs": {
+        "status": "pass",
+        "detail": ""
+      },
+      "default-colors": {
+        "status": "pass",
+        "detail": ""
+      },
+      "graphics-charset": {
+        "status": "pass",
+        "detail": ""
+      },
+      "protected-cells": {
+        "status": "pass",
+        "detail": ""
+      },
+      "cursor-visibility": {
+        "status": "pass",
+        "detail": ""
+      },
+      "emoji-joiner": {
+        "status": "pass",
+        "detail": ""
+      },
+      "emoji-flag": {
+        "status": "pass",
+        "detail": ""
+      },
+      "emoji-variation": {
+        "status": "pass",
+        "detail": ""
+      },
+      "emoji-skin-tone": {
+        "status": "pass",
+        "detail": ""
+      },
+      "input-meta": {
+        "status": "pass",
+        "detail": ""
+      },
+      "input-options": {
+        "status": "pass",
+        "detail": ""
+      },
+      "tty-snapshots": {
+        "status": "pass",
+        "detail": ""
+      },
+      "key-definitions": {
+        "status": "pass",
+        "detail": ""
+      },
+      "mouse-clicks": {
+        "status": "pass",
+        "detail": ""
+      },
+      "mouse-coordinate-conversion": {
+        "status": "pass",
+        "detail": ""
+      },
+      "scanf-integers": {
+        "status": "pass",
+        "detail": ""
+      },
+      "scanf-text": {
+        "status": "pass",
+        "detail": ""
+      },
+      "scanf-width-suppression": {
+        "status": "pass",
+        "detail": ""
+      },
+      "scanf-wide-variants": {
+        "status": "pass",
+        "detail": ""
+      },
+      "terminfo-profiles": {
+        "status": "pass",
+        "detail": ""
+      },
+      "termcap-profiles": {
+        "status": "pass",
+        "detail": ""
+      },
+      "terminfo-stack-arithmetic": {
+        "status": "pass",
+        "detail": ""
+      },
+      "terminfo-conditionals": {
+        "status": "pass",
+        "detail": ""
+      },
+      "terminfo-variables-and-format": {
+        "status": "pass",
+        "detail": ""
+      },
+      "terminfo-output": {
+        "status": "pass",
+        "detail": ""
+      },
+      "panel-stacking": {
+        "status": "pass",
+        "detail": ""
+      },
+      "menu-navigation-and-pattern": {
+        "status": "pass",
+        "detail": ""
+      },
+      "menu-options-and-properties": {
+        "status": "pass",
+        "detail": ""
+      },
+      "form-buffer-sharing": {
+        "status": "pass",
+        "detail": ""
+      },
+      "form-edit-and-navigation": {
+        "status": "pass",
+        "detail": ""
+      },
+      "form-field-validation": {
+        "status": "pass",
+        "detail": ""
+      },
+      "form-options-and-hooks": {
+        "status": "pass",
+        "detail": ""
+      },
+      "output-variant-matrix": {
+        "status": "pass",
+        "detail": ""
+      },
+      "cell-read-variant-matrix": {
+        "status": "pass",
+        "detail": ""
+      },
+      "input-variant-matrix": {
+        "status": "pass",
+        "detail": ""
+      },
+      "line-variant-matrix": {
+        "status": "pass",
+        "detail": ""
+      },
+      "deletion-and-attribute-variants": {
+        "status": "pass",
+        "detail": ""
+      },
+      "background-aliases": {
+        "status": "pass",
+        "detail": ""
+      },
+      "formatted-output-aliases": {
+        "status": "pass",
+        "detail": ""
+      },
+      "border-and-echo-aliases": {
+        "status": "pass",
+        "detail": ""
+      },
+      "window-sync-and-geometry": {
+        "status": "pass",
+        "detail": ""
+      },
+      "line-edit-aliases": {
+        "status": "pass",
+        "detail": ""
+      },
+      "screen-dump-roundtrip": {
+        "status": "pass",
+        "detail": ""
+      },
+      "terminal-notifications": {
+        "status": "pass",
+        "detail": ""
+      },
+      "truecolor-pairs": {
+        "status": "pass",
+        "detail": ""
+      },
+      "form-word-and-line-editing": {
+        "status": "pass",
+        "detail": ""
+      },
+      "custom-fieldtypes": {
+        "status": "pass",
+        "detail": ""
+      },
+      "terminfo-format-flags": {
+        "status": "pass",
+        "detail": ""
+      }
+    }
+  },
+  "unexpected_features": [],
+  "process_exit_code": 0,
+  "limits": [
+    "API defined percentage measures public entry points, not semantic equivalence.",
+    "Feature percentage measures the frozen acceptance scenarios, not all possible ncurses behaviors.",
+    "Exercised API percentage is reported separately and is not inferred from symbol existence.",
+    "Windows is excluded. Native PTY and macOS validation are separate checks."
+  ]
+}

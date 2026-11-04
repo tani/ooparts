@@ -2,6 +2,7 @@
   (:use #:cl)
   (:import-from #:ooparts/curses)
   (:import-from #:ooparts/curses/model)
+  (:import-from #:ooparts-tests/curses/features #:run-features)
   (:export #:run-tests))
 (in-package #:ooparts-tests/curses/suite)
 
@@ -167,4 +168,5 @@
     (do-external-symbols (symbol :ooparts/curses)
       (check (or (boundp symbol) (fboundp symbol) (eq symbol 'ooparts/curses:mouse-event))))
     (check (null ooparts/curses:*screen*))
-    (format t "~D Curses checks passed.~%" *checks*) t))
+    (format t "~D Curses checks passed.~%" *checks*)
+    (unless (run-features) (error "Curses feature tests failed.")) t))

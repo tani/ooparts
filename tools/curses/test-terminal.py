@@ -43,9 +43,17 @@ def main():
                         selector.unregister(key.fileobj)
                         continue
                     output.extend(chunk)
+                if b'CURSES-OPTIONS' in output and 'options' not in stages:
+                    mode = termios.tcgetattr(slave)
+                    assert mode[0] & termios.ISTRIP, mode
+                    assert mode[3] & termios.NOFLSH, mode
+                    stages.add('options')
+                    os.write(master, b'q')
                 if b'CURSES-READY' in output and 'raw' not in stages:
                     mode = termios.tcgetattr(slave)
                     assert not mode[3] & (termios.ICANON | termios.ECHO | termios.ISIG), mode
+                    assert not mode[0] & termios.ISTRIP, mode
+                    assert chr(0x1f469).encode() in output, 'Non-BMP terminal output missing'
                     stages.add('raw')
                     os.write(master, b'\x1b[A' + chr(0x754c).encode())
                 if b'CURSES-RESIZE' in output and 'resize' not in stages:
@@ -60,7 +68,7 @@ def main():
             assert proc.wait() == 0, output.decode(errors='replace')[-8000:]
             assert b'CURSES-RESTORED' in output, output.decode(errors='replace')[-8000:]
             assert termios.tcgetattr(slave) == original, 'TTY settings not restored'
-            assert stages == {'raw', 'resize', 'cbreak'}, stages
+            assert stages == {'options', 'raw', 'resize', 'cbreak'}, stages
             print(f'{args.implementation}: native PTY mode/input/resize/unwind checks passed')
         except BaseException:
             proc.kill()

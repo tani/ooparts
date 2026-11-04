@@ -1,0 +1,15 @@
+(require "asdf")
+(asdf:load-asd (truename "ooparts.asd"))
+(asdf:load-asd (truename "ooparts-tests.asd"))
+(asdf:load-system "ooparts-tests/curses")
+(asdf:load-system "ooparts-tests/curses/features")
+(let ((called (make-hash-table :test #'equal)) (failed nil))
+  (let ((ooparts/curses/metrics:*api-observer*
+          (lambda (symbol) (setf (gethash (string-downcase (symbol-name symbol)) called) t))))
+    (handler-case (ooparts-tests/curses:run-tests)
+      (error (condition) (setf failed t) (format t "~&CURSES-FAILURE ~A~%" condition))))
+  (do-external-symbols (symbol :ooparts/curses)
+    (when (or (fboundp symbol) (boundp symbol))
+      (format t "~&CURSES-API~C~A~C~A~%" #\Tab (string-downcase (symbol-name symbol)) #\Tab
+              (if (gethash (string-downcase (symbol-name symbol)) called) "called" "defined"))))
+  (when failed (uiop:quit 1)))

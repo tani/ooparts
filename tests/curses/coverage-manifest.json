@@ -1,0 +1,1584 @@
+{
+  "schema": 1,
+  "reference": {
+    "source": "https://github.com/mirror/ncurses/blob/master/man/ncurses.3x",
+    "sha256": "ef8d9398c463109319c8cd2b9e68b7422556de640cc99fe3d74f69f2b0f063dd",
+    "selection": "Unique, unstarred routines in the Routine Name Index (SVr4/X/Open); deprecated aliases retained.",
+    "capability_source": "https://github.com/mirror/ncurses/blob/master/include/Caps",
+    "capability_sha256": "49c117590e8ac576c84348bc918cfd0010c21fb84cd4183da63e2b95674b8d2f"
+  },
+  "api": [
+    {
+      "c": "COLOR_PAIR",
+      "lisp": "color-pair"
+    },
+    {
+      "c": "PAIR_NUMBER",
+      "lisp": "pair-number"
+    },
+    {
+      "c": "add_wch",
+      "lisp": "add-wch"
+    },
+    {
+      "c": "add_wchnstr",
+      "lisp": "add-wchnstr"
+    },
+    {
+      "c": "add_wchstr",
+      "lisp": "add-wchstr"
+    },
+    {
+      "c": "addch",
+      "lisp": "addch"
+    },
+    {
+      "c": "addchnstr",
+      "lisp": "addchnstr"
+    },
+    {
+      "c": "addchstr",
+      "lisp": "addchstr"
+    },
+    {
+      "c": "addnstr",
+      "lisp": "addnstr"
+    },
+    {
+      "c": "addnwstr",
+      "lisp": "addnwstr"
+    },
+    {
+      "c": "addstr",
+      "lisp": "addstr"
+    },
+    {
+      "c": "addwstr",
+      "lisp": "addwstr"
+    },
+    {
+      "c": "attr_get",
+      "lisp": "attr-get"
+    },
+    {
+      "c": "attr_off",
+      "lisp": "attr-off"
+    },
+    {
+      "c": "attr_on",
+      "lisp": "attr-on"
+    },
+    {
+      "c": "attr_set",
+      "lisp": "attr-set"
+    },
+    {
+      "c": "attroff",
+      "lisp": "attroff"
+    },
+    {
+      "c": "attron",
+      "lisp": "attron"
+    },
+    {
+      "c": "attrset",
+      "lisp": "attrset"
+    },
+    {
+      "c": "baudrate",
+      "lisp": "baudrate"
+    },
+    {
+      "c": "beep",
+      "lisp": "beep"
+    },
+    {
+      "c": "bkgd",
+      "lisp": "bkgd"
+    },
+    {
+      "c": "bkgdset",
+      "lisp": "bkgdset"
+    },
+    {
+      "c": "bkgrnd",
+      "lisp": "bkgrnd"
+    },
+    {
+      "c": "bkgrndset",
+      "lisp": "bkgrndset"
+    },
+    {
+      "c": "border",
+      "lisp": "border"
+    },
+    {
+      "c": "border_set",
+      "lisp": "border-set"
+    },
+    {
+      "c": "box",
+      "lisp": "box"
+    },
+    {
+      "c": "box_set",
+      "lisp": "box-set"
+    },
+    {
+      "c": "can_change_color",
+      "lisp": "can-change-color"
+    },
+    {
+      "c": "cbreak",
+      "lisp": "cbreak"
+    },
+    {
+      "c": "chgat",
+      "lisp": "chgat"
+    },
+    {
+      "c": "clear",
+      "lisp": "clear"
+    },
+    {
+      "c": "clearok",
+      "lisp": "clearok"
+    },
+    {
+      "c": "clrtobot",
+      "lisp": "clrtobot"
+    },
+    {
+      "c": "clrtoeol",
+      "lisp": "clrtoeol"
+    },
+    {
+      "c": "color_content",
+      "lisp": "color-content"
+    },
+    {
+      "c": "color_set",
+      "lisp": "color-set"
+    },
+    {
+      "c": "copywin",
+      "lisp": "copywin"
+    },
+    {
+      "c": "curs_set",
+      "lisp": "curs-set"
+    },
+    {
+      "c": "def_prog_mode",
+      "lisp": "def-prog-mode"
+    },
+    {
+      "c": "def_shell_mode",
+      "lisp": "def-shell-mode"
+    },
+    {
+      "c": "del_curterm",
+      "lisp": "del-curterm"
+    },
+    {
+      "c": "delay_output",
+      "lisp": "delay-output"
+    },
+    {
+      "c": "delch",
+      "lisp": "delch"
+    },
+    {
+      "c": "deleteln",
+      "lisp": "deleteln"
+    },
+    {
+      "c": "delscreen",
+      "lisp": "delscreen"
+    },
+    {
+      "c": "delwin",
+      "lisp": "delwin"
+    },
+    {
+      "c": "derwin",
+      "lisp": "derwin"
+    },
+    {
+      "c": "doupdate",
+      "lisp": "doupdate"
+    },
+    {
+      "c": "dupwin",
+      "lisp": "dupwin"
+    },
+    {
+      "c": "echo",
+      "lisp": "echo"
+    },
+    {
+      "c": "echo_wchar",
+      "lisp": "echo-wchar"
+    },
+    {
+      "c": "echochar",
+      "lisp": "echochar"
+    },
+    {
+      "c": "endwin",
+      "lisp": "endwin"
+    },
+    {
+      "c": "erase",
+      "lisp": "erase"
+    },
+    {
+      "c": "erasechar",
+      "lisp": "erasechar"
+    },
+    {
+      "c": "erasewchar",
+      "lisp": "erasewchar"
+    },
+    {
+      "c": "filter",
+      "lisp": "filter"
+    },
+    {
+      "c": "flash",
+      "lisp": "flash"
+    },
+    {
+      "c": "flushinp",
+      "lisp": "flushinp"
+    },
+    {
+      "c": "get_wch",
+      "lisp": "get-wch"
+    },
+    {
+      "c": "get_wstr",
+      "lisp": "get-wstr"
+    },
+    {
+      "c": "getattrs",
+      "lisp": "getattrs"
+    },
+    {
+      "c": "getbegyx",
+      "lisp": "getbegyx"
+    },
+    {
+      "c": "getbkgd",
+      "lisp": "getbkgd"
+    },
+    {
+      "c": "getbkgrnd",
+      "lisp": "getbkgrnd"
+    },
+    {
+      "c": "getcchar",
+      "lisp": "getcchar"
+    },
+    {
+      "c": "getch",
+      "lisp": "getch"
+    },
+    {
+      "c": "getmaxyx",
+      "lisp": "getmaxyx"
+    },
+    {
+      "c": "getn_wstr",
+      "lisp": "getn-wstr"
+    },
+    {
+      "c": "getnstr",
+      "lisp": "getnstr"
+    },
+    {
+      "c": "getparyx",
+      "lisp": "getparyx"
+    },
+    {
+      "c": "getstr",
+      "lisp": "getstr"
+    },
+    {
+      "c": "getsyx",
+      "lisp": "getsyx"
+    },
+    {
+      "c": "getwin",
+      "lisp": "getwin"
+    },
+    {
+      "c": "getyx",
+      "lisp": "getyx"
+    },
+    {
+      "c": "halfdelay",
+      "lisp": "halfdelay"
+    },
+    {
+      "c": "has_colors",
+      "lisp": "has-colors"
+    },
+    {
+      "c": "has_ic",
+      "lisp": "has-ic"
+    },
+    {
+      "c": "has_il",
+      "lisp": "has-il"
+    },
+    {
+      "c": "hline",
+      "lisp": "hline"
+    },
+    {
+      "c": "hline_set",
+      "lisp": "hline-set"
+    },
+    {
+      "c": "idcok",
+      "lisp": "idcok"
+    },
+    {
+      "c": "idlok",
+      "lisp": "idlok"
+    },
+    {
+      "c": "immedok",
+      "lisp": "immedok"
+    },
+    {
+      "c": "in_wch",
+      "lisp": "in-wch"
+    },
+    {
+      "c": "in_wchnstr",
+      "lisp": "in-wchnstr"
+    },
+    {
+      "c": "in_wchstr",
+      "lisp": "in-wchstr"
+    },
+    {
+      "c": "inch",
+      "lisp": "inch"
+    },
+    {
+      "c": "inchnstr",
+      "lisp": "inchnstr"
+    },
+    {
+      "c": "inchstr",
+      "lisp": "inchstr"
+    },
+    {
+      "c": "init_color",
+      "lisp": "init-color"
+    },
+    {
+      "c": "init_pair",
+      "lisp": "init-pair"
+    },
+    {
+      "c": "initscr",
+      "lisp": "initscr"
+    },
+    {
+      "c": "innstr",
+      "lisp": "innstr"
+    },
+    {
+      "c": "innwstr",
+      "lisp": "innwstr"
+    },
+    {
+      "c": "ins_nwstr",
+      "lisp": "ins-nwstr"
+    },
+    {
+      "c": "ins_wch",
+      "lisp": "ins-wch"
+    },
+    {
+      "c": "ins_wstr",
+      "lisp": "ins-wstr"
+    },
+    {
+      "c": "insch",
+      "lisp": "insch"
+    },
+    {
+      "c": "insdelln",
+      "lisp": "insdelln"
+    },
+    {
+      "c": "insertln",
+      "lisp": "insertln"
+    },
+    {
+      "c": "insnstr",
+      "lisp": "insnstr"
+    },
+    {
+      "c": "insstr",
+      "lisp": "insstr"
+    },
+    {
+      "c": "instr",
+      "lisp": "instr"
+    },
+    {
+      "c": "intrflush",
+      "lisp": "intrflush"
+    },
+    {
+      "c": "inwstr",
+      "lisp": "inwstr"
+    },
+    {
+      "c": "is_linetouched",
+      "lisp": "is-linetouched"
+    },
+    {
+      "c": "is_wintouched",
+      "lisp": "is-wintouched"
+    },
+    {
+      "c": "isendwin",
+      "lisp": "isendwin"
+    },
+    {
+      "c": "key_name",
+      "lisp": "key-name"
+    },
+    {
+      "c": "keyname",
+      "lisp": "keyname"
+    },
+    {
+      "c": "keypad",
+      "lisp": "keypad"
+    },
+    {
+      "c": "killchar",
+      "lisp": "killchar"
+    },
+    {
+      "c": "killwchar",
+      "lisp": "killwchar"
+    },
+    {
+      "c": "leaveok",
+      "lisp": "leaveok"
+    },
+    {
+      "c": "longname",
+      "lisp": "longname"
+    },
+    {
+      "c": "meta",
+      "lisp": "meta"
+    },
+    {
+      "c": "move",
+      "lisp": "move"
+    },
+    {
+      "c": "mvadd_wch",
+      "lisp": "mvadd-wch"
+    },
+    {
+      "c": "mvadd_wchnstr",
+      "lisp": "mvadd-wchnstr"
+    },
+    {
+      "c": "mvadd_wchstr",
+      "lisp": "mvadd-wchstr"
+    },
+    {
+      "c": "mvaddch",
+      "lisp": "mvaddch"
+    },
+    {
+      "c": "mvaddchnstr",
+      "lisp": "mvaddchnstr"
+    },
+    {
+      "c": "mvaddchstr",
+      "lisp": "mvaddchstr"
+    },
+    {
+      "c": "mvaddnstr",
+      "lisp": "mvaddnstr"
+    },
+    {
+      "c": "mvaddnwstr",
+      "lisp": "mvaddnwstr"
+    },
+    {
+      "c": "mvaddstr",
+      "lisp": "mvaddstr"
+    },
+    {
+      "c": "mvaddwstr",
+      "lisp": "mvaddwstr"
+    },
+    {
+      "c": "mvchgat",
+      "lisp": "mvchgat"
+    },
+    {
+      "c": "mvcur",
+      "lisp": "mvcur"
+    },
+    {
+      "c": "mvdelch",
+      "lisp": "mvdelch"
+    },
+    {
+      "c": "mvderwin",
+      "lisp": "mvderwin"
+    },
+    {
+      "c": "mvget_wch",
+      "lisp": "mvget-wch"
+    },
+    {
+      "c": "mvget_wstr",
+      "lisp": "mvget-wstr"
+    },
+    {
+      "c": "mvgetch",
+      "lisp": "mvgetch"
+    },
+    {
+      "c": "mvgetn_wstr",
+      "lisp": "mvgetn-wstr"
+    },
+    {
+      "c": "mvgetnstr",
+      "lisp": "mvgetnstr"
+    },
+    {
+      "c": "mvgetstr",
+      "lisp": "mvgetstr"
+    },
+    {
+      "c": "mvhline",
+      "lisp": "mvhline"
+    },
+    {
+      "c": "mvhline_set",
+      "lisp": "mvhline-set"
+    },
+    {
+      "c": "mvin_wch",
+      "lisp": "mvin-wch"
+    },
+    {
+      "c": "mvin_wchnstr",
+      "lisp": "mvin-wchnstr"
+    },
+    {
+      "c": "mvin_wchstr",
+      "lisp": "mvin-wchstr"
+    },
+    {
+      "c": "mvinch",
+      "lisp": "mvinch"
+    },
+    {
+      "c": "mvinchnstr",
+      "lisp": "mvinchnstr"
+    },
+    {
+      "c": "mvinchstr",
+      "lisp": "mvinchstr"
+    },
+    {
+      "c": "mvinnstr",
+      "lisp": "mvinnstr"
+    },
+    {
+      "c": "mvinnwstr",
+      "lisp": "mvinnwstr"
+    },
+    {
+      "c": "mvins_nwstr",
+      "lisp": "mvins-nwstr"
+    },
+    {
+      "c": "mvins_wch",
+      "lisp": "mvins-wch"
+    },
+    {
+      "c": "mvins_wstr",
+      "lisp": "mvins-wstr"
+    },
+    {
+      "c": "mvinsch",
+      "lisp": "mvinsch"
+    },
+    {
+      "c": "mvinsnstr",
+      "lisp": "mvinsnstr"
+    },
+    {
+      "c": "mvinsstr",
+      "lisp": "mvinsstr"
+    },
+    {
+      "c": "mvinstr",
+      "lisp": "mvinstr"
+    },
+    {
+      "c": "mvinwstr",
+      "lisp": "mvinwstr"
+    },
+    {
+      "c": "mvprintw",
+      "lisp": "mvprintw"
+    },
+    {
+      "c": "mvscanw",
+      "lisp": "mvscanw"
+    },
+    {
+      "c": "mvvline",
+      "lisp": "mvvline"
+    },
+    {
+      "c": "mvvline_set",
+      "lisp": "mvvline-set"
+    },
+    {
+      "c": "mvwadd_wch",
+      "lisp": "mvwadd-wch"
+    },
+    {
+      "c": "mvwadd_wchnstr",
+      "lisp": "mvwadd-wchnstr"
+    },
+    {
+      "c": "mvwadd_wchstr",
+      "lisp": "mvwadd-wchstr"
+    },
+    {
+      "c": "mvwaddch",
+      "lisp": "mvwaddch"
+    },
+    {
+      "c": "mvwaddchnstr",
+      "lisp": "mvwaddchnstr"
+    },
+    {
+      "c": "mvwaddchstr",
+      "lisp": "mvwaddchstr"
+    },
+    {
+      "c": "mvwaddnstr",
+      "lisp": "mvwaddnstr"
+    },
+    {
+      "c": "mvwaddnwstr",
+      "lisp": "mvwaddnwstr"
+    },
+    {
+      "c": "mvwaddstr",
+      "lisp": "mvwaddstr"
+    },
+    {
+      "c": "mvwaddwstr",
+      "lisp": "mvwaddwstr"
+    },
+    {
+      "c": "mvwchgat",
+      "lisp": "mvwchgat"
+    },
+    {
+      "c": "mvwdelch",
+      "lisp": "mvwdelch"
+    },
+    {
+      "c": "mvwget_wch",
+      "lisp": "mvwget-wch"
+    },
+    {
+      "c": "mvwget_wstr",
+      "lisp": "mvwget-wstr"
+    },
+    {
+      "c": "mvwgetch",
+      "lisp": "mvwgetch"
+    },
+    {
+      "c": "mvwgetn_wstr",
+      "lisp": "mvwgetn-wstr"
+    },
+    {
+      "c": "mvwgetnstr",
+      "lisp": "mvwgetnstr"
+    },
+    {
+      "c": "mvwgetstr",
+      "lisp": "mvwgetstr"
+    },
+    {
+      "c": "mvwhline",
+      "lisp": "mvwhline"
+    },
+    {
+      "c": "mvwhline_set",
+      "lisp": "mvwhline-set"
+    },
+    {
+      "c": "mvwin",
+      "lisp": "mvwin"
+    },
+    {
+      "c": "mvwin_wch",
+      "lisp": "mvwin-wch"
+    },
+    {
+      "c": "mvwin_wchnstr",
+      "lisp": "mvwin-wchnstr"
+    },
+    {
+      "c": "mvwin_wchstr",
+      "lisp": "mvwin-wchstr"
+    },
+    {
+      "c": "mvwinch",
+      "lisp": "mvwinch"
+    },
+    {
+      "c": "mvwinchnstr",
+      "lisp": "mvwinchnstr"
+    },
+    {
+      "c": "mvwinchstr",
+      "lisp": "mvwinchstr"
+    },
+    {
+      "c": "mvwinnstr",
+      "lisp": "mvwinnstr"
+    },
+    {
+      "c": "mvwinnwstr",
+      "lisp": "mvwinnwstr"
+    },
+    {
+      "c": "mvwins_nwstr",
+      "lisp": "mvwins-nwstr"
+    },
+    {
+      "c": "mvwins_wch",
+      "lisp": "mvwins-wch"
+    },
+    {
+      "c": "mvwins_wstr",
+      "lisp": "mvwins-wstr"
+    },
+    {
+      "c": "mvwinsch",
+      "lisp": "mvwinsch"
+    },
+    {
+      "c": "mvwinsnstr",
+      "lisp": "mvwinsnstr"
+    },
+    {
+      "c": "mvwinsstr",
+      "lisp": "mvwinsstr"
+    },
+    {
+      "c": "mvwinstr",
+      "lisp": "mvwinstr"
+    },
+    {
+      "c": "mvwinwstr",
+      "lisp": "mvwinwstr"
+    },
+    {
+      "c": "mvwprintw",
+      "lisp": "mvwprintw"
+    },
+    {
+      "c": "mvwscanw",
+      "lisp": "mvwscanw"
+    },
+    {
+      "c": "mvwvline",
+      "lisp": "mvwvline"
+    },
+    {
+      "c": "mvwvline_set",
+      "lisp": "mvwvline-set"
+    },
+    {
+      "c": "napms",
+      "lisp": "napms"
+    },
+    {
+      "c": "newpad",
+      "lisp": "newpad"
+    },
+    {
+      "c": "newterm",
+      "lisp": "newterm"
+    },
+    {
+      "c": "newwin",
+      "lisp": "newwin"
+    },
+    {
+      "c": "nl",
+      "lisp": "nl"
+    },
+    {
+      "c": "nocbreak",
+      "lisp": "nocbreak"
+    },
+    {
+      "c": "nodelay",
+      "lisp": "nodelay"
+    },
+    {
+      "c": "noecho",
+      "lisp": "noecho"
+    },
+    {
+      "c": "nonl",
+      "lisp": "nonl"
+    },
+    {
+      "c": "noqiflush",
+      "lisp": "noqiflush"
+    },
+    {
+      "c": "noraw",
+      "lisp": "noraw"
+    },
+    {
+      "c": "notimeout",
+      "lisp": "notimeout"
+    },
+    {
+      "c": "overlay",
+      "lisp": "overlay"
+    },
+    {
+      "c": "overwrite",
+      "lisp": "overwrite"
+    },
+    {
+      "c": "pair_content",
+      "lisp": "pair-content"
+    },
+    {
+      "c": "pechochar",
+      "lisp": "pechochar"
+    },
+    {
+      "c": "pnoutrefresh",
+      "lisp": "pnoutrefresh"
+    },
+    {
+      "c": "prefresh",
+      "lisp": "prefresh"
+    },
+    {
+      "c": "printw",
+      "lisp": "printw"
+    },
+    {
+      "c": "putp",
+      "lisp": "putp"
+    },
+    {
+      "c": "putwin",
+      "lisp": "putwin"
+    },
+    {
+      "c": "qiflush",
+      "lisp": "qiflush"
+    },
+    {
+      "c": "raw",
+      "lisp": "raw"
+    },
+    {
+      "c": "redrawwin",
+      "lisp": "redrawwin"
+    },
+    {
+      "c": "refresh",
+      "lisp": "refresh"
+    },
+    {
+      "c": "reset_prog_mode",
+      "lisp": "reset-prog-mode"
+    },
+    {
+      "c": "reset_shell_mode",
+      "lisp": "reset-shell-mode"
+    },
+    {
+      "c": "resetty",
+      "lisp": "resetty"
+    },
+    {
+      "c": "restartterm",
+      "lisp": "restartterm"
+    },
+    {
+      "c": "ripoffline",
+      "lisp": "ripoffline"
+    },
+    {
+      "c": "savetty",
+      "lisp": "savetty"
+    },
+    {
+      "c": "scanw",
+      "lisp": "scanw"
+    },
+    {
+      "c": "scr_dump",
+      "lisp": "scr-dump"
+    },
+    {
+      "c": "scr_init",
+      "lisp": "scr-init"
+    },
+    {
+      "c": "scr_restore",
+      "lisp": "scr-restore"
+    },
+    {
+      "c": "scr_set",
+      "lisp": "scr-set"
+    },
+    {
+      "c": "scrl",
+      "lisp": "scrl"
+    },
+    {
+      "c": "scroll",
+      "lisp": "scroll"
+    },
+    {
+      "c": "scrollok",
+      "lisp": "scrollok"
+    },
+    {
+      "c": "set_curterm",
+      "lisp": "set-curterm"
+    },
+    {
+      "c": "set_term",
+      "lisp": "set-term"
+    },
+    {
+      "c": "setcchar",
+      "lisp": "setcchar"
+    },
+    {
+      "c": "setscrreg",
+      "lisp": "setscrreg"
+    },
+    {
+      "c": "setsyx",
+      "lisp": "setsyx"
+    },
+    {
+      "c": "setupterm",
+      "lisp": "setupterm"
+    },
+    {
+      "c": "slk_attr_off",
+      "lisp": "slk-attr-off"
+    },
+    {
+      "c": "slk_attr_on",
+      "lisp": "slk-attr-on"
+    },
+    {
+      "c": "slk_attr_set",
+      "lisp": "slk-attr-set"
+    },
+    {
+      "c": "slk_attroff",
+      "lisp": "slk-attroff"
+    },
+    {
+      "c": "slk_attron",
+      "lisp": "slk-attron"
+    },
+    {
+      "c": "slk_attrset",
+      "lisp": "slk-attrset"
+    },
+    {
+      "c": "slk_clear",
+      "lisp": "slk-clear"
+    },
+    {
+      "c": "slk_color",
+      "lisp": "slk-color"
+    },
+    {
+      "c": "slk_init",
+      "lisp": "slk-init"
+    },
+    {
+      "c": "slk_label",
+      "lisp": "slk-label"
+    },
+    {
+      "c": "slk_noutrefresh",
+      "lisp": "slk-noutrefresh"
+    },
+    {
+      "c": "slk_refresh",
+      "lisp": "slk-refresh"
+    },
+    {
+      "c": "slk_restore",
+      "lisp": "slk-restore"
+    },
+    {
+      "c": "slk_set",
+      "lisp": "slk-set"
+    },
+    {
+      "c": "slk_touch",
+      "lisp": "slk-touch"
+    },
+    {
+      "c": "standend",
+      "lisp": "standend"
+    },
+    {
+      "c": "standout",
+      "lisp": "standout"
+    },
+    {
+      "c": "start_color",
+      "lisp": "start-color"
+    },
+    {
+      "c": "subpad",
+      "lisp": "subpad"
+    },
+    {
+      "c": "subwin",
+      "lisp": "subwin"
+    },
+    {
+      "c": "syncok",
+      "lisp": "syncok"
+    },
+    {
+      "c": "term_attrs",
+      "lisp": "term-attrs"
+    },
+    {
+      "c": "termattrs",
+      "lisp": "termattrs"
+    },
+    {
+      "c": "termname",
+      "lisp": "termname"
+    },
+    {
+      "c": "tgetent",
+      "lisp": "tgetent"
+    },
+    {
+      "c": "tgetflag",
+      "lisp": "tgetflag"
+    },
+    {
+      "c": "tgetnum",
+      "lisp": "tgetnum"
+    },
+    {
+      "c": "tgetstr",
+      "lisp": "tgetstr"
+    },
+    {
+      "c": "tgoto",
+      "lisp": "tgoto"
+    },
+    {
+      "c": "tigetflag",
+      "lisp": "tigetflag"
+    },
+    {
+      "c": "tigetnum",
+      "lisp": "tigetnum"
+    },
+    {
+      "c": "tigetstr",
+      "lisp": "tigetstr"
+    },
+    {
+      "c": "timeout",
+      "lisp": "timeout"
+    },
+    {
+      "c": "touchline",
+      "lisp": "touchline"
+    },
+    {
+      "c": "touchwin",
+      "lisp": "touchwin"
+    },
+    {
+      "c": "tparm",
+      "lisp": "tparm"
+    },
+    {
+      "c": "tputs",
+      "lisp": "tputs"
+    },
+    {
+      "c": "typeahead",
+      "lisp": "typeahead"
+    },
+    {
+      "c": "unctrl",
+      "lisp": "unctrl"
+    },
+    {
+      "c": "unget_wch",
+      "lisp": "unget-wch"
+    },
+    {
+      "c": "ungetch",
+      "lisp": "ungetch"
+    },
+    {
+      "c": "untouchwin",
+      "lisp": "untouchwin"
+    },
+    {
+      "c": "use_env",
+      "lisp": "use-env"
+    },
+    {
+      "c": "vid_attr",
+      "lisp": "vid-attr"
+    },
+    {
+      "c": "vid_puts",
+      "lisp": "vid-puts"
+    },
+    {
+      "c": "vidattr",
+      "lisp": "vidattr"
+    },
+    {
+      "c": "vidputs",
+      "lisp": "vidputs"
+    },
+    {
+      "c": "vline",
+      "lisp": "vline"
+    },
+    {
+      "c": "vline_set",
+      "lisp": "vline-set"
+    },
+    {
+      "c": "vw_printw",
+      "lisp": "vw-printw"
+    },
+    {
+      "c": "vw_scanw",
+      "lisp": "vw-scanw"
+    },
+    {
+      "c": "vwprintw",
+      "lisp": "vwprintw"
+    },
+    {
+      "c": "vwscanw",
+      "lisp": "vwscanw"
+    },
+    {
+      "c": "wadd_wch",
+      "lisp": "wadd-wch"
+    },
+    {
+      "c": "wadd_wchnstr",
+      "lisp": "wadd-wchnstr"
+    },
+    {
+      "c": "wadd_wchstr",
+      "lisp": "wadd-wchstr"
+    },
+    {
+      "c": "waddch",
+      "lisp": "waddch"
+    },
+    {
+      "c": "waddchnstr",
+      "lisp": "waddchnstr"
+    },
+    {
+      "c": "waddchstr",
+      "lisp": "waddchstr"
+    },
+    {
+      "c": "waddnstr",
+      "lisp": "waddnstr"
+    },
+    {
+      "c": "waddnwstr",
+      "lisp": "waddnwstr"
+    },
+    {
+      "c": "waddstr",
+      "lisp": "waddstr"
+    },
+    {
+      "c": "waddwstr",
+      "lisp": "waddwstr"
+    },
+    {
+      "c": "wattr_get",
+      "lisp": "wattr-get"
+    },
+    {
+      "c": "wattr_off",
+      "lisp": "wattr-off"
+    },
+    {
+      "c": "wattr_on",
+      "lisp": "wattr-on"
+    },
+    {
+      "c": "wattr_set",
+      "lisp": "wattr-set"
+    },
+    {
+      "c": "wattroff",
+      "lisp": "wattroff"
+    },
+    {
+      "c": "wattron",
+      "lisp": "wattron"
+    },
+    {
+      "c": "wattrset",
+      "lisp": "wattrset"
+    },
+    {
+      "c": "wbkgd",
+      "lisp": "wbkgd"
+    },
+    {
+      "c": "wbkgdset",
+      "lisp": "wbkgdset"
+    },
+    {
+      "c": "wbkgrnd",
+      "lisp": "wbkgrnd"
+    },
+    {
+      "c": "wbkgrndset",
+      "lisp": "wbkgrndset"
+    },
+    {
+      "c": "wborder",
+      "lisp": "wborder"
+    },
+    {
+      "c": "wborder_set",
+      "lisp": "wborder-set"
+    },
+    {
+      "c": "wchgat",
+      "lisp": "wchgat"
+    },
+    {
+      "c": "wclear",
+      "lisp": "wclear"
+    },
+    {
+      "c": "wclrtobot",
+      "lisp": "wclrtobot"
+    },
+    {
+      "c": "wclrtoeol",
+      "lisp": "wclrtoeol"
+    },
+    {
+      "c": "wcolor_set",
+      "lisp": "wcolor-set"
+    },
+    {
+      "c": "wcursyncup",
+      "lisp": "wcursyncup"
+    },
+    {
+      "c": "wdelch",
+      "lisp": "wdelch"
+    },
+    {
+      "c": "wdeleteln",
+      "lisp": "wdeleteln"
+    },
+    {
+      "c": "wecho_wchar",
+      "lisp": "wecho-wchar"
+    },
+    {
+      "c": "wechochar",
+      "lisp": "wechochar"
+    },
+    {
+      "c": "werase",
+      "lisp": "werase"
+    },
+    {
+      "c": "wget_wch",
+      "lisp": "wget-wch"
+    },
+    {
+      "c": "wget_wstr",
+      "lisp": "wget-wstr"
+    },
+    {
+      "c": "wgetbkgrnd",
+      "lisp": "wgetbkgrnd"
+    },
+    {
+      "c": "wgetch",
+      "lisp": "wgetch"
+    },
+    {
+      "c": "wgetn_wstr",
+      "lisp": "wgetn-wstr"
+    },
+    {
+      "c": "wgetnstr",
+      "lisp": "wgetnstr"
+    },
+    {
+      "c": "wgetstr",
+      "lisp": "wgetstr"
+    },
+    {
+      "c": "whline",
+      "lisp": "whline"
+    },
+    {
+      "c": "whline_set",
+      "lisp": "whline-set"
+    },
+    {
+      "c": "win_wch",
+      "lisp": "win-wch"
+    },
+    {
+      "c": "win_wchnstr",
+      "lisp": "win-wchnstr"
+    },
+    {
+      "c": "win_wchstr",
+      "lisp": "win-wchstr"
+    },
+    {
+      "c": "winch",
+      "lisp": "winch"
+    },
+    {
+      "c": "winchnstr",
+      "lisp": "winchnstr"
+    },
+    {
+      "c": "winchstr",
+      "lisp": "winchstr"
+    },
+    {
+      "c": "winnstr",
+      "lisp": "winnstr"
+    },
+    {
+      "c": "winnwstr",
+      "lisp": "winnwstr"
+    },
+    {
+      "c": "wins_nwstr",
+      "lisp": "wins-nwstr"
+    },
+    {
+      "c": "wins_wch",
+      "lisp": "wins-wch"
+    },
+    {
+      "c": "wins_wstr",
+      "lisp": "wins-wstr"
+    },
+    {
+      "c": "winsch",
+      "lisp": "winsch"
+    },
+    {
+      "c": "winsdelln",
+      "lisp": "winsdelln"
+    },
+    {
+      "c": "winsertln",
+      "lisp": "winsertln"
+    },
+    {
+      "c": "winsnstr",
+      "lisp": "winsnstr"
+    },
+    {
+      "c": "winsstr",
+      "lisp": "winsstr"
+    },
+    {
+      "c": "winstr",
+      "lisp": "winstr"
+    },
+    {
+      "c": "winwstr",
+      "lisp": "winwstr"
+    },
+    {
+      "c": "wmove",
+      "lisp": "wmove"
+    },
+    {
+      "c": "wnoutrefresh",
+      "lisp": "wnoutrefresh"
+    },
+    {
+      "c": "wprintw",
+      "lisp": "wprintw"
+    },
+    {
+      "c": "wredrawln",
+      "lisp": "wredrawln"
+    },
+    {
+      "c": "wrefresh",
+      "lisp": "wrefresh"
+    },
+    {
+      "c": "wscanw",
+      "lisp": "wscanw"
+    },
+    {
+      "c": "wscrl",
+      "lisp": "wscrl"
+    },
+    {
+      "c": "wsetscrreg",
+      "lisp": "wsetscrreg"
+    },
+    {
+      "c": "wstandend",
+      "lisp": "wstandend"
+    },
+    {
+      "c": "wstandout",
+      "lisp": "wstandout"
+    },
+    {
+      "c": "wsyncdown",
+      "lisp": "wsyncdown"
+    },
+    {
+      "c": "wsyncup",
+      "lisp": "wsyncup"
+    },
+    {
+      "c": "wtimeout",
+      "lisp": "wtimeout"
+    },
+    {
+      "c": "wtouchln",
+      "lisp": "wtouchln"
+    },
+    {
+      "c": "wunctrl",
+      "lisp": "wunctrl"
+    },
+    {
+      "c": "wvline",
+      "lisp": "wvline"
+    },
+    {
+      "c": "wvline_set",
+      "lisp": "wvline-set"
+    }
+  ],
+  "features": [
+    "lifecycle",
+    "environment-layout",
+    "ripoffline-layout",
+    "soft-labels",
+    "palette-definition",
+    "extended-pairs",
+    "default-colors",
+    "graphics-charset",
+    "protected-cells",
+    "cursor-visibility",
+    "emoji-joiner",
+    "emoji-flag",
+    "emoji-variation",
+    "emoji-skin-tone",
+    "input-meta",
+    "input-options",
+    "tty-snapshots",
+    "key-definitions",
+    "mouse-clicks",
+    "mouse-coordinate-conversion",
+    "scanf-integers",
+    "scanf-text",
+    "scanf-width-suppression",
+    "scanf-wide-variants",
+    "terminfo-profiles",
+    "termcap-profiles",
+    "terminfo-stack-arithmetic",
+    "terminfo-conditionals",
+    "terminfo-variables-and-format",
+    "terminfo-output",
+    "panel-stacking",
+    "menu-navigation-and-pattern",
+    "menu-options-and-properties",
+    "form-buffer-sharing",
+    "form-edit-and-navigation",
+    "form-field-validation",
+    "form-options-and-hooks",
+    "output-variant-matrix",
+    "cell-read-variant-matrix",
+    "input-variant-matrix",
+    "line-variant-matrix",
+    "deletion-and-attribute-variants",
+    "background-aliases",
+    "formatted-output-aliases",
+    "border-and-echo-aliases",
+    "window-sync-and-geometry",
+    "line-edit-aliases",
+    "screen-dump-roundtrip",
+    "terminal-notifications",
+    "truecolor-pairs",
+    "form-word-and-line-editing",
+    "custom-fieldtypes",
+    "terminfo-format-flags"
+  ],
+  "threshold_percent": 99
+}

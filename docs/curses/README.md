@@ -119,15 +119,20 @@ screen, so unchanged glyphs are not re-emitted. The cursor and wrap mode can
 still produce control sequences on an otherwise unchanged frame.
 
 Ordinary windows are not a stacking compositor: update overlapping windows in
-order and mark exposed regions with `touchwin`. The separate ncurses panel,
-menu and form libraries are not implemented. `idlok` and `idcok` are accepted
+order and mark exposed regions with `touchwin`. Panel stacking, menus, and forms are provided by the `panel`, `menu`, and `form`
+modules and re-exported by the public facade. They use Lisp objects, callbacks
+and multiple values instead of C pointers and output parameters. `idlok` and `idcok` are accepted
 optimization hints; rendering does not require terminal insert/delete commands.
 
 Whole wide glyphs are repaired when a write or clipping boundary touches one
 of their cells. Width policy covers common combining blocks, variation selectors,
 East Asian wide ranges and common emoji ranges. It is a deterministic policy,
 not a complete Unicode grapheme implementation: ambiguous width is one column,
-and emoji ZWJ sequences/flags may differ from a terminal's rendering.
+and terminal-specific emoji presentation can still differ. Common ZWJ emoji,
+regional-indicator flags, skin tones and variation selectors are covered.
+CMUCL uses surrogate-pair strings for non-BMP scalars and emits UTF-8 directly
+on native descriptors. `ooparts/curses/model:codepoint-string` constructs these
+portably.
 
 `wresize` preserves content and shared views, and rejects a resize that would
 leave a child outside its parent. Native size changes are polled while waiting
@@ -149,34 +154,78 @@ negotiation; modifier-specific sequences can be registered explicitly.
 `getmouse` returns a `mouse-event` with zero-based screen coordinates, a button,
 `:press`/`:release`/`:motion`, modifier keywords, and `bstate`. Bits use five-bit
 button groups (release bit 0, press bit 1) and `+report-mouse-position+`.
-`+all-mouse-events+` selects button events. Click/double-click/triple-click
-synthesis is not implemented; `mouseinterval` stores the setting for future
-synthesis but does not delay press/release reports.
+`+all-mouse-events+` selects button events. Click, double-click and triple-click reports are synthesized from matching
+press/release positions within `mouseinterval`. A zero interval disables
+synthesis. The selected event mask controls which reports enter the queue.
 
 Colors use foreground/background pairs with indices 0..255 and -1 for terminal
-defaults. Generic profiles do not promise palette redefinition:
-`can-change-color` returns NIL and `init-color` returns `+err+`. `color-content`
-reports the conventional xterm palette, not a queried user-customized palette.
-Truecolor and runtime capability negotiation are not exposed yet.
+defaults. Extended pair numbers range up to 65535. `init-color` and
+`init-extended-color` emit xterm OSC palette definitions and remember the RGB
+values; teardown resets modified palette entries. `init-rgb-pair` selects
+truecolor foreground/background triples without changing the palette.
+`color-content` reports the conventional xterm palette unless a color was
+redefined through this library; it does not query user-customized terminal colors.
+`curs-set(2)` selects a blinking block on xterm. Alternate charset and protected
+attributes emit DEC charset/DECSCA controls. The terminal must support the
+requested operations; the VT100 profile correctly reports color as unsupported.
+
+The terminfo/termcap API uses built-in VT100/xterm profiles. Capability names and
+types come from a pinned ncurses Caps inventory. Unknown names and unsupported
+capabilities are distinguished (`tigetnum`: -2/-1, `tigetstr`: -1/NIL).
+Parameter expansion supports the stack language, variables, nested conditionals,
+arithmetic and printf-style field flags/precision. External terminfo databases
+are not searched. `setupterm` returns status and diagnostic as multiple values.
+
+Pre-initialization `filter`, `use-env`, `use-tioctl`, `ripoffline` and soft-label
+APIs are available. Soft labels reserve screen rows. `scanw` and its variants
+parse scanf conversions; they return the assigned Lisp values as a list and the
+assignment count. `printw` deliberately retains Lisp `format` syntax. Native
+meta/flush control, control characters and baud-rate queries use termios.
+The form regexp validator uses the in-repository `ooparts/regexp` component;
+this adds no external dependency.
 
 `putwin`/`getwin` and `scr-*` use a versioned Lisp representation, not ncurses'
 binary format. Reading disables reader evaluation and validates cells/dimensions.
 
 ## API coverage
 
-The [generated API inventory](API.md) lists the actual public functions, macros,
-constants and state. It is a Curses-style Lisp interface, not a claim of complete
-X/Open or ncurses ABI/behavioral compatibility. In particular, terminfo/termcap,
-soft labels (`slk-*`), pre-initialization layout hooks (`filter`, `ripoffline`),
-C scanf-style input, and historical serial-terminal queue/baud APIs are not
-provided. Unsupported APIs are not exported as success-returning stubs.
+The [generated API inventory](API.md) lists the public interface. The
+[frozen coverage manifest](../../tests/curses/coverage-manifest.json) contains
+379 unique non-extension routines from the referenced ncurses index (SVr4 and
+X/Open names, including deprecated aliases). Nothing is removed from this
+inventory to reach the numerical target.
+
+[Coverage results](COVERAGE.md) distinguish:
+
+1. **API definitions:** reference names present in the public package.
+2. **API execution:** reference functions whose entry was observed during tests.
+   An optional entry observer works with statically linked ECL/MKCL calls as
+   well as dynamically dispatched calls. It is NIL in normal operation.
+3. **Feature scenarios:** passed cases from a frozen list of 53 behavioral
+   scenarios, with assertions about state, output, error handling and round trips.
+
+All three metrics must be at least 99%; the command returns a nonzero exit code
+otherwise. Missing tests, failed processes and unexpected scenario names fail
+the gate. These are **inventory and acceptance-test metrics**, not line/branch
+coverage and not a proof of complete behavioral equivalence with ncurses.
+The widget modules are exercised in the feature scenarios; they are not silently
+added to the 379-routine denominator. Native PTY checks are additional gates.
+
+Known boundaries remain explicit: automatic POSIX job-control signal handlers,
+complete Unicode grapheme conformance, external terminfo databases, terminal
+capability negotiation, ncurses binary serialization and C ABI compatibility
+are not claimed. The widget interfaces use a Lisp data model; they do not claim
+all undocumented ncurses edge cases or identical error-number conventions.
+Windows remains outside scope; macOS requires separate execution validation.
 
 ## Tests
 
 ```sh
 python3 tools/check-layout.py
 python3 tools/lisp.py --implementation sbcl tools/test.lisp curses
+python3 tools/curses/coverage.py --implementation sbcl
 python3 tools/curses/test-terminal.py --implementation sbcl
+python3 -m unittest discover -s tests/curses -p 'test_*.py' -v
 ```
 
 Replace `sbcl` with `ccl`, `ecl`, `mkcl`, `clisp`, `cmucl`, `clasp` or `abcl`.

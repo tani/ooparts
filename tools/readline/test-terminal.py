@@ -11,6 +11,16 @@ import sys
 import termios
 import time
 
+def terminal_configuration(attributes):
+    """Compare settings, excluding Darwin's transient kernel-owned PENDIN bit."""
+    attributes = list(attributes)
+    if sys.platform == 'darwin':
+        # XNU sets PENDIN whenever ICANON is enabled and clears it on input
+        # processing (bsd/kern/tty.c: ttioctl/ttypend). It is not a saved setting.
+        attributes[3] &= ~termios.PENDIN
+    return attributes
+
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'tools'))
 from lisp import add_lisp_arguments, lisp_command, options
@@ -78,7 +88,8 @@ def main():
                 expect(result)
                 expect(f'RESTORED-{i}'.encode())
                 restored = termios.tcgetattr(slave)
-                assert restored == baseline, ('TTY not restored', i, baseline, restored)
+                assert terminal_configuration(restored) == terminal_configuration(baseline), (
+                    'TTY not restored', i, baseline, restored)
                 os.write(checkpoint_write, b'q')
             expect(b'READLINE-PTY-COMPLETE')
             child.wait(timeout=20)

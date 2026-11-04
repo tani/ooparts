@@ -120,8 +120,12 @@ JAVA_TOOL_OPTIONS='--add-modules=jdk.incubator.foreign --enable-native-access=AL
 The portable suite covers editing, history, search, completion, viewport bounds,
 stream fallback, EOF, and the shared Curses decoder. The PTY suite checks ten
 input scenarios including Japanese input, paste, resizing, Ctrl-C and a failing
-completion callback. After every scenario it checks the exact entry termios
-state; it also checks that no alternate-screen or initialization clear sequence
+completion callback. After every scenario it checks the entry termios
+configuration. On Darwin only the kernel-managed `PENDIN` bit is excluded:
+XNU sets it when canonical mode is restored and clears it when input is
+processed ([kernel implementation](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/tty.c)).
+Checkpoints use a separate pipe so the harness does not read the restored TTY.
+The suite also checks that no alternate-screen or initialization clear sequence
 was emitted and that Curses' surrounding dynamic state is preserved.
 
 Nix exposes `readline` packages and checks for every available host, with native

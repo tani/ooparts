@@ -11,6 +11,8 @@ separates ASDF caches per implementation and per native/portable SAT path.
 
 ```sh
 python3 tools/lisp.py tools/test.lisp all
+python3 tools/lisp.py tools/test.lisp curry
+python3 tools/lisp.py tools/test.lisp test
 python3 tools/lisp.py tools/test.lisp prolog
 python3 tools/lisp.py tools/test.lisp continuation
 python3 tools/lisp.py tools/test.lisp sat

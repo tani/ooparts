@@ -1,0 +1,12 @@
+(uiop:define-package #:ooparts-tests/curry/support
+  (:use #:cl)
+  (:import-from #:ooparts/test)
+  (:export #:*checks* #:check #:error-p))
+(in-package #:ooparts-tests/curry/support)
+(defvar *checks* 0)
+(defun check (expected actual)
+  (incf *checks*)
+  (ooparts/test:check (equal expected actual)
+                      "Check ~D: expected ~S, got ~S" *checks* expected actual))
+(defun error-p (thunk)
+  (handler-case (progn (funcall thunk) nil) (error () t)))

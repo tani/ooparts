@@ -1,0 +1,2549 @@
+{
+  "source": "ANSI Common Lisp global function interfaces; initial arities from SBCL 2.6.8 SB-INTROSPECT:FUNCTION-LAMBDA-LIST",
+  "functions": [
+    {
+      "name": "*",
+      "required": 0
+    },
+    {
+      "name": "+",
+      "required": 0
+    },
+    {
+      "name": "-",
+      "required": 1
+    },
+    {
+      "name": "/",
+      "required": 1
+    },
+    {
+      "name": "/=",
+      "required": 1
+    },
+    {
+      "name": "1+",
+      "required": 1
+    },
+    {
+      "name": "1-",
+      "required": 1
+    },
+    {
+      "name": "<",
+      "required": 1
+    },
+    {
+      "name": "<=",
+      "required": 1
+    },
+    {
+      "name": "=",
+      "required": 1
+    },
+    {
+      "name": ">",
+      "required": 1
+    },
+    {
+      "name": ">=",
+      "required": 1
+    },
+    {
+      "name": "ABORT",
+      "required": 0
+    },
+    {
+      "name": "ABS",
+      "required": 1
+    },
+    {
+      "name": "ACONS",
+      "required": 3
+    },
+    {
+      "name": "ACOS",
+      "required": 1
+    },
+    {
+      "name": "ACOSH",
+      "required": 1
+    },
+    {
+      "name": "ADD-METHOD",
+      "required": 2
+    },
+    {
+      "name": "ADJOIN",
+      "required": 2
+    },
+    {
+      "name": "ADJUST-ARRAY",
+      "required": 2
+    },
+    {
+      "name": "ADJUSTABLE-ARRAY-P",
+      "required": 1
+    },
+    {
+      "name": "ALLOCATE-INSTANCE",
+      "required": 1
+    },
+    {
+      "name": "ALPHA-CHAR-P",
+      "required": 1
+    },
+    {
+      "name": "ALPHANUMERICP",
+      "required": 1
+    },
+    {
+      "name": "APPEND",
+      "required": 0
+    },
+    {
+      "name": "APPLY",
+      "required": 2
+    },
+    {
+      "name": "APROPOS",
+      "required": 1
+    },
+    {
+      "name": "APROPOS-LIST",
+      "required": 1
+    },
+    {
+      "name": "AREF",
+      "required": 1
+    },
+    {
+      "name": "ARITHMETIC-ERROR-OPERANDS",
+      "required": 1
+    },
+    {
+      "name": "ARITHMETIC-ERROR-OPERATION",
+      "required": 1
+    },
+    {
+      "name": "ARRAY-DIMENSION",
+      "required": 2
+    },
+    {
+      "name": "ARRAY-DIMENSIONS",
+      "required": 1
+    },
+    {
+      "name": "ARRAY-DISPLACEMENT",
+      "required": 1
+    },
+    {
+      "name": "ARRAY-ELEMENT-TYPE",
+      "required": 1
+    },
+    {
+      "name": "ARRAY-HAS-FILL-POINTER-P",
+      "required": 1
+    },
+    {
+      "name": "ARRAY-IN-BOUNDS-P",
+      "required": 1
+    },
+    {
+      "name": "ARRAY-RANK",
+      "required": 1
+    },
+    {
+      "name": "ARRAY-ROW-MAJOR-INDEX",
+      "required": 1
+    },
+    {
+      "name": "ARRAY-TOTAL-SIZE",
+      "required": 1
+    },
+    {
+      "name": "ARRAYP",
+      "required": 1
+    },
+    {
+      "name": "ASH",
+      "required": 2
+    },
+    {
+      "name": "ASIN",
+      "required": 1
+    },
+    {
+      "name": "ASINH",
+      "required": 1
+    },
+    {
+      "name": "ASSOC",
+      "required": 2
+    },
+    {
+      "name": "ASSOC-IF",
+      "required": 2
+    },
+    {
+      "name": "ASSOC-IF-NOT",
+      "required": 2
+    },
+    {
+      "name": "ATAN",
+      "required": 1
+    },
+    {
+      "name": "ATANH",
+      "required": 1
+    },
+    {
+      "name": "ATOM",
+      "required": 1
+    },
+    {
+      "name": "BIT",
+      "required": 1
+    },
+    {
+      "name": "BIT-AND",
+      "required": 2
+    },
+    {
+      "name": "BIT-ANDC1",
+      "required": 2
+    },
+    {
+      "name": "BIT-ANDC2",
+      "required": 2
+    },
+    {
+      "name": "BIT-EQV",
+      "required": 2
+    },
+    {
+      "name": "BIT-IOR",
+      "required": 2
+    },
+    {
+      "name": "BIT-NAND",
+      "required": 2
+    },
+    {
+      "name": "BIT-NOR",
+      "required": 2
+    },
+    {
+      "name": "BIT-NOT",
+      "required": 1
+    },
+    {
+      "name": "BIT-ORC1",
+      "required": 2
+    },
+    {
+      "name": "BIT-ORC2",
+      "required": 2
+    },
+    {
+      "name": "BIT-VECTOR-P",
+      "required": 1
+    },
+    {
+      "name": "BIT-XOR",
+      "required": 2
+    },
+    {
+      "name": "BOOLE",
+      "required": 3
+    },
+    {
+      "name": "BOTH-CASE-P",
+      "required": 1
+    },
+    {
+      "name": "BOUNDP",
+      "required": 1
+    },
+    {
+      "name": "BREAK",
+      "required": 0
+    },
+    {
+      "name": "BROADCAST-STREAM-STREAMS",
+      "required": 1
+    },
+    {
+      "name": "BUTLAST",
+      "required": 1
+    },
+    {
+      "name": "BYTE",
+      "required": 2
+    },
+    {
+      "name": "BYTE-POSITION",
+      "required": 1
+    },
+    {
+      "name": "BYTE-SIZE",
+      "required": 1
+    },
+    {
+      "name": "CAAAAR",
+      "required": 1
+    },
+    {
+      "name": "CAAADR",
+      "required": 1
+    },
+    {
+      "name": "CAAAR",
+      "required": 1
+    },
+    {
+      "name": "CAADAR",
+      "required": 1
+    },
+    {
+      "name": "CAADDR",
+      "required": 1
+    },
+    {
+      "name": "CAADR",
+      "required": 1
+    },
+    {
+      "name": "CAAR",
+      "required": 1
+    },
+    {
+      "name": "CADAAR",
+      "required": 1
+    },
+    {
+      "name": "CADADR",
+      "required": 1
+    },
+    {
+      "name": "CADAR",
+      "required": 1
+    },
+    {
+      "name": "CADDAR",
+      "required": 1
+    },
+    {
+      "name": "CADDDR",
+      "required": 1
+    },
+    {
+      "name": "CADDR",
+      "required": 1
+    },
+    {
+      "name": "CADR",
+      "required": 1
+    },
+    {
+      "name": "CAR",
+      "required": 1
+    },
+    {
+      "name": "CDAAAR",
+      "required": 1
+    },
+    {
+      "name": "CDAADR",
+      "required": 1
+    },
+    {
+      "name": "CDAAR",
+      "required": 1
+    },
+    {
+      "name": "CDADAR",
+      "required": 1
+    },
+    {
+      "name": "CDADDR",
+      "required": 1
+    },
+    {
+      "name": "CDADR",
+      "required": 1
+    },
+    {
+      "name": "CDAR",
+      "required": 1
+    },
+    {
+      "name": "CDDAAR",
+      "required": 1
+    },
+    {
+      "name": "CDDADR",
+      "required": 1
+    },
+    {
+      "name": "CDDAR",
+      "required": 1
+    },
+    {
+      "name": "CDDDAR",
+      "required": 1
+    },
+    {
+      "name": "CDDDDR",
+      "required": 1
+    },
+    {
+      "name": "CDDDR",
+      "required": 1
+    },
+    {
+      "name": "CDDR",
+      "required": 1
+    },
+    {
+      "name": "CDR",
+      "required": 1
+    },
+    {
+      "name": "CEILING",
+      "required": 1
+    },
+    {
+      "name": "CELL-ERROR-NAME",
+      "required": 1
+    },
+    {
+      "name": "CERROR",
+      "required": 2
+    },
+    {
+      "name": "CHANGE-CLASS",
+      "required": 2
+    },
+    {
+      "name": "CHAR",
+      "required": 2
+    },
+    {
+      "name": "CHAR-CODE",
+      "required": 1
+    },
+    {
+      "name": "CHAR-DOWNCASE",
+      "required": 1
+    },
+    {
+      "name": "CHAR-EQUAL",
+      "required": 1
+    },
+    {
+      "name": "CHAR-GREATERP",
+      "required": 1
+    },
+    {
+      "name": "CHAR-INT",
+      "required": 1
+    },
+    {
+      "name": "CHAR-LESSP",
+      "required": 1
+    },
+    {
+      "name": "CHAR-NAME",
+      "required": 1
+    },
+    {
+      "name": "CHAR-NOT-EQUAL",
+      "required": 1
+    },
+    {
+      "name": "CHAR-NOT-GREATERP",
+      "required": 1
+    },
+    {
+      "name": "CHAR-NOT-LESSP",
+      "required": 1
+    },
+    {
+      "name": "CHAR-UPCASE",
+      "required": 1
+    },
+    {
+      "name": "CHAR/=",
+      "required": 1
+    },
+    {
+      "name": "CHAR<",
+      "required": 1
+    },
+    {
+      "name": "CHAR<=",
+      "required": 1
+    },
+    {
+      "name": "CHAR=",
+      "required": 1
+    },
+    {
+      "name": "CHAR>",
+      "required": 1
+    },
+    {
+      "name": "CHAR>=",
+      "required": 1
+    },
+    {
+      "name": "CHARACTER",
+      "required": 1
+    },
+    {
+      "name": "CHARACTERP",
+      "required": 1
+    },
+    {
+      "name": "CIS",
+      "required": 1
+    },
+    {
+      "name": "CLASS-NAME",
+      "required": 1
+    },
+    {
+      "name": "CLASS-OF",
+      "required": 1
+    },
+    {
+      "name": "CLEAR-INPUT",
+      "required": 0
+    },
+    {
+      "name": "CLEAR-OUTPUT",
+      "required": 0
+    },
+    {
+      "name": "CLOSE",
+      "required": 1
+    },
+    {
+      "name": "CLRHASH",
+      "required": 1
+    },
+    {
+      "name": "CODE-CHAR",
+      "required": 1
+    },
+    {
+      "name": "COERCE",
+      "required": 2
+    },
+    {
+      "name": "COMPILE",
+      "required": 1
+    },
+    {
+      "name": "COMPILE-FILE",
+      "required": 1
+    },
+    {
+      "name": "COMPILE-FILE-PATHNAME",
+      "required": 1
+    },
+    {
+      "name": "COMPILED-FUNCTION-P",
+      "required": 1
+    },
+    {
+      "name": "COMPILER-MACRO-FUNCTION",
+      "required": 1
+    },
+    {
+      "name": "COMPLEMENT",
+      "required": 1
+    },
+    {
+      "name": "COMPLEX",
+      "required": 1
+    },
+    {
+      "name": "COMPLEXP",
+      "required": 1
+    },
+    {
+      "name": "COMPUTE-APPLICABLE-METHODS",
+      "required": 2
+    },
+    {
+      "name": "COMPUTE-RESTARTS",
+      "required": 0
+    },
+    {
+      "name": "CONCATENATE",
+      "required": 1
+    },
+    {
+      "name": "CONCATENATED-STREAM-STREAMS",
+      "required": 1
+    },
+    {
+      "name": "CONJUGATE",
+      "required": 1
+    },
+    {
+      "name": "CONS",
+      "required": 2
+    },
+    {
+      "name": "CONSP",
+      "required": 1
+    },
+    {
+      "name": "CONSTANTLY",
+      "required": 1
+    },
+    {
+      "name": "CONSTANTP",
+      "required": 1
+    },
+    {
+      "name": "CONTINUE",
+      "required": 0
+    },
+    {
+      "name": "COPY-ALIST",
+      "required": 1
+    },
+    {
+      "name": "COPY-LIST",
+      "required": 1
+    },
+    {
+      "name": "COPY-PPRINT-DISPATCH",
+      "required": 0
+    },
+    {
+      "name": "COPY-READTABLE",
+      "required": 0
+    },
+    {
+      "name": "COPY-SEQ",
+      "required": 1
+    },
+    {
+      "name": "COPY-STRUCTURE",
+      "required": 1
+    },
+    {
+      "name": "COPY-SYMBOL",
+      "required": 1
+    },
+    {
+      "name": "COPY-TREE",
+      "required": 1
+    },
+    {
+      "name": "COS",
+      "required": 1
+    },
+    {
+      "name": "COSH",
+      "required": 1
+    },
+    {
+      "name": "COUNT",
+      "required": 2
+    },
+    {
+      "name": "COUNT-IF",
+      "required": 2
+    },
+    {
+      "name": "COUNT-IF-NOT",
+      "required": 2
+    },
+    {
+      "name": "DECODE-FLOAT",
+      "required": 1
+    },
+    {
+      "name": "DECODE-UNIVERSAL-TIME",
+      "required": 1
+    },
+    {
+      "name": "DELETE",
+      "required": 2
+    },
+    {
+      "name": "DELETE-DUPLICATES",
+      "required": 1
+    },
+    {
+      "name": "DELETE-FILE",
+      "required": 1
+    },
+    {
+      "name": "DELETE-IF",
+      "required": 2
+    },
+    {
+      "name": "DELETE-IF-NOT",
+      "required": 2
+    },
+    {
+      "name": "DELETE-PACKAGE",
+      "required": 1
+    },
+    {
+      "name": "DENOMINATOR",
+      "required": 1
+    },
+    {
+      "name": "DEPOSIT-FIELD",
+      "required": 3
+    },
+    {
+      "name": "DESCRIBE",
+      "required": 1
+    },
+    {
+      "name": "DESCRIBE-OBJECT",
+      "required": 2
+    },
+    {
+      "name": "DIGIT-CHAR",
+      "required": 1
+    },
+    {
+      "name": "DIGIT-CHAR-P",
+      "required": 1
+    },
+    {
+      "name": "DIRECTORY",
+      "required": 1
+    },
+    {
+      "name": "DIRECTORY-NAMESTRING",
+      "required": 1
+    },
+    {
+      "name": "DISASSEMBLE",
+      "required": 1
+    },
+    {
+      "name": "DOCUMENTATION",
+      "required": 2
+    },
+    {
+      "name": "DPB",
+      "required": 3
+    },
+    {
+      "name": "DRIBBLE",
+      "required": 0
+    },
+    {
+      "name": "ECHO-STREAM-INPUT-STREAM",
+      "required": 1
+    },
+    {
+      "name": "ECHO-STREAM-OUTPUT-STREAM",
+      "required": 1
+    },
+    {
+      "name": "ED",
+      "required": 0
+    },
+    {
+      "name": "EIGHTH",
+      "required": 1
+    },
+    {
+      "name": "ELT",
+      "required": 2
+    },
+    {
+      "name": "ENCODE-UNIVERSAL-TIME",
+      "required": 6
+    },
+    {
+      "name": "ENDP",
+      "required": 1
+    },
+    {
+      "name": "ENOUGH-NAMESTRING",
+      "required": 1
+    },
+    {
+      "name": "ENSURE-DIRECTORIES-EXIST",
+      "required": 1
+    },
+    {
+      "name": "ENSURE-GENERIC-FUNCTION",
+      "required": 1
+    },
+    {
+      "name": "EQ",
+      "required": 2
+    },
+    {
+      "name": "EQL",
+      "required": 2
+    },
+    {
+      "name": "EQUAL",
+      "required": 2
+    },
+    {
+      "name": "EQUALP",
+      "required": 2
+    },
+    {
+      "name": "ERROR",
+      "required": 1
+    },
+    {
+      "name": "EVAL",
+      "required": 1
+    },
+    {
+      "name": "EVENP",
+      "required": 1
+    },
+    {
+      "name": "EVERY",
+      "required": 2
+    },
+    {
+      "name": "EXP",
+      "required": 1
+    },
+    {
+      "name": "EXPORT",
+      "required": 1
+    },
+    {
+      "name": "EXPT",
+      "required": 2
+    },
+    {
+      "name": "FBOUNDP",
+      "required": 1
+    },
+    {
+      "name": "FCEILING",
+      "required": 1
+    },
+    {
+      "name": "FDEFINITION",
+      "required": 1
+    },
+    {
+      "name": "FFLOOR",
+      "required": 1
+    },
+    {
+      "name": "FIFTH",
+      "required": 1
+    },
+    {
+      "name": "FILE-AUTHOR",
+      "required": 1
+    },
+    {
+      "name": "FILE-ERROR-PATHNAME",
+      "required": 1
+    },
+    {
+      "name": "FILE-LENGTH",
+      "required": 1
+    },
+    {
+      "name": "FILE-NAMESTRING",
+      "required": 1
+    },
+    {
+      "name": "FILE-POSITION",
+      "required": 1
+    },
+    {
+      "name": "FILE-STRING-LENGTH",
+      "required": 2
+    },
+    {
+      "name": "FILE-WRITE-DATE",
+      "required": 1
+    },
+    {
+      "name": "FILL",
+      "required": 2
+    },
+    {
+      "name": "FILL-POINTER",
+      "required": 1
+    },
+    {
+      "name": "FIND",
+      "required": 2
+    },
+    {
+      "name": "FIND-ALL-SYMBOLS",
+      "required": 1
+    },
+    {
+      "name": "FIND-CLASS",
+      "required": 1
+    },
+    {
+      "name": "FIND-IF",
+      "required": 2
+    },
+    {
+      "name": "FIND-IF-NOT",
+      "required": 2
+    },
+    {
+      "name": "FIND-METHOD",
+      "required": 3
+    },
+    {
+      "name": "FIND-PACKAGE",
+      "required": 1
+    },
+    {
+      "name": "FIND-RESTART",
+      "required": 1
+    },
+    {
+      "name": "FIND-SYMBOL",
+      "required": 1
+    },
+    {
+      "name": "FINISH-OUTPUT",
+      "required": 0
+    },
+    {
+      "name": "FIRST",
+      "required": 1
+    },
+    {
+      "name": "FLOAT",
+      "required": 1
+    },
+    {
+      "name": "FLOAT-DIGITS",
+      "required": 1
+    },
+    {
+      "name": "FLOAT-PRECISION",
+      "required": 1
+    },
+    {
+      "name": "FLOAT-RADIX",
+      "required": 1
+    },
+    {
+      "name": "FLOAT-SIGN",
+      "required": 1
+    },
+    {
+      "name": "FLOATP",
+      "required": 1
+    },
+    {
+      "name": "FLOOR",
+      "required": 1
+    },
+    {
+      "name": "FMAKUNBOUND",
+      "required": 1
+    },
+    {
+      "name": "FORCE-OUTPUT",
+      "required": 0
+    },
+    {
+      "name": "FORMAT",
+      "required": 2
+    },
+    {
+      "name": "FOURTH",
+      "required": 1
+    },
+    {
+      "name": "FRESH-LINE",
+      "required": 0
+    },
+    {
+      "name": "FROUND",
+      "required": 1
+    },
+    {
+      "name": "FTRUNCATE",
+      "required": 1
+    },
+    {
+      "name": "FUNCALL",
+      "required": 1
+    },
+    {
+      "name": "FUNCTION-KEYWORDS",
+      "required": 1
+    },
+    {
+      "name": "FUNCTION-LAMBDA-EXPRESSION",
+      "required": 1
+    },
+    {
+      "name": "FUNCTIONP",
+      "required": 1
+    },
+    {
+      "name": "GCD",
+      "required": 0
+    },
+    {
+      "name": "GENSYM",
+      "required": 0
+    },
+    {
+      "name": "GENTEMP",
+      "required": 0
+    },
+    {
+      "name": "GET",
+      "required": 2
+    },
+    {
+      "name": "GET-DECODED-TIME",
+      "required": 0
+    },
+    {
+      "name": "GET-DISPATCH-MACRO-CHARACTER",
+      "required": 2
+    },
+    {
+      "name": "GET-INTERNAL-REAL-TIME",
+      "required": 0
+    },
+    {
+      "name": "GET-INTERNAL-RUN-TIME",
+      "required": 0
+    },
+    {
+      "name": "GET-MACRO-CHARACTER",
+      "required": 1
+    },
+    {
+      "name": "GET-OUTPUT-STREAM-STRING",
+      "required": 1
+    },
+    {
+      "name": "GET-PROPERTIES",
+      "required": 2
+    },
+    {
+      "name": "GET-SETF-EXPANSION",
+      "required": 1
+    },
+    {
+      "name": "GET-UNIVERSAL-TIME",
+      "required": 0
+    },
+    {
+      "name": "GETF",
+      "required": 2
+    },
+    {
+      "name": "GETHASH",
+      "required": 2
+    },
+    {
+      "name": "GRAPHIC-CHAR-P",
+      "required": 1
+    },
+    {
+      "name": "HASH-TABLE-COUNT",
+      "required": 1
+    },
+    {
+      "name": "HASH-TABLE-P",
+      "required": 1
+    },
+    {
+      "name": "HASH-TABLE-REHASH-SIZE",
+      "required": 1
+    },
+    {
+      "name": "HASH-TABLE-REHASH-THRESHOLD",
+      "required": 1
+    },
+    {
+      "name": "HASH-TABLE-SIZE",
+      "required": 1
+    },
+    {
+      "name": "HASH-TABLE-TEST",
+      "required": 1
+    },
+    {
+      "name": "HOST-NAMESTRING",
+      "required": 1
+    },
+    {
+      "name": "IDENTITY",
+      "required": 1
+    },
+    {
+      "name": "IMAGPART",
+      "required": 1
+    },
+    {
+      "name": "IMPORT",
+      "required": 1
+    },
+    {
+      "name": "INITIALIZE-INSTANCE",
+      "required": 1
+    },
+    {
+      "name": "INPUT-STREAM-P",
+      "required": 1
+    },
+    {
+      "name": "INSPECT",
+      "required": 1
+    },
+    {
+      "name": "INTEGER-DECODE-FLOAT",
+      "required": 1
+    },
+    {
+      "name": "INTEGER-LENGTH",
+      "required": 1
+    },
+    {
+      "name": "INTEGERP",
+      "required": 1
+    },
+    {
+      "name": "INTERACTIVE-STREAM-P",
+      "required": 1
+    },
+    {
+      "name": "INTERN",
+      "required": 1
+    },
+    {
+      "name": "INTERSECTION",
+      "required": 2
+    },
+    {
+      "name": "INVALID-METHOD-ERROR",
+      "required": 2
+    },
+    {
+      "name": "INVOKE-DEBUGGER",
+      "required": 1
+    },
+    {
+      "name": "INVOKE-RESTART",
+      "required": 1
+    },
+    {
+      "name": "INVOKE-RESTART-INTERACTIVELY",
+      "required": 1
+    },
+    {
+      "name": "ISQRT",
+      "required": 1
+    },
+    {
+      "name": "KEYWORDP",
+      "required": 1
+    },
+    {
+      "name": "LAST",
+      "required": 1
+    },
+    {
+      "name": "LCM",
+      "required": 0
+    },
+    {
+      "name": "LDB",
+      "required": 2
+    },
+    {
+      "name": "LDB-TEST",
+      "required": 2
+    },
+    {
+      "name": "LDIFF",
+      "required": 2
+    },
+    {
+      "name": "LENGTH",
+      "required": 1
+    },
+    {
+      "name": "LISP-IMPLEMENTATION-TYPE",
+      "required": 0
+    },
+    {
+      "name": "LISP-IMPLEMENTATION-VERSION",
+      "required": 0
+    },
+    {
+      "name": "LIST",
+      "required": 0
+    },
+    {
+      "name": "LIST*",
+      "required": 1
+    },
+    {
+      "name": "LIST-ALL-PACKAGES",
+      "required": 0
+    },
+    {
+      "name": "LIST-LENGTH",
+      "required": 1
+    },
+    {
+      "name": "LISTEN",
+      "required": 0
+    },
+    {
+      "name": "LISTP",
+      "required": 1
+    },
+    {
+      "name": "LOAD",
+      "required": 1
+    },
+    {
+      "name": "LOAD-LOGICAL-PATHNAME-TRANSLATIONS",
+      "required": 1
+    },
+    {
+      "name": "LOG",
+      "required": 1
+    },
+    {
+      "name": "LOGAND",
+      "required": 0
+    },
+    {
+      "name": "LOGANDC1",
+      "required": 2
+    },
+    {
+      "name": "LOGANDC2",
+      "required": 2
+    },
+    {
+      "name": "LOGBITP",
+      "required": 2
+    },
+    {
+      "name": "LOGCOUNT",
+      "required": 1
+    },
+    {
+      "name": "LOGEQV",
+      "required": 0
+    },
+    {
+      "name": "LOGICAL-PATHNAME",
+      "required": 1
+    },
+    {
+      "name": "LOGICAL-PATHNAME-TRANSLATIONS",
+      "required": 1
+    },
+    {
+      "name": "LOGIOR",
+      "required": 0
+    },
+    {
+      "name": "LOGNAND",
+      "required": 2
+    },
+    {
+      "name": "LOGNOR",
+      "required": 2
+    },
+    {
+      "name": "LOGNOT",
+      "required": 1
+    },
+    {
+      "name": "LOGORC1",
+      "required": 2
+    },
+    {
+      "name": "LOGORC2",
+      "required": 2
+    },
+    {
+      "name": "LOGTEST",
+      "required": 2
+    },
+    {
+      "name": "LOGXOR",
+      "required": 0
+    },
+    {
+      "name": "LONG-SITE-NAME",
+      "required": 0
+    },
+    {
+      "name": "LOWER-CASE-P",
+      "required": 1
+    },
+    {
+      "name": "MACHINE-INSTANCE",
+      "required": 0
+    },
+    {
+      "name": "MACHINE-TYPE",
+      "required": 0
+    },
+    {
+      "name": "MACHINE-VERSION",
+      "required": 0
+    },
+    {
+      "name": "MACRO-FUNCTION",
+      "required": 1
+    },
+    {
+      "name": "MACROEXPAND",
+      "required": 1
+    },
+    {
+      "name": "MACROEXPAND-1",
+      "required": 1
+    },
+    {
+      "name": "MAKE-ARRAY",
+      "required": 1
+    },
+    {
+      "name": "MAKE-BROADCAST-STREAM",
+      "required": 0
+    },
+    {
+      "name": "MAKE-CONCATENATED-STREAM",
+      "required": 0
+    },
+    {
+      "name": "MAKE-CONDITION",
+      "required": 1
+    },
+    {
+      "name": "MAKE-DISPATCH-MACRO-CHARACTER",
+      "required": 1
+    },
+    {
+      "name": "MAKE-ECHO-STREAM",
+      "required": 2
+    },
+    {
+      "name": "MAKE-HASH-TABLE",
+      "required": 0
+    },
+    {
+      "name": "MAKE-INSTANCE",
+      "required": 1
+    },
+    {
+      "name": "MAKE-INSTANCES-OBSOLETE",
+      "required": 1
+    },
+    {
+      "name": "MAKE-LIST",
+      "required": 1
+    },
+    {
+      "name": "MAKE-LOAD-FORM",
+      "required": 1
+    },
+    {
+      "name": "MAKE-LOAD-FORM-SAVING-SLOTS",
+      "required": 1
+    },
+    {
+      "name": "MAKE-PACKAGE",
+      "required": 1
+    },
+    {
+      "name": "MAKE-PATHNAME",
+      "required": 0
+    },
+    {
+      "name": "MAKE-RANDOM-STATE",
+      "required": 0
+    },
+    {
+      "name": "MAKE-SEQUENCE",
+      "required": 2
+    },
+    {
+      "name": "MAKE-STRING",
+      "required": 1
+    },
+    {
+      "name": "MAKE-STRING-INPUT-STREAM",
+      "required": 1
+    },
+    {
+      "name": "MAKE-STRING-OUTPUT-STREAM",
+      "required": 0
+    },
+    {
+      "name": "MAKE-SYMBOL",
+      "required": 1
+    },
+    {
+      "name": "MAKE-SYNONYM-STREAM",
+      "required": 1
+    },
+    {
+      "name": "MAKE-TWO-WAY-STREAM",
+      "required": 2
+    },
+    {
+      "name": "MAKUNBOUND",
+      "required": 1
+    },
+    {
+      "name": "MAP",
+      "required": 3
+    },
+    {
+      "name": "MAP-INTO",
+      "required": 2
+    },
+    {
+      "name": "MAPC",
+      "required": 2
+    },
+    {
+      "name": "MAPCAN",
+      "required": 2
+    },
+    {
+      "name": "MAPCAR",
+      "required": 2
+    },
+    {
+      "name": "MAPCON",
+      "required": 2
+    },
+    {
+      "name": "MAPHASH",
+      "required": 2
+    },
+    {
+      "name": "MAPL",
+      "required": 2
+    },
+    {
+      "name": "MAPLIST",
+      "required": 2
+    },
+    {
+      "name": "MASK-FIELD",
+      "required": 2
+    },
+    {
+      "name": "MAX",
+      "required": 1
+    },
+    {
+      "name": "MEMBER",
+      "required": 2
+    },
+    {
+      "name": "MEMBER-IF",
+      "required": 2
+    },
+    {
+      "name": "MEMBER-IF-NOT",
+      "required": 2
+    },
+    {
+      "name": "MERGE",
+      "required": 4
+    },
+    {
+      "name": "MERGE-PATHNAMES",
+      "required": 1
+    },
+    {
+      "name": "METHOD-COMBINATION-ERROR",
+      "required": 1
+    },
+    {
+      "name": "METHOD-QUALIFIERS",
+      "required": 1
+    },
+    {
+      "name": "MIN",
+      "required": 1
+    },
+    {
+      "name": "MINUSP",
+      "required": 1
+    },
+    {
+      "name": "MISMATCH",
+      "required": 2
+    },
+    {
+      "name": "MOD",
+      "required": 2
+    },
+    {
+      "name": "MUFFLE-WARNING",
+      "required": 0
+    },
+    {
+      "name": "NAME-CHAR",
+      "required": 1
+    },
+    {
+      "name": "NAMESTRING",
+      "required": 1
+    },
+    {
+      "name": "NBUTLAST",
+      "required": 1
+    },
+    {
+      "name": "NCONC",
+      "required": 0
+    },
+    {
+      "name": "NINTERSECTION",
+      "required": 2
+    },
+    {
+      "name": "NINTH",
+      "required": 1
+    },
+    {
+      "name": "NO-APPLICABLE-METHOD",
+      "required": 1
+    },
+    {
+      "name": "NO-NEXT-METHOD",
+      "required": 2
+    },
+    {
+      "name": "NOT",
+      "required": 1
+    },
+    {
+      "name": "NOTANY",
+      "required": 2
+    },
+    {
+      "name": "NOTEVERY",
+      "required": 2
+    },
+    {
+      "name": "NRECONC",
+      "required": 2
+    },
+    {
+      "name": "NREVERSE",
+      "required": 1
+    },
+    {
+      "name": "NSET-DIFFERENCE",
+      "required": 2
+    },
+    {
+      "name": "NSET-EXCLUSIVE-OR",
+      "required": 2
+    },
+    {
+      "name": "NSTRING-CAPITALIZE",
+      "required": 1
+    },
+    {
+      "name": "NSTRING-DOWNCASE",
+      "required": 1
+    },
+    {
+      "name": "NSTRING-UPCASE",
+      "required": 1
+    },
+    {
+      "name": "NSUBLIS",
+      "required": 2
+    },
+    {
+      "name": "NSUBST",
+      "required": 3
+    },
+    {
+      "name": "NSUBST-IF",
+      "required": 3
+    },
+    {
+      "name": "NSUBST-IF-NOT",
+      "required": 3
+    },
+    {
+      "name": "NSUBSTITUTE",
+      "required": 3
+    },
+    {
+      "name": "NSUBSTITUTE-IF",
+      "required": 3
+    },
+    {
+      "name": "NSUBSTITUTE-IF-NOT",
+      "required": 3
+    },
+    {
+      "name": "NTH",
+      "required": 2
+    },
+    {
+      "name": "NTHCDR",
+      "required": 2
+    },
+    {
+      "name": "NULL",
+      "required": 1
+    },
+    {
+      "name": "NUMBERP",
+      "required": 1
+    },
+    {
+      "name": "NUMERATOR",
+      "required": 1
+    },
+    {
+      "name": "NUNION",
+      "required": 2
+    },
+    {
+      "name": "ODDP",
+      "required": 1
+    },
+    {
+      "name": "OPEN",
+      "required": 1
+    },
+    {
+      "name": "OPEN-STREAM-P",
+      "required": 1
+    },
+    {
+      "name": "OUTPUT-STREAM-P",
+      "required": 1
+    },
+    {
+      "name": "PACKAGE-ERROR-PACKAGE",
+      "required": 1
+    },
+    {
+      "name": "PACKAGE-NAME",
+      "required": 1
+    },
+    {
+      "name": "PACKAGE-NICKNAMES",
+      "required": 1
+    },
+    {
+      "name": "PACKAGE-SHADOWING-SYMBOLS",
+      "required": 1
+    },
+    {
+      "name": "PACKAGE-USE-LIST",
+      "required": 1
+    },
+    {
+      "name": "PACKAGE-USED-BY-LIST",
+      "required": 1
+    },
+    {
+      "name": "PACKAGEP",
+      "required": 1
+    },
+    {
+      "name": "PAIRLIS",
+      "required": 2
+    },
+    {
+      "name": "PARSE-INTEGER",
+      "required": 1
+    },
+    {
+      "name": "PARSE-NAMESTRING",
+      "required": 1
+    },
+    {
+      "name": "PATHNAME",
+      "required": 1
+    },
+    {
+      "name": "PATHNAME-DEVICE",
+      "required": 1
+    },
+    {
+      "name": "PATHNAME-DIRECTORY",
+      "required": 1
+    },
+    {
+      "name": "PATHNAME-HOST",
+      "required": 1
+    },
+    {
+      "name": "PATHNAME-MATCH-P",
+      "required": 2
+    },
+    {
+      "name": "PATHNAME-NAME",
+      "required": 1
+    },
+    {
+      "name": "PATHNAME-TYPE",
+      "required": 1
+    },
+    {
+      "name": "PATHNAME-VERSION",
+      "required": 1
+    },
+    {
+      "name": "PATHNAMEP",
+      "required": 1
+    },
+    {
+      "name": "PEEK-CHAR",
+      "required": 0
+    },
+    {
+      "name": "PHASE",
+      "required": 1
+    },
+    {
+      "name": "PLUSP",
+      "required": 1
+    },
+    {
+      "name": "POSITION",
+      "required": 2
+    },
+    {
+      "name": "POSITION-IF",
+      "required": 2
+    },
+    {
+      "name": "POSITION-IF-NOT",
+      "required": 2
+    },
+    {
+      "name": "PPRINT",
+      "required": 1
+    },
+    {
+      "name": "PPRINT-DISPATCH",
+      "required": 1
+    },
+    {
+      "name": "PPRINT-FILL",
+      "required": 2
+    },
+    {
+      "name": "PPRINT-INDENT",
+      "required": 2
+    },
+    {
+      "name": "PPRINT-LINEAR",
+      "required": 2
+    },
+    {
+      "name": "PPRINT-NEWLINE",
+      "required": 1
+    },
+    {
+      "name": "PPRINT-TAB",
+      "required": 3
+    },
+    {
+      "name": "PPRINT-TABULAR",
+      "required": 2
+    },
+    {
+      "name": "PRIN1",
+      "required": 1
+    },
+    {
+      "name": "PRIN1-TO-STRING",
+      "required": 1
+    },
+    {
+      "name": "PRINC",
+      "required": 1
+    },
+    {
+      "name": "PRINC-TO-STRING",
+      "required": 1
+    },
+    {
+      "name": "PRINT",
+      "required": 1
+    },
+    {
+      "name": "PRINT-NOT-READABLE-OBJECT",
+      "required": 1
+    },
+    {
+      "name": "PRINT-OBJECT",
+      "required": 2
+    },
+    {
+      "name": "PROBE-FILE",
+      "required": 1
+    },
+    {
+      "name": "PROCLAIM",
+      "required": 1
+    },
+    {
+      "name": "PROVIDE",
+      "required": 1
+    },
+    {
+      "name": "RANDOM",
+      "required": 1
+    },
+    {
+      "name": "RANDOM-STATE-P",
+      "required": 1
+    },
+    {
+      "name": "RASSOC",
+      "required": 2
+    },
+    {
+      "name": "RASSOC-IF",
+      "required": 2
+    },
+    {
+      "name": "RASSOC-IF-NOT",
+      "required": 2
+    },
+    {
+      "name": "RATIONAL",
+      "required": 1
+    },
+    {
+      "name": "RATIONALIZE",
+      "required": 1
+    },
+    {
+      "name": "RATIONALP",
+      "required": 1
+    },
+    {
+      "name": "READ",
+      "required": 0
+    },
+    {
+      "name": "READ-BYTE",
+      "required": 1
+    },
+    {
+      "name": "READ-CHAR",
+      "required": 0
+    },
+    {
+      "name": "READ-CHAR-NO-HANG",
+      "required": 0
+    },
+    {
+      "name": "READ-DELIMITED-LIST",
+      "required": 1
+    },
+    {
+      "name": "READ-FROM-STRING",
+      "required": 1
+    },
+    {
+      "name": "READ-LINE",
+      "required": 0
+    },
+    {
+      "name": "READ-PRESERVING-WHITESPACE",
+      "required": 0
+    },
+    {
+      "name": "READ-SEQUENCE",
+      "required": 2
+    },
+    {
+      "name": "READTABLE-CASE",
+      "required": 1
+    },
+    {
+      "name": "READTABLEP",
+      "required": 1
+    },
+    {
+      "name": "REALP",
+      "required": 1
+    },
+    {
+      "name": "REALPART",
+      "required": 1
+    },
+    {
+      "name": "REDUCE",
+      "required": 2
+    },
+    {
+      "name": "REINITIALIZE-INSTANCE",
+      "required": 1
+    },
+    {
+      "name": "REM",
+      "required": 2
+    },
+    {
+      "name": "REMHASH",
+      "required": 2
+    },
+    {
+      "name": "REMOVE",
+      "required": 2
+    },
+    {
+      "name": "REMOVE-DUPLICATES",
+      "required": 1
+    },
+    {
+      "name": "REMOVE-IF",
+      "required": 2
+    },
+    {
+      "name": "REMOVE-IF-NOT",
+      "required": 2
+    },
+    {
+      "name": "REMOVE-METHOD",
+      "required": 2
+    },
+    {
+      "name": "REMPROP",
+      "required": 2
+    },
+    {
+      "name": "RENAME-FILE",
+      "required": 2
+    },
+    {
+      "name": "RENAME-PACKAGE",
+      "required": 2
+    },
+    {
+      "name": "REPLACE",
+      "required": 2
+    },
+    {
+      "name": "REQUIRE",
+      "required": 1
+    },
+    {
+      "name": "REST",
+      "required": 1
+    },
+    {
+      "name": "RESTART-NAME",
+      "required": 1
+    },
+    {
+      "name": "REVAPPEND",
+      "required": 2
+    },
+    {
+      "name": "REVERSE",
+      "required": 1
+    },
+    {
+      "name": "ROOM",
+      "required": 0
+    },
+    {
+      "name": "ROUND",
+      "required": 1
+    },
+    {
+      "name": "ROW-MAJOR-AREF",
+      "required": 2
+    },
+    {
+      "name": "RPLACA",
+      "required": 2
+    },
+    {
+      "name": "RPLACD",
+      "required": 2
+    },
+    {
+      "name": "SBIT",
+      "required": 1
+    },
+    {
+      "name": "SCALE-FLOAT",
+      "required": 2
+    },
+    {
+      "name": "SCHAR",
+      "required": 2
+    },
+    {
+      "name": "SEARCH",
+      "required": 2
+    },
+    {
+      "name": "SECOND",
+      "required": 1
+    },
+    {
+      "name": "SET",
+      "required": 2
+    },
+    {
+      "name": "SET-DIFFERENCE",
+      "required": 2
+    },
+    {
+      "name": "SET-DISPATCH-MACRO-CHARACTER",
+      "required": 3
+    },
+    {
+      "name": "SET-EXCLUSIVE-OR",
+      "required": 2
+    },
+    {
+      "name": "SET-MACRO-CHARACTER",
+      "required": 2
+    },
+    {
+      "name": "SET-PPRINT-DISPATCH",
+      "required": 2
+    },
+    {
+      "name": "SET-SYNTAX-FROM-CHAR",
+      "required": 2
+    },
+    {
+      "name": "SEVENTH",
+      "required": 1
+    },
+    {
+      "name": "SHADOW",
+      "required": 1
+    },
+    {
+      "name": "SHADOWING-IMPORT",
+      "required": 1
+    },
+    {
+      "name": "SHARED-INITIALIZE",
+      "required": 2
+    },
+    {
+      "name": "SHORT-SITE-NAME",
+      "required": 0
+    },
+    {
+      "name": "SIGNAL",
+      "required": 1
+    },
+    {
+      "name": "SIGNUM",
+      "required": 1
+    },
+    {
+      "name": "SIMPLE-BIT-VECTOR-P",
+      "required": 1
+    },
+    {
+      "name": "SIMPLE-CONDITION-FORMAT-ARGUMENTS",
+      "required": 1
+    },
+    {
+      "name": "SIMPLE-CONDITION-FORMAT-CONTROL",
+      "required": 1
+    },
+    {
+      "name": "SIMPLE-STRING-P",
+      "required": 1
+    },
+    {
+      "name": "SIMPLE-VECTOR-P",
+      "required": 1
+    },
+    {
+      "name": "SIN",
+      "required": 1
+    },
+    {
+      "name": "SINH",
+      "required": 1
+    },
+    {
+      "name": "SIXTH",
+      "required": 1
+    },
+    {
+      "name": "SLEEP",
+      "required": 1
+    },
+    {
+      "name": "SLOT-BOUNDP",
+      "required": 2
+    },
+    {
+      "name": "SLOT-EXISTS-P",
+      "required": 2
+    },
+    {
+      "name": "SLOT-MAKUNBOUND",
+      "required": 2
+    },
+    {
+      "name": "SLOT-MISSING",
+      "required": 4
+    },
+    {
+      "name": "SLOT-UNBOUND",
+      "required": 3
+    },
+    {
+      "name": "SLOT-VALUE",
+      "required": 2
+    },
+    {
+      "name": "SOFTWARE-TYPE",
+      "required": 0
+    },
+    {
+      "name": "SOFTWARE-VERSION",
+      "required": 0
+    },
+    {
+      "name": "SOME",
+      "required": 2
+    },
+    {
+      "name": "SORT",
+      "required": 2
+    },
+    {
+      "name": "SPECIAL-OPERATOR-P",
+      "required": 1
+    },
+    {
+      "name": "SQRT",
+      "required": 1
+    },
+    {
+      "name": "STABLE-SORT",
+      "required": 2
+    },
+    {
+      "name": "STANDARD-CHAR-P",
+      "required": 1
+    },
+    {
+      "name": "STORE-VALUE",
+      "required": 1
+    },
+    {
+      "name": "STREAM-ELEMENT-TYPE",
+      "required": 1
+    },
+    {
+      "name": "STREAM-ERROR-STREAM",
+      "required": 1
+    },
+    {
+      "name": "STREAM-EXTERNAL-FORMAT",
+      "required": 1
+    },
+    {
+      "name": "STREAMP",
+      "required": 1
+    },
+    {
+      "name": "STRING",
+      "required": 1
+    },
+    {
+      "name": "STRING-CAPITALIZE",
+      "required": 1
+    },
+    {
+      "name": "STRING-DOWNCASE",
+      "required": 1
+    },
+    {
+      "name": "STRING-EQUAL",
+      "required": 2
+    },
+    {
+      "name": "STRING-GREATERP",
+      "required": 2
+    },
+    {
+      "name": "STRING-LEFT-TRIM",
+      "required": 2
+    },
+    {
+      "name": "STRING-LESSP",
+      "required": 2
+    },
+    {
+      "name": "STRING-NOT-EQUAL",
+      "required": 2
+    },
+    {
+      "name": "STRING-NOT-GREATERP",
+      "required": 2
+    },
+    {
+      "name": "STRING-NOT-LESSP",
+      "required": 2
+    },
+    {
+      "name": "STRING-RIGHT-TRIM",
+      "required": 2
+    },
+    {
+      "name": "STRING-TRIM",
+      "required": 2
+    },
+    {
+      "name": "STRING-UPCASE",
+      "required": 1
+    },
+    {
+      "name": "STRING/=",
+      "required": 2
+    },
+    {
+      "name": "STRING<",
+      "required": 2
+    },
+    {
+      "name": "STRING<=",
+      "required": 2
+    },
+    {
+      "name": "STRING=",
+      "required": 2
+    },
+    {
+      "name": "STRING>",
+      "required": 2
+    },
+    {
+      "name": "STRING>=",
+      "required": 2
+    },
+    {
+      "name": "STRINGP",
+      "required": 1
+    },
+    {
+      "name": "SUBLIS",
+      "required": 2
+    },
+    {
+      "name": "SUBSEQ",
+      "required": 2
+    },
+    {
+      "name": "SUBSETP",
+      "required": 2
+    },
+    {
+      "name": "SUBST",
+      "required": 3
+    },
+    {
+      "name": "SUBST-IF",
+      "required": 3
+    },
+    {
+      "name": "SUBST-IF-NOT",
+      "required": 3
+    },
+    {
+      "name": "SUBSTITUTE",
+      "required": 3
+    },
+    {
+      "name": "SUBSTITUTE-IF",
+      "required": 3
+    },
+    {
+      "name": "SUBSTITUTE-IF-NOT",
+      "required": 3
+    },
+    {
+      "name": "SUBTYPEP",
+      "required": 2
+    },
+    {
+      "name": "SVREF",
+      "required": 2
+    },
+    {
+      "name": "SXHASH",
+      "required": 1
+    },
+    {
+      "name": "SYMBOL-FUNCTION",
+      "required": 1
+    },
+    {
+      "name": "SYMBOL-NAME",
+      "required": 1
+    },
+    {
+      "name": "SYMBOL-PACKAGE",
+      "required": 1
+    },
+    {
+      "name": "SYMBOL-PLIST",
+      "required": 1
+    },
+    {
+      "name": "SYMBOL-VALUE",
+      "required": 1
+    },
+    {
+      "name": "SYMBOLP",
+      "required": 1
+    },
+    {
+      "name": "SYNONYM-STREAM-SYMBOL",
+      "required": 1
+    },
+    {
+      "name": "TAILP",
+      "required": 2
+    },
+    {
+      "name": "TAN",
+      "required": 1
+    },
+    {
+      "name": "TANH",
+      "required": 1
+    },
+    {
+      "name": "TENTH",
+      "required": 1
+    },
+    {
+      "name": "TERPRI",
+      "required": 0
+    },
+    {
+      "name": "THIRD",
+      "required": 1
+    },
+    {
+      "name": "TRANSLATE-LOGICAL-PATHNAME",
+      "required": 1
+    },
+    {
+      "name": "TRANSLATE-PATHNAME",
+      "required": 3
+    },
+    {
+      "name": "TREE-EQUAL",
+      "required": 2
+    },
+    {
+      "name": "TRUENAME",
+      "required": 1
+    },
+    {
+      "name": "TRUNCATE",
+      "required": 1
+    },
+    {
+      "name": "TWO-WAY-STREAM-INPUT-STREAM",
+      "required": 1
+    },
+    {
+      "name": "TWO-WAY-STREAM-OUTPUT-STREAM",
+      "required": 1
+    },
+    {
+      "name": "TYPE-ERROR-DATUM",
+      "required": 1
+    },
+    {
+      "name": "TYPE-ERROR-EXPECTED-TYPE",
+      "required": 1
+    },
+    {
+      "name": "TYPE-OF",
+      "required": 1
+    },
+    {
+      "name": "TYPEP",
+      "required": 2
+    },
+    {
+      "name": "UNBOUND-SLOT-INSTANCE",
+      "required": 1
+    },
+    {
+      "name": "UNEXPORT",
+      "required": 1
+    },
+    {
+      "name": "UNINTERN",
+      "required": 1
+    },
+    {
+      "name": "UNION",
+      "required": 2
+    },
+    {
+      "name": "UNREAD-CHAR",
+      "required": 1
+    },
+    {
+      "name": "UNUSE-PACKAGE",
+      "required": 1
+    },
+    {
+      "name": "UPDATE-INSTANCE-FOR-DIFFERENT-CLASS",
+      "required": 2
+    },
+    {
+      "name": "UPDATE-INSTANCE-FOR-REDEFINED-CLASS",
+      "required": 4
+    },
+    {
+      "name": "UPGRADED-ARRAY-ELEMENT-TYPE",
+      "required": 1
+    },
+    {
+      "name": "UPGRADED-COMPLEX-PART-TYPE",
+      "required": 1
+    },
+    {
+      "name": "UPPER-CASE-P",
+      "required": 1
+    },
+    {
+      "name": "USE-PACKAGE",
+      "required": 1
+    },
+    {
+      "name": "USE-VALUE",
+      "required": 1
+    },
+    {
+      "name": "USER-HOMEDIR-PATHNAME",
+      "required": 0
+    },
+    {
+      "name": "VALUES",
+      "required": 0
+    },
+    {
+      "name": "VALUES-LIST",
+      "required": 1
+    },
+    {
+      "name": "VECTOR",
+      "required": 0
+    },
+    {
+      "name": "VECTOR-POP",
+      "required": 1
+    },
+    {
+      "name": "VECTOR-PUSH",
+      "required": 2
+    },
+    {
+      "name": "VECTOR-PUSH-EXTEND",
+      "required": 2
+    },
+    {
+      "name": "VECTORP",
+      "required": 1
+    },
+    {
+      "name": "WARN",
+      "required": 1
+    },
+    {
+      "name": "WILD-PATHNAME-P",
+      "required": 1
+    },
+    {
+      "name": "WRITE",
+      "required": 1
+    },
+    {
+      "name": "WRITE-BYTE",
+      "required": 2
+    },
+    {
+      "name": "WRITE-CHAR",
+      "required": 1
+    },
+    {
+      "name": "WRITE-LINE",
+      "required": 1
+    },
+    {
+      "name": "WRITE-SEQUENCE",
+      "required": 2
+    },
+    {
+      "name": "WRITE-STRING",
+      "required": 1
+    },
+    {
+      "name": "WRITE-TO-STRING",
+      "required": 1
+    },
+    {
+      "name": "Y-OR-N-P",
+      "required": 0
+    },
+    {
+      "name": "YES-OR-NO-P",
+      "required": 0
+    },
+    {
+      "name": "ZEROP",
+      "required": 1
+    }
+  ]
+}

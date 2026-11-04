@@ -68,6 +68,20 @@
         "vendor/logtalk/**"
       ],
       "modifications": "Object/fixture wrappers removed; case adaptations in cases.json; NOTICE paths updated."
+    },
+    {
+      "name": "1am",
+      "source": "https://github.com/lmj/1am",
+      "revision": "8b1da94eca4613fd8a20bdf63f0e609e379b0ba5",
+      "relationship": "source adaptation",
+      "license": "MIT",
+      "license_files": [
+        "licenses/1am-MIT.txt"
+      ],
+      "paths": [
+        "src/test.lisp"
+      ],
+      "modifications": "Package-inferred ooparts/test namespace; ordered nested suites, descriptive checks, ASSERT-compatible diagnostic arguments, test output/progress control and optional UIOP subprocess checks. Original API and copyright/permission header retained."
     }
   ],
   "references": [
@@ -206,6 +220,14 @@
       "reviewed_source_revision": "213ab2b52a1b0c0b496efd30c3b5143f5c8e1ff2",
       "reviewed_on": "2026-11-04",
       "note": "The reviewed revision identifies the source checked for this attribution, not a documented import or original consultation revision. The exact initial consultation revision was not recorded. The cl-advice subdirectory license was checked separately from the mixed-origin root license."
+    },
+    {
+      "name": "SBCL standard function signature metadata",
+      "source": "https://www.sbcl.org/manual/",
+      "version": "2.6.8",
+      "relationship": "Required-arity interface data obtained using SB-INTROSPECT:FUNCTION-LAMBDA-LIST to bootstrap the reviewed standard-function catalog. No SBCL implementation source copied or runtime dependency introduced.",
+      "license": "NOASSERTION",
+      "note": "The distributed catalog contains standard interface names and required counts; runtime source generation is portable Common Lisp."
     }
   ],
   "optional_external_tools": [

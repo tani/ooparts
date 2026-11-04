@@ -1,0 +1,27 @@
+;;;; Fresh-process check: macros and their clients in one compilation unit.
+(require "asdf")
+(let* ((root (merge-pathnames "../../"
+                             (uiop:pathname-directory-pathname *load-truename*)))
+       (source (merge-pathnames "same-unit.lisp"
+                                (or (uiop:getenv "OOPARTS_CURRY_BUILD_DIRECTORY")
+                                    (merge-pathnames "build/curry/" root))))
+       (warnings 0))
+  (ensure-directories-exist source)
+  (with-open-file (out source :direction :output :if-exists :supersede)
+    (with-open-file (in (merge-pathnames "src/curry/core.lisp" root))
+      (loop for character = (read-char in nil nil)
+            while character do (write-char character out)))
+    (terpri out)
+    (write-string "(defun/c same-unit-add (x y) (+ x y))" out)
+    (terpri out)
+    (write-string "(assert (= 3 (funcall (same-unit-add 1) 2)))" out))
+  (multiple-value-bind (output warnings-p failure-p)
+      (handler-bind ((warning (lambda (condition)
+                                (declare (ignore condition))
+                                (incf warnings))))
+        (compile-file source))
+    (when (or warnings-p failure-p (plusp warnings))
+      (error "Curry compilation failed: warnings=~D, warnings-p=~S, failure-p=~S"
+             warnings warnings-p failure-p))
+    (load output))
+  (format t "~&Curry same-unit compilation passed without warnings.~%"))

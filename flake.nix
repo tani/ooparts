@@ -39,6 +39,8 @@
             flags = [ "-norc" "-load" "${./tools/advice/mkcl-gnu11.lisp}" ];
           } else pkgs.${impl};
           components = {
+            curry = { library = "ooparts/curry"; tests = "ooparts-tests/curry"; };
+            test = { library = "ooparts/test"; tests = "ooparts-tests/test"; };
             readline = { library = "ooparts/readline"; tests = "ooparts-tests/readline"; };
             advice = { library = "ooparts/advice"; tests = "ooparts-tests/advice"; };
             curses = { library = "ooparts/curses"; tests = "ooparts-tests/curses"; };
@@ -62,6 +64,7 @@
                 version = "0.2.0";
                 inherit src;
                 systems = [ settings.library settings.tests ]
+                  ++ lib.optionals (component == "curry" || component == "all") [ "ooparts/curry/user" ]
                   ++ lib.optionals (component == "prolog" || component == "all") [ "ooparts/prolog/text/cli" ]
                   ++ lib.optionals (component == "sat" || component == "all") [ "ooparts/sat/cli" ];
                 lispLibs = [];
@@ -82,11 +85,12 @@
               repl = pkgs.writeShellScriptBin "ooparts-repl" ''
                 exec ${runtime}/bin/${options.program} ${options.args} \
                   ${options.eval} '(require "asdf")' \
-                  ${options.eval} '(asdf:load-system "${settings.library}")' \
-                  ${lib.optionalString (impl == "clisp") "-repl"} "$@"
+                  ${options.eval} '(asdf:load-system "${if component == "curry" then "ooparts/curry/user" else settings.library}")' \
+                  ${lib.optionalString (component == "curry") ''${options.eval} '(ooparts/curry/user:enter)' \
+                  ''}${lib.optionalString (impl == "clisp") "-repl"} "$@"
               '';
               check = pkgs.runCommand "ooparts-test-${component}-${impl}" {
-                nativeBuildInputs = lib.optionals (builtins.elem component [ "curses" "readline" ]) [ pkgs.python3 ];
+                nativeBuildInputs = lib.optionals (builtins.elem component [ "curses" "readline" "curry" "all" ]) [ pkgs.python3 ];
               } ''
                 export XDG_CACHE_HOME="$TMPDIR/asdf-cache"
                 ${lib.optionalString (component == "continuation" || component == "all") ''
@@ -100,6 +104,13 @@
                   done
                 ''}
                 ${test}/bin/ooparts-test
+                ${lib.optionalString (component == "curry" || component == "all") ''
+                  python3 ${src}/tools/curry/generate-cl.py --check
+                  export OOPARTS_CURRY_BUILD_DIRECTORY="$TMPDIR/curry/"
+                  ${runtime}/bin/${options.program} ${options.args} \
+                    ${options.eval} '(load "${src}/tools/curry/compile-clean.lisp")' \
+                    ${options.eval} '(uiop:quit 0)'
+                ''}
                 ${lib.optionalString (component == "curses") ''
                   export JAVA_TOOL_OPTIONS="--add-modules=jdk.incubator.foreign --enable-native-access=ALL-UNNAMED"
                   cp -R ${src} source

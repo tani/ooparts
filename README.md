@@ -13,6 +13,8 @@ behavior, limitations and validation results.
 |---|---|---|
 | Advice | `ooparts/advice` | [README](docs/advice/README.md) |
 | Continuation | `ooparts/continuation` | [README](docs/continuation/README.md) |
+| Curry | `ooparts/curry` | [README](docs/curry/README.md) |
+| Test | `ooparts/test` | [README](docs/test/README.md) |
 | Curses | `ooparts/curses` | [README](docs/curses/README.md) |
 | Readline | `ooparts/readline` | [README](docs/readline/README.md) |
 | Prolog | `ooparts/prolog` | [README](docs/prolog/README.md) |

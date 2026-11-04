@@ -9,6 +9,7 @@ that its implementation was copied or that its license applies to OOPArts.
 
 | Distributed material | Source/version | License and retained notices |
 |---|---|---|
+| Shared test framework | [1am](https://github.com/lmj/1am), `8b1da94eca4613fd8a20bdf63f0e609e379b0ba5` | [MIT and original copyright](licenses/1am-MIT.txt) |
 | SAT engine/layout, original C, upstream CNFs | [SATCH](https://github.com/arminbiere/satch), `b4d4081f8971931399b36c8fdd92bdf4aabac005`, 0.5.6rc | [MIT](licenses/satch-MIT.txt), [port notice](licenses/satch-NOTICE.txt) |
 | Prolog library imported into OOPArts | [cons-prolog](https://github.com/tani/cons-prolog), imported version 0.10.0 | [MIT](licenses/cons-prolog-MIT.txt), Masaya Taniguchi |
 | Original and ported ISO examples | [Logtalk](https://github.com/LogtalkDotOrg/logtalk3), `e0f2576eef32aa5d5732a0d47531d0f62b9a31f1` | [Apache-2.0](vendor/logtalk/original/LICENSE.txt), [original notice](vendor/logtalk/original/NOTICE.txt), [port notice](vendor/logtalk/ported/NOTICE.txt) |

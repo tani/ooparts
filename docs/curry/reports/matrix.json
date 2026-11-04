@@ -1,0 +1,234 @@
+[
+  {
+    "implementation": "abcl",
+    "check": "compiler",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry same-unit compilation passed without warnings."
+    ]
+  },
+  {
+    "implementation": "abcl",
+    "check": "curry",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry: 4313 checks on Armed Bear Common Lisp 1.9.3",
+      "Success: 1 test, 4313 checks."
+    ]
+  },
+  {
+    "implementation": "abcl",
+    "check": "framework",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "ooparts/test regression suite passed.",
+      "Success: 1 test, 38 checks."
+    ]
+  },
+  {
+    "implementation": "ccl",
+    "check": "compiler",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry same-unit compilation passed without warnings."
+    ]
+  },
+  {
+    "implementation": "ccl",
+    "check": "curry",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry: 4313 checks on Clozure Common Lisp Version 1.13  LinuxX8664",
+      "Success: 1 test, 4313 checks."
+    ]
+  },
+  {
+    "implementation": "ccl",
+    "check": "framework",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "ooparts/test regression suite passed.",
+      "Success: 1 test, 38 checks."
+    ]
+  },
+  {
+    "implementation": "clasp",
+    "check": "compiler",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry same-unit compilation passed without warnings."
+    ]
+  },
+  {
+    "implementation": "clasp",
+    "check": "curry",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry: 4313 checks on clasp clasp-boehmprecise-3.0.1-non-cst",
+      "Success: 1 test, 4313 checks."
+    ]
+  },
+  {
+    "implementation": "clasp",
+    "check": "framework",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "ooparts/test regression suite passed.",
+      "Success: 1 test, 38 checks."
+    ]
+  },
+  {
+    "implementation": "clisp",
+    "check": "compiler",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry same-unit compilation passed without warnings."
+    ]
+  },
+  {
+    "implementation": "clisp",
+    "check": "curry",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry: 4313 checks on CLISP 2.49.95+ (2024-11-03) (built on localhost [127.0.0.1])",
+      "Success: 1 test, 4313 checks."
+    ]
+  },
+  {
+    "implementation": "clisp",
+    "check": "framework",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "ooparts/test regression suite passed.",
+      "Success: 1 test, 38 checks."
+    ]
+  },
+  {
+    "implementation": "cmucl",
+    "check": "compiler",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry same-unit compilation passed without warnings."
+    ]
+  },
+  {
+    "implementation": "cmucl",
+    "check": "curry",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry: 4313 checks on CMU Common Lisp 21d (21D Unicode)",
+      "Success: 1 test, 4313 checks."
+    ]
+  },
+  {
+    "implementation": "cmucl",
+    "check": "framework",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "ooparts/test regression suite passed.",
+      "Success: 1 test, 38 checks."
+    ]
+  },
+  {
+    "implementation": "ecl",
+    "check": "compiler",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry same-unit compilation passed without warnings."
+    ]
+  },
+  {
+    "implementation": "ecl",
+    "check": "curry",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry: 4313 checks on ECL 26.5.5",
+      "Success: 1 test, 4313 checks."
+    ]
+  },
+  {
+    "implementation": "ecl",
+    "check": "framework",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "ooparts/test regression suite passed.",
+      "Success: 1 test, 38 checks."
+    ]
+  },
+  {
+    "implementation": "mkcl",
+    "check": "compiler",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry same-unit compilation passed without warnings."
+    ]
+  },
+  {
+    "implementation": "mkcl",
+    "check": "curry",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry: 4313 checks on MKCL 1.1.11",
+      "Success: 1 test, 4313 checks."
+    ]
+  },
+  {
+    "implementation": "mkcl",
+    "check": "framework",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "ooparts/test regression suite passed.",
+      "Success: 1 test, 38 checks."
+    ]
+  },
+  {
+    "implementation": "sbcl",
+    "check": "compiler",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry same-unit compilation passed without warnings."
+    ]
+  },
+  {
+    "implementation": "sbcl",
+    "check": "curry",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "Curry: 4313 checks on SBCL 2.6.8",
+      "Success: 1 test, 4313 checks."
+    ]
+  },
+  {
+    "implementation": "sbcl",
+    "check": "framework",
+    "passed": true,
+    "exit_code": 0,
+    "summary": [
+      "ooparts/test regression suite passed.",
+      "Success: 1 test, 38 checks."
+    ]
+  }
+]

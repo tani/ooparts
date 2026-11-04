@@ -6,11 +6,13 @@
       (lisp:stream-external-format system:*stdout*) :utf-8)
 (unless (ooparts/curses/ffi:native-available-p)
   (format t "~&READLINE-NATIVE-UNAVAILABLE~%") (uiop:quit 77))
+(defparameter *checkpoint-fd* (parse-integer (uiop:getenv "OOPARTS_READLINE_CHECKPOINT_FD")))
 (defun checkpoint ()
-  ;; Read the harness acknowledgement directly: some host REPL streams suppress
-  ;; empty cooked lines. This is test synchronization, not the editor backend.
+  ;; Synchronize on a separate pipe. Reading acknowledgements from the TTY can
+  ;; process pending cooked input and change kernel-owned terminal flags.
   (ooparts/curses/ffi:with-memory (pointer 1)
-    (assert (= 1 (ooparts/curses/ffi:native-call "read" :long :int 0 :pointer pointer :ulong 1)))))
+    (assert (= 1 (ooparts/curses/ffi:native-call "read" :long :int *checkpoint-fd*
+                                               :pointer pointer :ulong 1)))))
 (format t "~&READLINE-STREAMS ~S ~S~%" (interactive-stream-p *standard-input*) (interactive-stream-p *standard-output*))
 (format t "~&READLINE-BASELINE~%") (finish-output)
 (checkpoint)

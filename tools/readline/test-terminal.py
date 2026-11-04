@@ -21,12 +21,15 @@ def main():
     add_lisp_arguments(parser)
     args = parser.parse_args()
     master, slave = os.openpty()
+    checkpoint_read, checkpoint_write = os.pipe()
     fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 40, 0, 0))
     transcript = bytearray()
     position = 0
     with lisp_command(ROOT / 'tools/readline/native.lisp', **options(args)) as command:
         child = subprocess.Popen(command, cwd=ROOT, stdin=slave, stdout=slave, stderr=slave,
-                                 env=dict(os.environ, TERM='xterm-256color', LANG='C.UTF-8', LC_ALL='C.UTF-8'))
+                                 pass_fds=(checkpoint_read,),
+                                 env=dict(os.environ, TERM='xterm-256color', LANG='C.UTF-8', LC_ALL='C.UTF-8',
+                                          OOPARTS_READLINE_CHECKPOINT_FD=str(checkpoint_read)))
         def expect(marker, timeout=180):
             nonlocal position
             deadline = time.monotonic() + timeout
@@ -58,7 +61,7 @@ def main():
                 print(f'{args.implementation}: native FFI unavailable; portable checks are separate')
                 return
             baseline = termios.tcgetattr(slave)
-            os.write(master, b'\n')
+            os.write(checkpoint_write, b'q')
             for i, (keys, result) in enumerate(cases):
                 expect(f'CASE-{i}'.encode())
                 deadline = time.monotonic() + 60
@@ -74,8 +77,9 @@ def main():
                 os.write(master, keys)
                 expect(result)
                 expect(f'RESTORED-{i}'.encode())
-                assert termios.tcgetattr(slave) == baseline, f'TTY not restored after case {i}'
-                os.write(master, b'\n')
+                restored = termios.tcgetattr(slave)
+                assert restored == baseline, ('TTY not restored', i, baseline, restored)
+                os.write(checkpoint_write, b'q')
             expect(b'READLINE-PTY-COMPLETE')
             child.wait(timeout=20)
             assert child.returncode == 0, child.returncode
@@ -83,6 +87,9 @@ def main():
             assert b'\x1b[2J' not in transcript, 'Inline input erased the existing screen'
             assert b'\x1b[?2004h' in transcript and b'\x1b[?2004l' in transcript
             print(f'{args.implementation}: 10 PTY scenarios, Curses state and TTY restoration passed')
+        except BaseException:
+            print(transcript.decode(errors='replace')[-8000:], file=sys.stderr)
+            raise
         finally:
             if child.poll() is None:
                 child.kill()
@@ -92,6 +99,8 @@ def main():
             (directory / f'pty-{args.implementation}.log').write_bytes(transcript)
             os.close(master)
             os.close(slave)
+            os.close(checkpoint_read)
+            os.close(checkpoint_write)
 
 if __name__ == '__main__':
     main()

@@ -32,6 +32,7 @@
           ) implementations;
           lispFor = impl: if impl == "abcl" then pkgs.abcl.override { jdk = pkgs.jdk17; } else pkgs.${impl};
           components = {
+            test = { library = "ooparts/test"; tests = "ooparts-tests/test"; };
             curses = { library = "ooparts/curses"; tests = "ooparts-tests/curses"; };
             prolog = { library = "ooparts/prolog"; tests = "ooparts-tests/prolog"; };
             continuation = { library = "ooparts/continuation"; tests = "ooparts-tests/continuation"; };
@@ -140,7 +141,7 @@
             } // lib.optionalAttrs (recipes ? sat-sbcl) {
               sat = cliApp "sat" "ooparts/sat/cli";
             };
-          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || lib.hasPrefix "curses-" name || (builtins.elem name [ "prolog-mkcl" "sat-mkcl" "regexp-mkcl" ])) recipes)
+          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || lib.hasPrefix "curses-" name || lib.hasPrefix "test-" name || (builtins.elem name [ "prolog-mkcl" "sat-mkcl" "regexp-mkcl" ])) recipes)
             // {
               layout = pkgs.runCommand "ooparts-layout-and-licenses" {
                 nativeBuildInputs = [ pkgs.python3 ];

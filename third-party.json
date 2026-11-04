@@ -68,6 +68,20 @@
         "vendor/logtalk/**"
       ],
       "modifications": "Object/fixture wrappers removed; case adaptations in cases.json; NOTICE paths updated."
+    },
+    {
+      "name": "1am",
+      "source": "https://github.com/lmj/1am",
+      "revision": "8b1da94eca4613fd8a20bdf63f0e609e379b0ba5",
+      "relationship": "source adaptation",
+      "license": "MIT",
+      "license_files": [
+        "licenses/1am-MIT.txt"
+      ],
+      "paths": [
+        "src/test.lisp"
+      ],
+      "modifications": "Package renamed to ooparts/test and defined with uiop:define-package for package-inferred ASDF loading; upstream implementation and copyright notice retained."
     }
   ],
   "references": [

@@ -1,5 +1,6 @@
 (uiop:define-package #:ooparts/all
   (:use #:cl)
+  (:import-from #:ooparts/test)
   (:import-from #:ooparts/curses)
   (:import-from #:ooparts/continuation)
   (:import-from #:ooparts/prolog)

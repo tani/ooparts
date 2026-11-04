@@ -39,6 +39,7 @@
             flags = [ "-norc" "-load" "${./tools/advice/mkcl-gnu11.lisp}" ];
           } else pkgs.${impl};
           components = {
+            readline = { library = "ooparts/readline"; tests = "ooparts-tests/readline"; };
             advice = { library = "ooparts/advice"; tests = "ooparts-tests/advice"; };
             curses = { library = "ooparts/curses"; tests = "ooparts-tests/curses"; };
             prolog = { library = "ooparts/prolog"; tests = "ooparts-tests/prolog"; };
@@ -85,7 +86,7 @@
                   ${lib.optionalString (impl == "clisp") "-repl"} "$@"
               '';
               check = pkgs.runCommand "ooparts-test-${component}-${impl}" {
-                nativeBuildInputs = lib.optionals (component == "curses") [ pkgs.python3 ];
+                nativeBuildInputs = lib.optionals (builtins.elem component [ "curses" "readline" ]) [ pkgs.python3 ];
               } ''
                 export XDG_CACHE_HOME="$TMPDIR/asdf-cache"
                 ${lib.optionalString (component == "continuation" || component == "all") ''
@@ -110,6 +111,16 @@
                     else if impl == "clasp-common-lisp" then "clasp" else impl
                   } --lisp ${runtime}/bin/${options.program}
                   python3 tools/curses/test-terminal.py --implementation ${
+                    if impl == "cmucl_binary" then "cmucl"
+                    else if impl == "clasp-common-lisp" then "clasp" else impl
+                  } --lisp ${runtime}/bin/${options.program}
+                ''}
+                ${lib.optionalString (component == "readline") ''
+                  export JAVA_TOOL_OPTIONS="--add-modules=jdk.incubator.foreign --enable-native-access=ALL-UNNAMED"
+                  cp -R ${src} source
+                  chmod -R u+w source
+                  cd source
+                  python3 tools/readline/test-terminal.py --implementation ${
                     if impl == "cmucl_binary" then "cmucl"
                     else if impl == "clasp-common-lisp" then "clasp" else impl
                   } --lisp ${runtime}/bin/${options.program}
@@ -148,7 +159,7 @@
             } // lib.optionalAttrs (recipes ? sat-sbcl) {
               sat = cliApp "sat" "ooparts/sat/cli";
             };
-          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || lib.hasPrefix "curses-" name || (builtins.elem name [ "prolog-mkcl" "sat-mkcl" "regexp-mkcl" ])) recipes)
+          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || lib.hasPrefix "curses-" name || lib.hasPrefix "readline-" name || (builtins.elem name [ "prolog-mkcl" "sat-mkcl" "regexp-mkcl" ])) recipes)
             // {
               layout = pkgs.runCommand "ooparts-layout-and-licenses" {
                 nativeBuildInputs = [ pkgs.python3 ];

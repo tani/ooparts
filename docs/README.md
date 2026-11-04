@@ -10,6 +10,7 @@ start. This page indexes the detailed documentation.
 | Advice | [docs/advice/README.md](advice/README.md) | Modern advice API and cross-implementation behavior |
 | Continuation | [docs/continuation/README.md](continuation/README.md) | Single-prompt `shift`/`reset`, capture and reinstatement semantics |
 | Curses | [docs/curses/README.md](curses/README.md) | VT100/xterm terminal UI |
+| Readline | [docs/readline/README.md](readline/README.md) | Inline line editing through Curses |
 | Prolog | [docs/prolog/README.md](prolog/README.md) | Stack-safe S-expression Prolog, DCGs, tabling, WAM-derived execution |
 | SAT | [docs/sat/README.md](sat/README.md) | Translated SATCH solver with resource-managed storage |
 | regexp | [docs/regexp/README.md](regexp/README.md) | POSIX.1-2024 extended regular expressions in portable Common Lisp |

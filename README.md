@@ -14,6 +14,7 @@ behavior, limitations and validation results.
 | Advice | `ooparts/advice` | [README](docs/advice/README.md) |
 | Continuation | `ooparts/continuation` | [README](docs/continuation/README.md) |
 | Curses | `ooparts/curses` | [README](docs/curses/README.md) |
+| Readline | `ooparts/readline` | [README](docs/readline/README.md) |
 | Prolog | `ooparts/prolog` | [README](docs/prolog/README.md) |
 | SAT | `ooparts/sat` | [README](docs/sat/README.md) |
 | regexp | `ooparts/regexp` | [README](docs/regexp/README.md) |

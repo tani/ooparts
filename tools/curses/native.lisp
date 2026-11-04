@@ -1,6 +1,18 @@
 (require "asdf")
 (asdf:load-asd (truename "ooparts.asd"))
 (asdf:load-system "ooparts/curses")
+;; CMUCL defaults to Latin-1 independently of LANG. Configure the character
+;; streams explicitly, as required by the UTF-8 terminal API contract.
+#+cmucl
+(setf (lisp:stream-external-format system:*stdin*) :utf-8
+      (lisp:stream-external-format system:*stdout*) :utf-8)
+(unless (ooparts/curses/ffi:native-available-p)
+  (format t "~&CURSES-NATIVE-UNAVAILABLE: host built without FFI support~%")
+  (uiop:quit 77))
+;; Sample after runtime initialization: some hosts adjust their own TTY flags.
+;; The library must restore its entry state, independently of host startup/exit.
+(format t "~&CURSES-BASELINE~%") (force-output)
+(read-char *standard-input*)
 (let ((caught nil))
   (handler-case
       (ooparts/curses:with-screen (:input *standard-input* :output *standard-output*)
@@ -37,4 +49,5 @@
     (error (condition)
       (if (search "deliberate-unwind" (princ-to-string condition)) (setf caught t) (error condition))))
   (assert caught)
-  (format t "~&CURSES-RESTORED~%") (force-output))
+  (format t "~&CURSES-RESTORED~%") (force-output)
+  (read-char *standard-input*))

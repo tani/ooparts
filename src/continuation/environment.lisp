@@ -15,15 +15,18 @@
 
 #+clasp
 (defun clasp-binding-information (name environment variablep)
-  ;; Legacy Clasp's Cleavir bridge accepts NIL global environments as well as
-  ;; native bytecode lexical environments, without forcing optional metadata.
-  (let* ((package (find-package "CLEAVIR-ENV"))
+  ;; Modern Clasp's native query accepts CLTL2 NIL contexts. The older Cleavir
+  ;; bridge uses its own environment objects and cannot consume that NIL value.
+  (let* ((native (find-symbol (if variablep "VAR-INFO" "FUN-INFO") "CMP"))
+         (package (find-package "CLEAVIR-ENV"))
          (accessor (and package (find-symbol (if variablep "VARIABLE-INFO" "FUNCTION-INFO") package))))
-    (if (and accessor (fboundp accessor))
+    (if (and native (fboundp native))
+        (funcall native name environment)
         (funcall accessor
                  (symbol-value (find-symbol "*CLASP-SYSTEM*" "CLASP-CLEAVIR"))
-                 environment name)
-        (uiop:symbol-call :cmp (if variablep :var-info :fun-info) name environment))))
+                 (or environment
+                     (symbol-value (find-symbol "*CLASP-ENV*" "CLASP-CLEAVIR")))
+                 name))))
 
 #+clasp
 (defun clasp-information-p (information modern legacy)

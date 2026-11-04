@@ -48,7 +48,15 @@ Two explicit profiles are provided:
   SGR mouse reports and bracketed paste. A terminal must support the requested
   extensions; the profile is an explicit capability contract, not auto-detection.
 
-UTF-8 must be configured for the Lisp's character streams. An original hardware
+Native CLISP terminals require a host built with the `:ffi` feature. The locked
+Nixpkgs macOS CLISP is built without FFI: the library and stream renderer still
+load and run, but native terminal operations report that limitation. The native
+PTY probe reports this configuration as unavailable separately from API and
+stream-feature coverage; it does not count it as a native-terminal pass.
+
+UTF-8 must be configured for the Lisp's character streams. CMUCL defaults to
+Latin-1 independently of the locale, so the native test fixture sets its standard
+FD streams to UTF-8 explicitly. An original hardware
 VT100 does not support Unicode; use its supported character repertoire there.
 
 ## Usage

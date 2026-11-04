@@ -1,8 +1,13 @@
 ;;; Minimal host FFI adapter. No foreign portability library is loaded.
 (uiop:define-package #:ooparts/curses/ffi
   (:use #:cl)
-  (:export #:native-call #:allocate #:deallocate #:octet #:with-memory))
+  (:export #:native-available-p #:native-call #:allocate #:deallocate #:octet #:with-memory))
 (in-package #:ooparts/curses/ffi)
+
+(defun native-available-p ()
+  "Whether this host was built with the interfaces needed for native terminals."
+  #+(and clisp (not ffi)) nil
+  #-(and clisp (not ffi)) t)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun host-type (type)
@@ -17,7 +22,7 @@
                     (:pointer :address) (:void :void))
     #+(or ecl mkcl) (ecase type (:long :long) (:int :int) (:uint :unsigned-int)
                                (:ulong :unsigned-long) (:pointer :pointer-void) (:void :void))
-    #+clisp (ecase type (:long 'ffi:long) (:int 'ffi:int) (:uint 'ffi:uint)
+    #+(and clisp ffi) (ecase type (:long 'ffi:long) (:int 'ffi:int) (:uint 'ffi:uint)
                        (:ulong 'ffi:ulong) (:pointer 'ffi:c-pointer) (:void nil))
     #+clasp (ecase type (:long :long) (:int :int) (:uint :unsigned-int)
                        (:ulong :unsigned-long) (:pointer :pointer) (:void :void))
@@ -45,7 +50,7 @@
                 (ffi:c-inline ,values ,types :int "ioctl(#0,#1,#2)" :one-liner t :side-effects t))
         `(si:call-cfun (si:find-foreign-symbol ,name :default :pointer-void 0)
                       ,(host-type result) ',types (list ,@values)))
-    #+clisp
+    #+(and clisp ffi)
     `(funcall (load-time-value
                (ffi::find-foreign-function
                 ,name (ffi:parse-c-type
@@ -64,7 +69,9 @@
         `(clasp-ffi:%foreign-funcall ,name
            ,@(loop for type in types for value in values append (list type value))
            ,(host-type result)))
-    #+abcl `(incubator-call ,name ,result ',types (list ,@values))))
+    #+abcl `(incubator-call ,name ,result ',types (list ,@values))
+    #+(and clisp (not ffi))
+    `(error "Native Curses requires a CLISP build with FFI support.")))
 
 #+abcl
 (progn
@@ -128,11 +135,12 @@
       (java:jcall "invokeWithArguments" handle args))))
 
 (defun allocate (size)
+  #+(and clisp (not ffi)) (error "Native Curses requires a CLISP build with FFI support.")
   #+sbcl (sb-sys:allocate-system-memory size)
   #+cmucl (system:allocate-system-memory size)
   #+ccl (native-call "malloc" :pointer :ulong size)
   #+(or ecl mkcl) (si:allocate-foreign-data :void size)
-  #+clisp (ffi:foreign-address (ffi:allocate-shallow 'ffi:uint8 :count size))
+  #+(and clisp ffi) (ffi:foreign-address (ffi:allocate-shallow 'ffi:uint8 :count size))
   #+clasp (clasp-ffi:%foreign-alloc size)
   #+abcl (progn (ensure-incubator)
                 (let* ((scope (java:jstatic "newConfinedScope" "jdk.incubator.foreign.ResourceScope"))
@@ -142,11 +150,12 @@
 
 (defun deallocate (pointer size)
   (declare (ignorable pointer size))
+  #+(and clisp (not ffi)) (error "Native Curses requires a CLISP build with FFI support.")
   #+sbcl (sb-sys:deallocate-system-memory pointer size)
   #+cmucl (system:deallocate-system-memory pointer size)
   #+ccl (native-call "free" :void :pointer pointer)
   #+(or ecl mkcl) (si:free-foreign-data pointer)
-  #+clisp (ffi:foreign-free pointer)
+  #+(and clisp ffi) (ffi:foreign-free pointer)
   #+clasp (clasp-ffi:%foreign-free pointer)
   #+abcl (let ((scope (gethash pointer *scopes*)))
            (when scope
@@ -154,23 +163,25 @@
              (remhash pointer *scopes*))))
 
 (defun octet (pointer offset)
+  #+(and clisp (not ffi)) (error "Native Curses requires a CLISP build with FFI support.")
   #+sbcl (sb-sys:sap-ref-8 pointer offset)
   #+cmucl (system:sap-ref-8 pointer offset)
   #+ccl (ccl:%get-unsigned-byte pointer offset)
   #+ecl (si:foreign-data-ref-elt (si:foreign-data-recast pointer (1+ offset) :void) offset :unsigned-byte)
   #+mkcl (si:foreign-ref-elt (si:foreign-recast pointer (1+ offset) :void) offset :unsigned-byte)
-  #+clisp (ffi:memory-as pointer 'ffi:uint8 offset)
+  #+(and clisp ffi) (ffi:memory-as pointer 'ffi:uint8 offset)
   #+clasp (clasp-ffi:%mem-ref pointer :unsigned-char offset)
   #+abcl (logand 255 (java:jstatic "getByteAtOffset" "jdk.incubator.foreign.MemoryAccess"
                                     pointer (java:jnew "java.lang.Long" offset))))
 
 (defun (setf octet) (value pointer offset)
+  #+(and clisp (not ffi)) (error "Native Curses requires a CLISP build with FFI support.")
   #+sbcl (setf (sb-sys:sap-ref-8 pointer offset) value)
   #+cmucl (setf (system:sap-ref-8 pointer offset) value)
   #+ccl (setf (ccl:%get-unsigned-byte pointer offset) value)
   #+ecl (si:foreign-data-set-elt (si:foreign-data-recast pointer (1+ offset) :void) offset :unsigned-byte value)
   #+mkcl (si:foreign-set-elt (si:foreign-recast pointer (1+ offset) :void) offset :unsigned-byte value)
-  #+clisp (setf (ffi:memory-as pointer 'ffi:uint8 offset) value)
+  #+(and clisp ffi) (setf (ffi:memory-as pointer 'ffi:uint8 offset) value)
   #+clasp (clasp-ffi:%mem-set pointer :unsigned-char value offset)
   #+abcl (java:jstatic "setByteAtOffset" "jdk.incubator.foreign.MemoryAccess"
                        pointer (java:jnew "java.lang.Long" offset)

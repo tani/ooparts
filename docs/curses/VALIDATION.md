@@ -25,7 +25,9 @@ ABCL was launched with:
 The native PTY probe independently inspects raw/cbreak flags, ISTRIP and
 NOFLSH settings, feeds escape and UTF-8 input, checks non-BMP UTF-8 output,
 changes kernel terminal dimensions, and compares the full termios snapshot
-before and after a deliberate Lisp error. This is separate from the stream
+at Curses entry and after a deliberate Lisp error, before runtime shutdown.
+A parent/child handshake captures the baseline after Lisp initialization, so
+host startup and teardown changes are not attributed to Curses. This is separate from the stream
 acceptance scenarios and the API-entry observer.
 
 The Python gate's negative tests verify that an API-definition deficit, an
@@ -42,3 +44,8 @@ checks are provided without claiming runtime verification on macOS. Windows
 is explicitly outside scope. These results are not line/branch coverage or
 universal ncurses conformance: [README](README.md) documents the metric scope
 and remaining compatibility boundaries.
+
+Native availability is checked independently. CLISP builds without `:ffi`
+(including the locked macOS build) retain the complete stream test and coverage
+runs; their PTY probe emits an explicit unavailable result rather than a pass.
+CMUCL's native fixture explicitly configures UTF-8 character streams.

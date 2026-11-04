@@ -25,6 +25,11 @@ implementation plus Python, a C toolchain and SWI-Prolog. `nix develop
 .#<implementation>` selects one implementation. Both set
 `CL_SOURCE_REGISTRY` to the checkout.
 
+The locked ABCL derivation already selects OpenJDK 17; it does not accept a
+`jdk` override argument. MKCL's Nix Lisp wrapper loads the existing GNU11
+bootstrap before compiling ASDF and retains it in packaged runtimes. This is
+compiler configuration, without patching the host or external libraries.
+
 ## Components and implementations
 
 Components and the systems they cover:

@@ -22,7 +22,7 @@ def main():
     add_lisp_arguments(parser)
     args = parser.parse_args()
     master, slave = pty.openpty()
-    original = termios.tcgetattr(slave)
+    original = None
     fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 80, 0, 0))
     output = bytearray()
     stages = set()
@@ -43,6 +43,10 @@ def main():
                         selector.unregister(key.fileobj)
                         continue
                     output.extend(chunk)
+                if b'CURSES-BASELINE' in output and 'baseline' not in stages:
+                    original = termios.tcgetattr(slave)
+                    stages.add('baseline')
+                    os.write(master, b'\n')
                 if b'CURSES-OPTIONS' in output and 'options' not in stages:
                     mode = termios.tcgetattr(slave)
                     assert mode[0] & termios.ISTRIP, mode
@@ -65,10 +69,18 @@ def main():
                     assert mode[3] & termios.ISIG, mode
                     stages.add('cbreak')
                     os.write(master, b'q')
-            assert proc.wait() == 0, output.decode(errors='replace')[-8000:]
+                if b'CURSES-RESTORED' in output and 'restored' not in stages:
+                    restored = termios.tcgetattr(slave)
+                    assert restored == original, ('TTY settings not restored', original, restored)
+                    stages.add('restored')
+                    os.write(master, b'\n')
+            status = proc.wait()
+            if status == 77 and b'CURSES-NATIVE-UNAVAILABLE' in output:
+                print(f'{args.implementation}: native PTY checks unavailable: host built without FFI; stream coverage is separate')
+                return
+            assert status == 0, output.decode(errors='replace')[-8000:]
             assert b'CURSES-RESTORED' in output, output.decode(errors='replace')[-8000:]
-            assert termios.tcgetattr(slave) == original, 'TTY settings not restored'
-            assert stages == {'options', 'raw', 'resize', 'cbreak'}, stages
+            assert stages == {'baseline', 'options', 'raw', 'resize', 'cbreak', 'restored'}, stages
             print(f'{args.implementation}: native PTY mode/input/resize/unwind checks passed')
         except BaseException:
             proc.kill()

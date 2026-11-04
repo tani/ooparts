@@ -36,7 +36,7 @@
             pkg = pkgs.mkcl;
             faslExt = "fas";
             # Apply before ASDF itself is compiled, as well as in packaged REPLs.
-            flags = [ "-norc" "-load" (toString ./tools/advice/mkcl-gnu11.lisp) ];
+            flags = [ "-norc" "-load" "${./tools/advice/mkcl-gnu11.lisp}" ];
           } else pkgs.${impl};
           components = {
             advice = { library = "ooparts/advice"; tests = "ooparts-tests/advice"; };

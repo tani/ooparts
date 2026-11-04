@@ -1,5 +1,6 @@
 (uiop:define-package #:ooparts-tests/all
   (:use #:cl)
+  (:import-from #:ooparts-tests/curses)
   (:import-from #:ooparts-tests/continuation)
   (:import-from #:ooparts-tests/prolog)
   (:import-from #:ooparts-tests/regexp)
@@ -7,6 +8,7 @@
   (:export #:run-tests))
 (in-package #:ooparts-tests/all)
 (defun run-tests ()
+  (ooparts-tests/curses:run-tests)
   (ooparts-tests/continuation:run-tests)
   (ooparts-tests/prolog:run-tests)
   (ooparts-tests/regexp:run-tests)

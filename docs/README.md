@@ -38,3 +38,5 @@ Additional per-library material sits beside those files, for example
   [SAT testing notes](sat/testing.md), and the regression sections of the
   continuation and regexp READMEs. Aggregate commands and counts are in
   [testing](testing.md).
+
+- [Curses terminal UI](curses/README.md)

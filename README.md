@@ -10,6 +10,7 @@ matches its path, and public packages have no nicknames.
 | Continuation | `ooparts/continuation` | Portable Common Lisp | [docs](docs/continuation/README.md) |
 | Prolog | `ooparts/prolog` | Portable Common Lisp | [docs](docs/prolog/README.md) |
 | SAT | `ooparts/sat` | Portable Common Lisp; native SBCL x86-64 fast path | [docs](docs/sat/README.md) |
+| Curses | `ooparts/curses` | Linux/macOS; eight Common Lisp implementations | [docs](docs/curses/README.md) |
 | regexp | `ooparts/regexp` | Portable Common Lisp | [docs](docs/regexp/README.md) |
 
 Register the checkout with ASDF, then load any library by its system name:

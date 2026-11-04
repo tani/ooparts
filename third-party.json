@@ -139,6 +139,24 @@
       "relationship": "consulted matching implementation only; no source distributed",
       "license": "NOASSERTION",
       "note": "No license is established for the consulted code; the described algorithms are implemented independently."
+    },
+    {
+      "name": "X/Open Curses and ncurses API",
+      "source": "https://invisible-island.net/ncurses/man/",
+      "relationship": "API and behavioral reference only; independently implemented, no ncurses source distributed",
+      "license": "NOASSERTION"
+    },
+    {
+      "name": "XTerm control sequences",
+      "source": "https://invisible-island.net/xterm/ctlseqs/ctlseqs.html",
+      "relationship": "Terminal protocol reference only; no source distributed",
+      "license": "NOASSERTION"
+    },
+    {
+      "name": "CFFI native host adapters",
+      "source": "https://github.com/cffi/cffi",
+      "relationship": "Native implementation API reference only; not loaded, patched, vendored or distributed",
+      "license": "MIT"
     }
   ],
   "optional_external_tools": [

@@ -50,97 +50,101 @@
             regexp = { library = "ooparts/regexp"; tests = "ooparts-tests/regexp"; };
             all = { library = "ooparts"; tests = "ooparts-tests"; };
           };
+          mkRecipe = component: impl: options: let
+            settings = components.${component};
+            lisp = lispFor impl;
+            library = lisp.buildASDFSystem {
+              pname = "ooparts-${component}";
+              version = "0.2.0";
+              inherit src;
+              systems = [ settings.library settings.tests ]
+                ++ lib.optionals (component == "curry" || component == "all") [ "ooparts/curry/user" ]
+                ++ lib.optionals (component == "prolog" || component == "all") [ "ooparts/prolog/text/cli" ]
+                ++ lib.optionals (component == "sat" || component == "all") [ "ooparts/sat/cli" ];
+              lispLibs = [];
+              nativeLibs = [];
+              preBuild = ''export XDG_CACHE_HOME="$TMPDIR/asdf-cache"'';
+              # Nixpkgs filters ASD filenames against the compiled system names.
+              # Inferred children need both primary definitions at runtime, while
+              # compiling those primaries would load unrelated sibling libraries.
+              postInstall = ''cp ooparts.asd ooparts-tests.asd "$out/"'';
+            };
+            runtime = lisp.withPackages (_: [ library ]);
+            lispProgram = "${runtime}/bin/${options.program}";
+            lispCommand = "${lispProgram} ${options.args}";
+            evalForm = form: "${options.eval} '${form}'";
+            testImplementation =
+              if impl == "cmucl_binary" then "cmucl"
+              else if impl == "clasp-common-lisp" then "clasp"
+              else impl;
+            testPackage = if component == "all" then "ooparts-tests/all" else settings.tests;
+            test = pkgs.writeShellScriptBin "ooparts-test" ''
+              exec ${lispCommand} \
+                ${evalForm ''(require "asdf")''} \
+                ${evalForm ''(handler-case (progn (asdf:load-system "${settings.tests}") (uiop:symbol-call :${testPackage} :run-tests) (uiop:quit 0)) (error (condition) (format *error-output* "~&~A~%" condition) (uiop:quit 1)))''}
+            '';
+            repl = pkgs.writeShellScriptBin "ooparts-repl" ''
+              exec ${lispCommand} \
+                ${evalForm ''(require "asdf")''} \
+                ${evalForm ''(asdf:load-system "${if component == "curry" then "ooparts/curry/user" else settings.library}")''} \
+                ${lib.optionalString (component == "curry") ''${evalForm ''(ooparts/curry/user:enter)''} \
+                ''}${lib.optionalString (impl == "clisp") "-repl"} "$@"
+            '';
+            continuationCheck = ''
+              export OOPARTS_CONT_FIXTURE_FASL="$TMPDIR/fixture.fasl"
+              cd ${src}
+              for script in compile-fixture load-fixture; do
+                ${lispCommand} \
+                  ${evalForm ''(require "asdf")''} \
+                  ${evalForm ''(load "tools/continuation/'"$script"'.lisp")''} \
+                  ${evalForm ''(uiop:quit 0)''}
+              done
+            '';
+            curryCheck = ''
+              python3 ${src}/tools/curry/generate-cl.py --check
+              export OOPARTS_CURRY_BUILD_DIRECTORY="$TMPDIR/curry/"
+              ${lispCommand} \
+                ${evalForm ''(load "${src}/tools/curry/compile-clean.lisp")''} \
+                ${evalForm ''(uiop:quit 0)''}
+            '';
+            terminalCheckPrelude = ''
+              export JAVA_TOOL_OPTIONS="--add-modules=jdk.incubator.foreign --enable-native-access=ALL-UNNAMED"
+              cp -R ${src} source
+              chmod -R u+w source
+              cd source
+            '';
+            cursesCheck = ''
+              ${terminalCheckPrelude}
+              python3 -m unittest discover -s tests/curses -p 'test_*.py' -v
+              python3 tools/curses/coverage.py --implementation ${testImplementation} --lisp ${lispProgram}
+              python3 tools/curses/test-terminal.py --implementation ${testImplementation} --lisp ${lispProgram}
+            '';
+            readlineCheck = ''
+              ${terminalCheckPrelude}
+              python3 tools/readline/test-terminal.py --implementation ${testImplementation} --lisp ${lispProgram}
+            '';
+            check = pkgs.runCommand "ooparts-test-${component}-${impl}" {
+              nativeBuildInputs = lib.optionals (builtins.elem component [ "curses" "readline" "curry" "all" ]) [ pkgs.python3 ];
+            } ''
+              export XDG_CACHE_HOME="$TMPDIR/asdf-cache"
+              ${lib.optionalString (component == "continuation" || component == "all") continuationCheck}
+              ${test}/bin/ooparts-test
+              ${lib.optionalString (component == "curry" || component == "all") curryCheck}
+              ${lib.optionalString (component == "curses") cursesCheck}
+              ${lib.optionalString (component == "readline") readlineCheck}
+              touch "$out"
+            '';
+          in {
+            inherit library runtime test repl check;
+          };
           # Every component is offered for every available implementation.
           # MKCL needs the internal adapters in src/continuation/environment.lisp
           # and src/continuation/runtime.lisp because its compiler package and
           # macro-environment representation differ from ECL's.
-          supported = component: impl: true;
           recipes = lib.listToAttrs (lib.concatMap (component:
-            lib.mapAttrsToList (impl: options: let
-              settings = components.${component};
-              lisp = lispFor impl;
-              library = lisp.buildASDFSystem {
-                pname = "ooparts-${component}";
-                version = "0.2.0";
-                inherit src;
-                systems = [ settings.library settings.tests ]
-                  ++ lib.optionals (component == "curry" || component == "all") [ "ooparts/curry/user" ]
-                  ++ lib.optionals (component == "prolog" || component == "all") [ "ooparts/prolog/text/cli" ]
-                  ++ lib.optionals (component == "sat" || component == "all") [ "ooparts/sat/cli" ];
-                lispLibs = [];
-                nativeLibs = [];
-                preBuild = ''export XDG_CACHE_HOME="$TMPDIR/asdf-cache"'';
-                # Nixpkgs filters ASD filenames against the compiled system names.
-                # Inferred children need both primary definitions at runtime, while
-                # compiling those primaries would load unrelated sibling libraries.
-                postInstall = ''cp ooparts.asd ooparts-tests.asd "$out/"'';
-              };
-              runtime = lisp.withPackages (_: [ library ]);
-              testPackage = if component == "all" then "ooparts-tests/all" else settings.tests;
-              test = pkgs.writeShellScriptBin "ooparts-test" ''
-                exec ${runtime}/bin/${options.program} ${options.args} \
-                  ${options.eval} '(require "asdf")' \
-                  ${options.eval} '(handler-case (progn (asdf:load-system "${settings.tests}") (uiop:symbol-call :${testPackage} :run-tests) (uiop:quit 0)) (error (condition) (format *error-output* "~&~A~%" condition) (uiop:quit 1)))'
-              '';
-              repl = pkgs.writeShellScriptBin "ooparts-repl" ''
-                exec ${runtime}/bin/${options.program} ${options.args} \
-                  ${options.eval} '(require "asdf")' \
-                  ${options.eval} '(asdf:load-system "${if component == "curry" then "ooparts/curry/user" else settings.library}")' \
-                  ${lib.optionalString (component == "curry") ''${options.eval} '(ooparts/curry/user:enter)' \
-                  ''}${lib.optionalString (impl == "clisp") "-repl"} "$@"
-              '';
-              check = pkgs.runCommand "ooparts-test-${component}-${impl}" {
-                nativeBuildInputs = lib.optionals (builtins.elem component [ "curses" "readline" "curry" "all" ]) [ pkgs.python3 ];
-              } ''
-                export XDG_CACHE_HOME="$TMPDIR/asdf-cache"
-                ${lib.optionalString (component == "continuation" || component == "all") ''
-                  export OOPARTS_CONT_FIXTURE_FASL="$TMPDIR/fixture.fasl"
-                  cd ${src}
-                  for script in compile-fixture load-fixture; do
-                    ${runtime}/bin/${options.program} ${options.args} \
-                      ${options.eval} '(require "asdf")' \
-                      ${options.eval} '(load "tools/continuation/'"$script"'.lisp")' \
-                      ${options.eval} '(uiop:quit 0)'
-                  done
-                ''}
-                ${test}/bin/ooparts-test
-                ${lib.optionalString (component == "curry" || component == "all") ''
-                  python3 ${src}/tools/curry/generate-cl.py --check
-                  export OOPARTS_CURRY_BUILD_DIRECTORY="$TMPDIR/curry/"
-                  ${runtime}/bin/${options.program} ${options.args} \
-                    ${options.eval} '(load "${src}/tools/curry/compile-clean.lisp")' \
-                    ${options.eval} '(uiop:quit 0)'
-                ''}
-                ${lib.optionalString (component == "curses") ''
-                  export JAVA_TOOL_OPTIONS="--add-modules=jdk.incubator.foreign --enable-native-access=ALL-UNNAMED"
-                  cp -R ${src} source
-                  chmod -R u+w source
-                  cd source
-                  python3 -m unittest discover -s tests/curses -p 'test_*.py' -v
-                  python3 tools/curses/coverage.py --implementation ${
-                    if impl == "cmucl_binary" then "cmucl"
-                    else if impl == "clasp-common-lisp" then "clasp" else impl
-                  } --lisp ${runtime}/bin/${options.program}
-                  python3 tools/curses/test-terminal.py --implementation ${
-                    if impl == "cmucl_binary" then "cmucl"
-                    else if impl == "clasp-common-lisp" then "clasp" else impl
-                  } --lisp ${runtime}/bin/${options.program}
-                ''}
-                ${lib.optionalString (component == "readline") ''
-                  export JAVA_TOOL_OPTIONS="--add-modules=jdk.incubator.foreign --enable-native-access=ALL-UNNAMED"
-                  cp -R ${src} source
-                  chmod -R u+w source
-                  cd source
-                  python3 tools/readline/test-terminal.py --implementation ${
-                    if impl == "cmucl_binary" then "cmucl"
-                    else if impl == "clasp-common-lisp" then "clasp" else impl
-                  } --lisp ${runtime}/bin/${options.program}
-                ''}
-                touch "$out"
-              '';
-            in lib.nameValuePair "${component}-${impl}" {
-              inherit library runtime test repl check;
-            }) (lib.filterAttrs (impl: _: supported component impl) available)
+            lib.mapAttrsToList (impl: options:
+              lib.nameValuePair "${component}-${impl}" (mkRecipe component impl options)
+            ) available
           ) (builtins.attrNames components));
           packagesFor = prefix: field: lib.mapAttrs' (name: value:
             lib.nameValuePair "${prefix}-${name}" value.${field}) recipes;
@@ -162,15 +166,30 @@
             '';
           in { type = "app"; program = "${command}/bin/ooparts-${component}"; };
         in {
-          packages = packagesFor "lib" "library" // packagesFor "test" "test"
-            // packagesFor "repl" "repl" // { default = defaultRecipe.library; };
-          apps = { default = { type = "app"; program = "${defaultRecipe.repl}/bin/ooparts-repl"; }; } // appsFor "test" "test" "ooparts-test" // appsFor "repl" "repl" "ooparts-repl"
+          packages = packagesFor "lib" "library"
+            // packagesFor "test" "test"
+            // packagesFor "repl" "repl"
+            // { default = defaultRecipe.library; };
+          apps = {
+            default = {
+              type = "app";
+              program = "${defaultRecipe.repl}/bin/ooparts-repl";
+            };
+          } // appsFor "test" "test" "ooparts-test"
+            // appsFor "repl" "repl" "ooparts-repl"
             // lib.optionalAttrs (recipes ? prolog-sbcl) {
               prolog = cliApp "prolog" "ooparts/prolog/text/cli";
             } // lib.optionalAttrs (recipes ? sat-sbcl) {
               sat = cliApp "sat" "ooparts/sat/cli";
             };
-          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || lib.hasPrefix "curses-" name || lib.hasPrefix "readline-" name) recipes)
+          checks = lib.mapAttrs'
+            (name: value: lib.nameValuePair "test-${name}" value.check)
+            (lib.filterAttrs
+              (name: _:
+                lib.hasPrefix "all-" name
+                || lib.hasPrefix "curses-" name
+                || lib.hasPrefix "readline-" name)
+              recipes)
             // {
               layout = pkgs.runCommand "ooparts-layout-and-licenses" {
                 nativeBuildInputs = [ pkgs.python3 ];
@@ -191,13 +210,12 @@
             shellHook = ''export CL_SOURCE_REGISTRY="$PWD//"'';
           }) available;
           overlayAttrs = lib.mapAttrs (impl: _: (lispFor impl).withOverrides
-            (_: _: lib.listToAttrs (lib.concatMap (component:
-              lib.optionals (supported component impl) [
-                (lib.nameValuePair components.${component}.library
-                  recipes."${component}-${impl}".library)
-                (lib.nameValuePair components.${component}.tests
-                  recipes."${component}-${impl}".library)
-              ]) (builtins.attrNames components)))) available
+            (_: _: lib.listToAttrs (lib.concatMap (component: [
+              (lib.nameValuePair components.${component}.library
+                recipes."${component}-${impl}".library)
+              (lib.nameValuePair components.${component}.tests
+                recipes."${component}-${impl}".library)
+            ]) (builtins.attrNames components)))) available
             // lib.mapAttrs' (name: _: lib.nameValuePair "ooparts-${name}"
               config.packages."repl-${name}") recipes;
         };

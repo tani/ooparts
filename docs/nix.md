@@ -1,10 +1,15 @@
 # Nix flake
 
-The single root `flake.nix` (flake-parts) builds every library, test suite,
-REPL and regression check. All implementations come from the locked
-`nixos-unstable` nixpkgs input; a variant exists
-only when the selected platform provides an available, unbroken
-implementation.
+The single root `flake.nix` (flake-parts) declares implementation and component
+catalogs, then uses a local `mkRecipe` factory to produce records containing
+`library`, `runtime`, `test`, `repl`, and `check`. Thin projections expose those
+records as packages, apps, checks, development shells, and overlay aliases.
+
+This declarative settings → recipe record → output projection organization uses
+[`tani/nix-common-lisp` at `c27b1d6`](https://github.com/tani/nix-common-lisp/tree/c27b1d60e50543b370ddf0aa7433c65dd72b06fb)
+as an organizational reference only, not as a dependency. All implementations
+come from the locked `nixos-unstable` nixpkgs input; a variant exists only when
+the selected platform provides an available, unbroken implementation.
 
 The flake targets x86-64 Linux, ARM64 Linux and Apple Silicon macOS.
 The selected unstable Nixpkgs has dropped Intel macOS (`x86_64-darwin`), so

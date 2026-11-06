@@ -43,7 +43,7 @@
                                                   (when (and (string= name "ioctl") (= index 2)
                                                              #+(and darwin-target arm64-target) t
                                                              #-(and darwin-target arm64-target) nil)
-                                                    (list :variadic)) (list type value))) ,(host-type result))
+                                                    (list :variadic nil)) (list type value))) ,(host-type result))
     #+(or ecl mkcl)
     (if (and (string= name "ioctl") (uiop:os-macosx-p))
         `(progn (ffi:clines "#include <sys/ioctl.h>")

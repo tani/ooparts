@@ -40,8 +40,10 @@ the subsequent complete coverage and native checks passed. No host software
 was patched. Generated cache files are not distributed.
 
 macOS execution and Nix builds were unavailable locally; the adapters and Nix
-checks are provided without claiming runtime verification on macOS. Windows
-is explicitly outside scope. These results are not line/branch coverage or
+checks are provided without claiming runtime verification on macOS. A CCL 1.14
+compiler smoke test covers the Darwin/ARM64 `ioctl` variadic boundary, which
+CCL represents as a `:variadic nil` pair. Windows is explicitly outside scope.
+These results are not line/branch coverage or
 universal ncurses conformance: [README](README.md) documents the metric scope
 and remaining compatibility boundaries.
 

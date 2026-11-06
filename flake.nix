@@ -170,7 +170,7 @@
             } // lib.optionalAttrs (recipes ? sat-sbcl) {
               sat = cliApp "sat" "ooparts/sat/cli";
             };
-          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || lib.hasPrefix "curses-" name || lib.hasPrefix "readline-" name || (builtins.elem name [ "prolog-mkcl" "sat-mkcl" "regexp-mkcl" ])) recipes)
+          checks = lib.mapAttrs' (name: value: lib.nameValuePair "test-${name}" value.check) (lib.filterAttrs (name: _: lib.hasPrefix "all-" name || lib.hasPrefix "curses-" name || lib.hasPrefix "readline-" name) recipes)
             // {
               layout = pkgs.runCommand "ooparts-layout-and-licenses" {
                 nativeBuildInputs = [ pkgs.python3 ];

@@ -70,9 +70,9 @@ scheme:
 - `apps.default` — the default recipe's REPL.
 - `checks.test-<recipe>` — regression check for that recipe, including the
   continuation FASL and saved-core reload scripts where applicable. The flake
-  currently exposes `test-all-<implementation>` for each available
-  implementation, `test-prolog-mkcl`, `test-sat-mkcl`, `test-regexp-mkcl`, and
-  `checks.layout`.
+  currently exposes `test-all-<implementation>`,
+  `test-curses-<implementation>`, and `test-readline-<implementation>` for each
+  available implementation, plus `checks.layout`.
 - `checks.layout` — runs `python3 tools/check-layout.py`.
 
 The overlay adds each supported library and test system to the corresponding

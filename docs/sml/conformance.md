@@ -320,8 +320,10 @@ The independently scoped ABCL **SML component subsequently completed all
 4,081 checks**, with natural exit 0 in 1,647.13 seconds and 2,485,276 KiB peak
 RSS. The six groups were 163 lexer, 2,835 parser, 267 types, 482 Core, 105
 Basis, and 229 native Modules. The ordinary (non-instrumented) worker had its
-own cache and 67 fingerprinted loaded FASLs, with the retained three frontend
-GC requests; no other ABCL profile ran alongside it. See
+own cache and 67 fingerprinted cached FASL artifacts, with the retained three
+frontend GC requests; no other ABCL profile ran alongside it. The ordinary
+transcript provides compile/write evidence, not an additional per-FASL LOAD
+trace. See
 `abcl-serial-validation/{application.log,run.meta,fasl-manifest.sha256}`.
 This proves completion of that component, not a fix for ABCL's separate
 whole-project issue, and it does not repurpose earlier unowned late output.
@@ -356,8 +358,13 @@ the 600-alternative and 600 named-clause programs also completed. Thus the
 600-second run reached ongoing cumulative frontend work, not one demonstrated
 semantic deadlock in the large clause case. The completed core/basis evidence
 still does not establish the pending 229 native modules or all 4,081 checks.
-Evidence is the generation-frozen `abcl-core-timing/` source/phase records; old
-observer/bootstrap failures and superseded mixed-generation totals are excluded.
+These phase totals are tied to the preserved core-phase stream
+`abcl-core-timing/phases-pid2209527.log` (SHA-256
+`46178f00fe4b887e6be44a0ed2ed8c9559631998c0062265758645084e8d37dc`),
+plus source and artifact manifests and process identity in
+`abcl-core-timing/report.md`. Old observer/bootstrap failures and
+mixed-generation aggregates from the cancelled duplicate worker are excluded;
+unowned late module output is not treated as a completed run.
 
 ### Frontend collection tradeoff and rejected experiment
 
@@ -369,8 +376,10 @@ checks and both 600-clause executions, the actual matched measurements were:
 | Original three requests | 42 | 0 | 39.379 s | 171.01 s |
 | Diagnostic final-only | 14 | 28 | 12.621 s | 132.32 s |
 
-This is useful latency evidence, not proof that earlier collection requests are
-removable.
+ORIGINAL included cold-cache compilation while FINAL-ONLY reused those
+artifacts. The process-time difference is therefore not an isolated GC-cost
+measurement; use the direct-request counts and per-phase timings instead. The
+comparison is not proof that earlier collection requests are removable.
 
 The FINAL-ONLY candidate therefore had to pass the actual COBOL guard. Its full
 239,194-byte input, under the required 1,073,741,824-byte heap, instead failed
@@ -385,10 +394,12 @@ not assert which individual earlier request is independently sufficient. See
 `build/sml/gc-revalidation/report.md` for the complete policy comparison and
 source/loaded-artifact chronology.
 
-An OOPArts-free, ASDF-free control (`abcl-warning-investigation/bare-jvm-signal.lisp`)
-returns normally for direct and compound-handler `SIMPLE-WARNING` signals.
-The same signals inside `JVM::%WITH-COMPILATION-UNIT` reproduce the missing
-`MUFFLE-WARNING` restart error (`logs/08-bare-jvm-signal.log`). This narrows
+An OOPArts-free, ASDF-free control
+(`build/sml/abcl-warning-investigation/bare-jvm-signal.lisp`) returns normally
+for direct and compound-handler `SIMPLE-WARNING` signals. The same signals
+inside `JVM::%WITH-COMPILATION-UNIT` reproduce the missing
+`MUFFLE-WARNING` restart error
+(`build/sml/abcl-warning-investigation/logs/08-bare-jvm-signal.log`). This narrows
 the full-project failure to the host warning wrapper; it neither fixes nor
 masks that failure, and it is not SML portability evidence.
 

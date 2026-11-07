@@ -20,6 +20,7 @@ behavior, limitations and validation results.
 | Prolog | `ooparts/prolog` | [README](docs/prolog/README.md) |
 | SAT | `ooparts/sat` | [README](docs/sat/README.md) |
 | regexp | `ooparts/regexp` | [README](docs/regexp/README.md) |
+| SML | `ooparts/sml` | [README](docs/sml/README.md) |
 
 ## Load
 

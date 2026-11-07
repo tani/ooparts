@@ -46,6 +46,7 @@ Components and the systems they cover:
 | `continuation` | `ooparts/continuation` | `ooparts-tests/continuation` |
 | `sat` | `ooparts/sat` | `ooparts-tests/sat` |
 | `regexp` | `ooparts/regexp` | `ooparts-tests/regexp` |
+| `sml` | `ooparts/sml` | `ooparts-tests/sml` |
 | `all` | `ooparts` | `ooparts-tests` |
 
 Implementations are whatever nixpkgs provides and supports on the selected

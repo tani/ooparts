@@ -179,9 +179,73 @@ c" nil :mode :match
   (run-case '(:seq :bol :any) (string #\Newline) '((0 1))
             :description "without newline bol is only at input start"))
 
+(defun %check-endpoint-history (expression input start expected backend)
+  (let ((regexp (compile-regexp expression :backend backend)))
+    (multiple-value-bind (histories arena)
+        (ooparts/regexp/api::%run-engine regexp input start nil nil nil)
+      (let* ((metadata (ooparts/regexp/api::regexp-metadata-of regexp))
+             (winner (ooparts/regexp/selection:select-history
+                      histories metadata arena))
+             (full-offsets
+               (and winner
+                    (ooparts/regexp/selection:history-captures
+                     winner metadata arena))))
+        (multiple-value-bind (offsets applicable-p)
+            (ooparts/regexp/selection:simple-history-captures
+             histories metadata arena start)
+          (check applicable-p
+                 (format nil "~S (~A) did not use endpoint-only selection"
+                         expression backend))
+          (check (equalp offsets full-offsets)
+                 (format nil "~S (~A) disagreed with full history selection"
+                         expression backend))
+          (check (equal expected (and offsets (coerce offsets 'list)))
+                 (format nil "~S (~A) returned offsets ~S, expected ~S"
+                         expression backend (and offsets (coerce offsets 'list))
+                         expected))
+          (let ((match (ooparts/regexp/api::%match-at
+                        regexp input start nil nil nil)))
+            (check (equal expected
+                          (and match (list (match-start match) (match-end match))))
+                   (format nil "~S (~A) public matcher changed its result"
+                           expression backend))))))))
+
+(defun %check-full-selection-required (expression flags backend)
+  (let ((regexp (apply #'compile-regexp expression :backend backend flags)))
+    (multiple-value-bind (histories arena)
+        (ooparts/regexp/api::%run-engine regexp "aaac" 0 nil nil nil)
+      (multiple-value-bind (offsets applicable-p)
+          (ooparts/regexp/selection:simple-history-captures
+           histories (ooparts/regexp/api::regexp-metadata-of regexp) arena 0)
+        (declare (ignore offsets))
+        (check (not applicable-p)
+               (format nil "~S ~S (~A) bypassed capture/minimal selection"
+                       expression flags backend))))))
+
+(defun run-endpoint-selection-tests ()
+  (dolist (case '(((:or "a" "aa") "xaa!" 1 (1 3))
+                  ((:seq :bol (:repeat 0 nil (:or "a" "aa")) :eol)
+                   "aaa" 0 (0 3))
+                  ((:repeat 2 4 (:or "a" "aa")) "aaaaa" 0 (0 5))
+                  ((:repeat 0 0 "a") "bbb" 1 (1 1))
+                  ((:or (:seq "a" (:* "b")) "abbb") "abbb" 0 (0 4))
+                  ("a" "bbb" 1 nil)))
+    (destructuring-bind (expression input start expected) case
+      (run-for-backends
+       (lambda (backend)
+         (%check-endpoint-history expression input start expected backend)))))
+  (dolist (case '(((:seq (:*? :any) #\c) nil)
+                  ((:capture (:or "a" "aa")) nil)
+                  ((:* "a") (:minimal t))))
+    (destructuring-bind (expression flags) case
+      (run-for-backends
+       (lambda (backend)
+         (%check-full-selection-required expression flags backend))))))
+
 (defun run-tests ()
   (run-table-tests)
   (run-minimal-flag-tests)
+  (run-endpoint-selection-tests)
   (run-boundary-tests)
   (run-reuse-tests)
   (run-flag-tests)

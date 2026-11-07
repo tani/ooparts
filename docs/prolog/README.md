@@ -50,6 +50,10 @@ not captured Lisp environments. Use the explicit textual loader for Prolog text:
 A database owns user clauses, stream state and term-model configuration. Bind
 `*database*` to `(make-database)` for independent state. Use `make-query`,
 `next-solution` and `close-query` for explicit cursors; close them on every exit.
+Within one answer, physical cons aliases and cycles are preserved across output
+fields, as are logical-variable identities; merely equal but distinct source
+conses are not coalesced. Separate public `map-term` calls retain their ordinary
+fresh-copy behavior.
 `query-statistics` exposes instructions, explicit stack/heap use, GC counters and
 the native-execution counters `:native-calls` and `:native-deoptimizations`.
 `table`/`untable` control SLG predicates; `tnot` supports well-founded negation.

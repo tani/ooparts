@@ -9,5 +9,6 @@
   (:import-from #:ooparts/readline)
   (:import-from #:ooparts/regexp)
   (:import-from #:ooparts/sat)
+  (:import-from #:ooparts/sml)
   (:import-from #:ooparts/test))
 (in-package #:ooparts/all)

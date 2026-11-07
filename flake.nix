@@ -48,6 +48,7 @@
             continuation = { library = "ooparts/continuation"; tests = "ooparts-tests/continuation"; };
             sat = { library = "ooparts/sat"; tests = "ooparts-tests/sat"; };
             regexp = { library = "ooparts/regexp"; tests = "ooparts-tests/regexp"; };
+            sml = { library = "ooparts/sml"; tests = "ooparts-tests/sml"; };
             all = { library = "ooparts"; tests = "ooparts-tests"; };
           };
           mkRecipe = component: impl: options: let

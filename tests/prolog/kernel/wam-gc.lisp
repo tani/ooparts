@@ -154,6 +154,147 @@
            (collect-query-garbage vm)
            (check (zerop (length (ooparts/prolog/kernel/model:machine-heap vm))) "finished dead scan is reclaimed"))
       (close-query vm)))
+  ;; Distinct and repeated numeric IDs must not change pointer identity or fallback.
+  (let* ((vm (ooparts/prolog/kernel/model:%make-machine
+              :args (make-array 2 :initial-element nil)))
+         (first (ooparts/prolog/kernel/model:%make-var 0))
+         (second (ooparts/prolog/kernel/model:%make-var 0)))
+    (setf (ooparts/prolog/kernel/model:logic-var-binding first) first
+          (ooparts/prolog/kernel/model:logic-var-binding second) second)
+    (ooparts/prolog/kernel/engine:record-cell vm first)
+    (ooparts/prolog/kernel/engine:record-cell vm second)
+    (setf (aref (ooparts/prolog/kernel/model:machine-args vm) 0) first
+          (aref (ooparts/prolog/kernel/model:machine-args vm) 1) second)
+    (ooparts/prolog/kernel/engine:fresh-cons vm :dead nil)
+    (unwind-protect
+         (progn
+           (check (= 1 (collect-query-garbage vm))
+                  "duplicate-ID collection reclaims only the unrooted cons")
+           (check (and (= 2 (length (ooparts/prolog/kernel/model:machine-heap vm)))
+                       (find first (ooparts/prolog/kernel/model:machine-heap vm) :test #'eq)
+                       (find second (ooparts/prolog/kernel/model:machine-heap vm) :test #'eq)
+                       (not (eq first second))
+                       (eq first (aref (ooparts/prolog/kernel/model:machine-args vm) 0))
+                       (eq second (aref (ooparts/prolog/kernel/model:machine-args vm) 1)))
+                  "duplicate IDs retain both distinct exact roots")
+           (check (and (eq first (ooparts/prolog/kernel/model:logic-var-binding first))
+                       (eq second (ooparts/prolog/kernel/model:logic-var-binding second)))
+                  "duplicate-ID roots retain their self bindings"))
+      (close-query vm)))
+  (let* ((vm (ooparts/prolog/kernel/model:%make-machine
+              :args (make-array 1 :initial-element nil)))
+         (shared (ooparts/prolog/kernel/model:%make-var 0)))
+    (setf (ooparts/prolog/kernel/model:logic-var-binding shared) shared)
+    (ooparts/prolog/kernel/engine:record-cell vm shared)
+    (ooparts/prolog/kernel/engine:record-cell vm shared)
+    (setf (aref (ooparts/prolog/kernel/model:machine-args vm) 0) shared)
+    (ooparts/prolog/kernel/engine:fresh-cons vm :dead nil)
+    (unwind-protect
+         (progn
+           (check (= 1 (collect-query-garbage vm))
+                  "repeated exact heap references reclaim only the unrooted cons")
+           (check (and (= 2 (length (ooparts/prolog/kernel/model:machine-heap vm)))
+                       (eq shared (aref (ooparts/prolog/kernel/model:machine-heap vm) 0))
+                       (eq shared (aref (ooparts/prolog/kernel/model:machine-heap vm) 1))
+                       (eq shared (ooparts/prolog/kernel/model:logic-var-binding shared)))
+                  "indexed marks retain every duplicate exact heap slot"))
+      (close-query vm)))
+  (let* ((vm (ooparts/prolog/kernel/model:%make-machine
+              :args (make-array 5 :initial-element nil)))
+         (left (ooparts/prolog/kernel/model:%make-var 0))
+         (right (ooparts/prolog/kernel/model:%make-var 2))
+         ;; The final ID makes the managed logic-var sequence 0, 2, 1.
+         (late (ooparts/prolog/kernel/model:%make-var 1)))
+    (setf (ooparts/prolog/kernel/model:logic-var-binding left) left
+          (ooparts/prolog/kernel/model:logic-var-binding right) right
+          (ooparts/prolog/kernel/model:logic-var-binding late) late)
+    (dolist (cell (list left right late))
+      (ooparts/prolog/kernel/engine:record-cell vm cell))
+    (setf (aref (ooparts/prolog/kernel/model:machine-args vm) 0) left
+          (aref (ooparts/prolog/kernel/model:machine-args vm) 1) right
+          (aref (ooparts/prolog/kernel/model:machine-args vm) 2) late)
+    (let* ((alias (ooparts/prolog/kernel/engine:fresh-cons vm left right))
+           (ring (ooparts/prolog/kernel/engine:fresh-cons vm :ring nil))
+           (live (list left right late alias ring)))
+      (setf (cdr ring) ring
+            (aref (ooparts/prolog/kernel/model:machine-args vm) 3) alias
+            (aref (ooparts/prolog/kernel/model:machine-args vm) 4) ring)
+      (ooparts/prolog/kernel/engine:push-choice vm 0)
+      (ooparts/prolog/kernel/engine:bind-var vm left ring)
+      (ooparts/prolog/kernel/engine:fresh-cons vm :dead nil)
+      (labels ((roots-intact-p ()
+                 (let ((args (ooparts/prolog/kernel/model:machine-args vm))
+                       (heap (ooparts/prolog/kernel/model:machine-heap vm)))
+                   (and (= 5 (length heap))
+                        (eq left (aref args 0)) (eq right (aref args 1))
+                        (eq late (aref args 2)) (eq alias (aref args 3))
+                        (eq ring (aref args 4))
+                        (every (lambda (cell) (find cell heap :test #'eq)) live)
+                        (eq left (car alias)) (eq right (cdr alias))
+                        (eq ring (cdr ring))))))
+        (unwind-protect
+             (progn
+               (check (= 1 (collect-query-garbage vm))
+                      "nonmonotonic-ID fallback reclaims only the unrooted cons")
+               (check (roots-intact-p)
+                      "nonmonotonic-ID fallback retains exact roots, aliases, and cycles")
+               (check (and (eq ring (ooparts/prolog/kernel/model:logic-var-binding left))
+                           (eq ring (ooparts/prolog/kernel/engine:deref left))
+                           (eq right (ooparts/prolog/kernel/model:logic-var-binding right))
+                           (eq late (ooparts/prolog/kernel/model:logic-var-binding late)))
+                      "nonmonotonic-ID fallback retains bindings")
+               (check (ooparts/prolog/kernel/engine:backtrack vm)
+                      "nonmonotonic-ID choice remains available")
+               (check (and (roots-intact-p)
+                           (eq left (ooparts/prolog/kernel/model:logic-var-binding left))
+                           (eq right (ooparts/prolog/kernel/model:logic-var-binding right))
+                           (eq late (ooparts/prolog/kernel/model:logic-var-binding late)))
+                      "rollback after indexed-marker GC restores exact roots and bindings"))
+          (close-query vm)))))
+  ;; Large root graphs exercise in-place prefix remapping without losing aliases,
+  ;; opaque host objects, or undo state around an older alternative.
+  (let* ((vm (ooparts/prolog/kernel/model:%make-machine
+              :args (make-array 2 :initial-element nil) :code #((yield))))
+         (typed (make-array 3 :initial-contents '(:nominal 17 :opaque)))
+         (variable (ooparts/prolog/kernel/engine:fresh-var vm))
+         (typed-cell (ooparts/prolog/kernel/engine:fresh-cons vm typed nil))
+         (chain typed-cell)
+         left right alias)
+    (unwind-protect
+         (progn
+           (loop repeat 20000 for index from 0 do
+             (setf chain (ooparts/prolog/kernel/engine:fresh-cons vm index chain)))
+           (setf left (ooparts/prolog/kernel/engine:fresh-cons vm :left chain)
+                 right (ooparts/prolog/kernel/engine:fresh-cons vm :right chain)
+                 alias (ooparts/prolog/kernel/engine:fresh-cons vm left right)
+                 (aref (ooparts/prolog/kernel/model:machine-args vm) 0) alias
+                 (aref (ooparts/prolog/kernel/model:machine-args vm) 1) variable)
+           (loop repeat 3000 do
+             (ooparts/prolog/kernel/engine:fresh-cons vm :dead-before typed))
+           (ooparts/prolog/kernel/engine:push-choice vm 0)
+           (ooparts/prolog/kernel/engine:bind-var vm variable alias)
+           (loop repeat 3000 do
+             (ooparts/prolog/kernel/engine:fresh-cons vm :dead-after typed))
+           (check (= 6000 (collect-query-garbage vm)) "large roots retain only live cells")
+           (check (= 20005 (length (ooparts/prolog/kernel/model:machine-heap vm)))
+                  "large rooted DAG has exact managed extent")
+           (check (and (eq (cdr left) (cdr right))
+                       (eq typed (car typed-cell)))
+                  "large-root aliases and typed payloads survive in-place GC")
+           (check (and (= 20005 (ooparts/prolog/kernel/model:choice-heap
+                                 (aref (ooparts/prolog/kernel/model:machine-choices vm) 0)))
+                       (eq alias (ooparts/prolog/kernel/engine:deref variable)))
+                  "choice heap and trail offsets use old prefix liveness")
+           (check (ooparts/prolog/kernel/engine:backtrack vm) "large-root alternative resumes")
+           (check (eq variable (ooparts/prolog/kernel/model:logic-var-binding variable))
+                  "large-root rollback restores the old unbound cell")
+           (let ((rebound (ooparts/prolog/kernel/engine:fresh-cons vm :rebound alias)))
+             (ooparts/prolog/kernel/engine:bind-var vm variable rebound)
+             (collect-query-garbage vm)
+             (check (and (eq rebound (ooparts/prolog/kernel/engine:deref variable))
+                         (eq alias (cdr rebound)))
+                    "rebinding retains its alias after another compaction")))
+      (close-query vm)))
   ;; A closed cursor retains neither heap, trail, continuation nor scan roots.
   (let ((vm (make-query '((product ?x ?y)) :gc-threshold 1)))
     (next-solution vm) (close-query vm)

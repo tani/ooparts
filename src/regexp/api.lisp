@@ -9,7 +9,8 @@
     #:regexp-p)
   (:import-from #:ooparts/regexp/compiler #:compile-graph)
   (:import-from #:ooparts/regexp/text #:parse-regexp-string)
-  (:import-from #:ooparts/regexp/selection #:history-captures #:select-history)
+  (:import-from #:ooparts/regexp/selection
+    #:history-captures #:select-history #:simple-history-captures)
   (:import-from #:ooparts/regexp/vm #:make-vm-program #:run-vm)
   (:import-from #:ooparts/regexp/automaton #:make-automaton #:run-automaton)
   (:export #:compile-regexp #:compile-regexp-string #:match-regexp #:search-regexp
@@ -65,11 +66,16 @@
   (let ((metadata (regexp-metadata-of regexp)))
     (multiple-value-bind (histories arena)
         (%run-engine regexp string start require-end not-bol not-eol)
-      (let ((winner (select-history histories metadata arena)))
-        (when winner
-          (make-regexp-match
-           :string string
-           :offsets (history-captures winner metadata arena)))))))
+      (multiple-value-bind (offsets simple-p)
+          (simple-history-captures histories metadata arena start)
+        (if simple-p
+            (when offsets
+              (make-regexp-match :string string :offsets offsets))
+            (let ((winner (select-history histories metadata arena)))
+              (when winner
+                (make-regexp-match
+                 :string string
+                 :offsets (history-captures winner metadata arena)))))))))
 
 (defun match-regexp (regexp string &key not-bol not-eol)
   "Match the whole of STRING against REGEXP, returning a REGEXP-MATCH or NIL."

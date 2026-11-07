@@ -9,6 +9,7 @@
   (:import-from #:ooparts-tests/readline)
   (:import-from #:ooparts-tests/regexp)
   (:import-from #:ooparts-tests/sat)
+  (:import-from #:ooparts-tests/sml)
   (:export #:run-tests))
 (in-package #:ooparts-tests/all)
 (defun run-tests ()
@@ -21,4 +22,5 @@
   (ooparts-tests/readline:run-tests)
   (ooparts-tests/regexp:run-tests)
   (ooparts-tests/sat:run-tests)
+  (ooparts-tests/sml:run-tests)
   t)

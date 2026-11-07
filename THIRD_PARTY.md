@@ -64,6 +64,34 @@ OOPArts adapters; see [portability](docs/portability.md).
 - [QEMU user-mode emulation](https://www.qemu.org/) is an optional development
   tool used to run the Nixpkgs 32-bit CMUCL binary in the recorded advice audit.
   It is not bundled or required by any Lisp library or regression system.
+- The [MLton regression corpus](https://github.com/MLton/mlton) is an ignored,
+  sparse, blob-filtered checkout in `build/mlton/`, pinned to detached commit
+  `5fe943391e539a502699327a6266b6e8e97939e1` (regression tree
+  `d3c35781496aa17015cfdf4a6a4afb6c0f8bb380`). It is reference-only for
+  an optional, explicitly requested conformance lane and is not distributed or
+  required by any OOPArts library or existing regression system. Cone sparse
+  checkout retains repository root files, `regression/`, `doc/license/` and
+  `bin/regression`; the exact patterns are recorded in the ledger. Preserve the
+  [HPND license](build/mlton/LICENSE), [component-license index and all retained
+  notices](build/mlton/doc/license/README) (including MLKit and gdtoa), and
+  `regression/README*`. Redistributions must retain the named-author and NEC
+  copyright notices and the permission and warranty texts. Corpus sources,
+  inputs, `.ok` files and sidecars are immutable upstream bytes; never
+  regenerate expectations from OOPArts behavior. The corpus mixes SML '97 core
+  and modules, Basis behavior, platform-dependent cases, FFI/threads and
+  explicit MLton extensions, so it is not a uniform SML '97 suite. When present,
+  a selected `.ok` supplies exact program-output bytes, not compiler diagnostic
+  goldens; missing `.ok` does not mean empty output. A `.nonterm` sidecar makes
+  its root case compile-only, not a proof of nontermination.
+  `regression/fail/*.sml` requires genuine compile-time source rejection, with
+  no golden diagnostic sidecars; crashes, timeouts and missing prerequisites
+  are not passes. Upstream wrapper, whitelist or aggregate exit status must not
+  mask individual outcomes. Selected end-to-end executions through OOPArts
+  matched exact oracle bytes for `hello-world.sml` (14), `fact.sml` (8), and
+  `functor.sml` (28). The deliberate `fail/1.sml` rejection was checked with
+  exact `y` and elaboration metadata; wrong-name and wrong-kind controls did
+  not pass. These are [selected observations](docs/sml/conformance.md), not
+  global corpus success or SML '97 conformance.
 - [PAIP Lisp](https://github.com/norvig/paip-lisp) is an MIT-licensed design/API
   reference for Prolog. No PAIP source files are distributed here.
 - [Allegro Prolog](https://franz.com/products/prolog/) is an interface reference.

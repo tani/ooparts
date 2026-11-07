@@ -16,6 +16,7 @@ start. This page indexes the detailed documentation.
 | Prolog | [docs/prolog/README.md](prolog/README.md) | Stack-safe S-expression Prolog, DCGs, tabling, WAM-derived execution |
 | SAT | [docs/sat/README.md](sat/README.md) | Translated SATCH solver with resource-managed storage |
 | regexp | [docs/regexp/README.md](regexp/README.md) | POSIX.1-2024 extended regular expressions in portable Common Lisp |
+| SML | [docs/sml/README.md](sml/README.md) | Native Prolog/DCG elaboration and Curry-backed compiled execution |
 
 Additional per-library material sits beside those files, for example
 [continuation semantics](continuation/semantics.md),

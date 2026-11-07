@@ -22,7 +22,7 @@
    #:arena-frame-outer-path #:arena-frame-absent-children
    #:arena-frame-mark-absent #:repetition-frame-closable-p
    #:apply-edge-label
-   #:select-history #:history-captures))
+   #:select-history #:simple-history-captures #:history-captures))
 (in-package #:ooparts/regexp/selection)
 
 ;;; ---------------------------------------------------------------------------
@@ -544,6 +544,32 @@ Invalid completion or assertion failure yields NIL for SUCCESS-P."
                     (eql (regexp-node-mode node) 1))
             do (push (regexp-node-id node) ids))
     (nreverse ids)))
+
+(defun simple-history-captures (histories metadata arena start)
+  "Return group-0 offsets without reconstructing selection trees when possible.
+
+Returns (VALUES OFFSETS APPLICABLE-P).  APPLICABLE-P is true exactly when no
+explicit capture groups or effective minimal repetitions need selection.  A
+true second value with NIL OFFSETS is an ordinary failed match.  Accepted
+histories end in a close event for the parentless root node, whose position is
+the whole-match end; internal alternatives cannot affect the sole public
+capture.  Anything else falls back to ordinary history reconstruction."
+  (if (or (plusp (regexp-metadata-group-count metadata))
+          (%minimal-repeat-ids metadata))
+      (values nil nil)
+      (let ((accepted-p nil)
+            (maximum-end -1))
+        (loop for history across histories
+              for node-id = (arena-history-node-id arena history)
+              for node = (and node-id (regexp-metadata-node metadata node-id))
+              when (and (eq (arena-history-kind arena history) :close)
+                        node
+                        (null (regexp-node-parent node)))
+                do (setf accepted-p t
+                         maximum-end
+                         (max maximum-end
+                              (arena-history-position arena history))))
+        (values (when accepted-p (vector start maximum-end)) t))))
 
 (defun %occurrences (root node-id)
   "Present occurrences of NODE-ID in ROOT's tree, iterative DFS order."

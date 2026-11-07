@@ -97,10 +97,9 @@
               ((not (iso-atomic-equal a b)) (return-from unify nil)))))
     t))
 
-(defun map-term (root atom-function &optional allocator)
-  "Copy a cons graph without Lisp recursion, preserving sharing and cycles."
-  (let* ((box (list nil)) (work (list (list root box :car)))
-         (seen (make-hash-table :test 'eq)))
+(defun %map-term (root atom-function allocator seen)
+  "Copy ROOT using SEEN's caller-scoped, exact source-cons identity map."
+  (let* ((box (list nil)) (work (list (list root box :car))))
     (loop while work do
       (destructuring-bind (source target side) (pop work)
         (let* ((value (funcall atom-function source))
@@ -113,17 +112,41 @@
                                  cell)) value)))
           (if (eq side :car) (setf (car target) mapped) (setf (cdr target) mapped)))))
     (car box)))
+(defun map-term (root atom-function &optional allocator)
+  "Copy a cons graph without Lisp recursion, preserving sharing and cycles."
+  (%map-term root atom-function allocator (make-hash-table :test 'eq)))
 (defun instantiate (template slots &optional vm)
-  (map-term template (lambda (x) (if (slot-ref-p x) (aref slots (slot-ref-index x)) x))
-            (and vm (lambda () (fresh-cons vm nil nil)))))
+  "Copy TEMPLATE's graph, substituting existing slot values without copying them.
+Only template conses are traversed; substituted values retain their identities,
+sharing, cycles, and any mutable host objects they contain."
+  (let* ((box (list nil)) (work (list (list template box :car)))
+         (seen (make-hash-table :test 'eq)))
+    (loop while work do
+      (destructuring-bind (source target side) (pop work)
+        (let ((mapped
+                (cond ((slot-ref-p source)
+                       (aref slots (slot-ref-index source)))
+                      ((consp source)
+                       (or (gethash source seen)
+                           (let ((cell (if vm (fresh-cons vm nil nil) (cons nil nil))))
+                             (setf (gethash source seen) cell)
+                             (push (list (cdr source) cell :cdr) work)
+                             (push (list (car source) cell :car) work)
+                             cell)))
+                      (t source))))
+          (if (eq side :car) (setf (car target) mapped) (setf (cdr target) mapped)))))
+    (car box)))
+(defun %reify (term names seen)
+  (%map-term term (lambda (x)
+                    (let ((v (deref x)))
+                      (if (logic-var-p v)
+                          (or (gethash v names)
+                              (setf (gethash v names)
+                                    (make-symbol (format nil "?G~D" (hash-table-count names)))))
+                          v)))
+             nil seen))
 (defun reify (term &optional (names (make-hash-table :test 'eq)))
-  (map-term term (lambda (x)
-                   (let ((v (deref x)))
-                     (if (logic-var-p v)
-                         (or (gethash v names)
-                             (setf (gethash v names)
-                                   (make-symbol (format nil "?G~D" (hash-table-count names)))))
-                         v)))))
+  (%reify term names (make-hash-table :test 'eq)))
 
 (defun predicate-key (goal)
   (unless (and (consp goal) (symbolp (car goal)) (listp (cdr goal)))
@@ -310,9 +333,11 @@
                     (close-query vm)
                     (error condition)))))
     (when foundp
-      (let ((names (make-hash-table :test 'eq)))
+      (let ((names (make-hash-table :test 'eq))
+            (seen (make-hash-table :test 'eq)))
         (return-from next-solution
-          (values (mapcar (lambda (entry) (cons (car entry) (reify (cdr entry) names)))
+          (values (mapcar (lambda (entry)
+                            (cons (car entry) (%reify (cdr entry) names seen)))
                           (machine-variables vm)) t
                   (if (machine-delays vm) :undefined :true)
                   (mapcar (lambda (table) (slg-table-goal (machine-slg vm) table))

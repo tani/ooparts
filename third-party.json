@@ -257,6 +257,38 @@
       "name": "QEMU user-mode emulation",
       "source": "https://www.qemu.org/",
       "relationship": "Optional development tool for the recorded 32-bit CMUCL behavior audit; not bundled or a Lisp runtime dependency."
+    },
+    {
+      "name": "MLton regression corpus",
+      "source": "https://github.com/MLton/mlton",
+      "revision": "5fe943391e539a502699327a6266b6e8e97939e1",
+      "regression_tree": "d3c35781496aa17015cfdf4a6a4afb6c0f8bb380",
+      "relationship": "Reference-only corpus for optional, explicitly requested SML conformance work. The ignored local checkout is not distributed, is not required by any OOPArts library or existing regression system, and introduces no compiler or runtime dependency.",
+      "download_directory": "build/mlton/",
+      "acquisition": "Sparse cone-mode git clone with the blob:none partial-clone filter, checked out at the detached revision above. Sparse patterns are /*, !/*/, /doc/, !/doc/*/, /bin/, /doc/license/ and /regression/: repository root files and bin/ (including bin/regression) are retained together with doc/license/ and regression/, while other top-level directories and other doc/ subdirectories are excluded.",
+      "license": "HPND",
+      "license_policy": "The root LICENSE is the Historical Permission Notice and Disclaimer (HPND), not MIT. Preserve all doc/license/ files, including the SML/NJ, NEC, MLKit and gdtoa component notices, as well as regression/README, regression/README.kit and original source comments. The MLKit notice includes applicable MIT terms for identified components; it does not relabel the corpus as a whole. Redistributions must retain the named-author and NEC copyright notices and the permission and warranty texts.",
+      "license_files": [
+        "build/mlton/LICENSE",
+        "build/mlton/doc/license/",
+        "build/mlton/regression/README",
+        "build/mlton/regression/README.kit"
+      ],
+      "immutability": "Keep regression sources, inputs, .ok output expectations and sidecars byte-identical to the pinned upstream revision; do not regenerate .ok or .nonterm files from OOPArts behavior.",
+      "coverage_categories": [
+        "SML '97 core language and modules",
+        "Basis Library behavior",
+        "platform-dependent behavior",
+        "FFI and threads",
+        "explicit MLton language and runtime extensions"
+      ],
+      "oracle_policy": [
+        "Where a base .ok exists, its bytes are a program-output comparison oracle, including applicable target-specific alternatives; .ok files are not compiler-diagnostic expectations.",
+        "A missing .ok does not mean empty expected output. A .nonterm sidecar marks the corresponding root case compile-only, not a proof of nontermination.",
+        "regression/fail/*.sml cases require genuine compile-time source rejection. They have no golden diagnostic sidecars; crashes, timeouts and missing prerequisites are not rejection passes.",
+        "Do not use the upstream wrapper, whitelist or aggregate exit status to mask individual outcomes. Future final results must be enumerated per case, not claimed as global corpus success or SML '97 compliance."
+      ],
+      "note": "This mixed corpus is not a uniform SML '97 conformance suite. Selected end-to-end OOPArts executions matched upstream output exactly for hello-world.sml (14 bytes), fact.sml (8 bytes), and functor.sml (28 bytes). fail/1.sml passed only with exact y identifier and elaboration-rejection metadata; wrong-name and wrong-kind controls did not pass. These observations are not global corpus or SML '97 conformance. See docs/sml/conformance.md."
     }
   ],
   "external_dependencies": []

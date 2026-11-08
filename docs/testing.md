@@ -66,9 +66,24 @@ The observed implementation-specific totals at those earlier checkpoints were:
 | ECL | 402 | 6,063 |
 | CLISP | 405 | 6,050 |
 
-On the coherent source/loaded-FASL epoch used by the supported corpus gates,
-direct SBCL 2.6.8/Linux arm64 component runs passed **4,081 SML checks** and
-**6,097 Prolog checks**. Their logs are
+**Current optimized Prolog unification epoch.** Validated production commit
+`e07a4a34fc875dd44aef36a17429c8a7d194c2ed` kept the original existing 6,097
+Prolog checks passing and added six focused root-binding regression checks,
+giving 6,097 + 6 = **6,103 Prolog checks on SBCL, CCL, CLISP, and ABCL**. ECL
+retained its platform-specific 6,094-check baseline and 402 native-specializer
+checks, so 6,094 + 6 = **6,100 Prolog checks**; the other
+hosts retained 405 native-specializer checks. SML remained at **4,081 checks on
+all five hosts**. The separate 3,190 continuation checks are not part of either
+Prolog total. Documentation-only follow-up commits do not change the validated
+production-code epoch. For the current engine SHA-256, loaded SBCL
+conformance-cached FASL identity and manifest, actual host scopes, and audited
+normal, negative, nontermination, reload, and COBOL results, see [the optimized
+Prolog unification record](sml/conformance.md#prolog-unification-allocation-optimization).
+The older totals and logs below remain attached to their own historical epochs.
+
+On the pre-optimization coherent source/loaded-FASL epoch used by the supported
+corpus gates, direct SBCL 2.6.8/Linux arm64 component runs passed **4,081 SML
+checks** and **6,097 Prolog checks**. The logs for that epoch are
 `build/sml/splice-coherence/final-sbcl-sml.stdout` and
 `build/sml/splice-coherence/final-sbcl-prolog.stdout`. The SML total splits into
 163 lexer, 2,835 parser, 267 native type, 482 Core, 105 structured Basis, and
@@ -162,14 +177,15 @@ loaded FASLs across these gates. Exact oracle paths, heavy-input byte counts,
 compile-only semantics, and artifact hashes are in [the MLton runner
 documentation](sml/conformance.md).
 
-The consolidated record does not establish fresh serial ABCL/ECL/CLISP/CCL
-gates, a current whole-project SBCL run beyond the two components above, or
-completion of the 16 named Nix checks and 293 layout checks.
-`nonterminate/8.sml` awaits an actual
-current host-compilation result; its mandated disposition remains compile-only,
-never execution for an output comparison. Older component successes and resource
-failures remain associated with their own checkpoints rather than filling these
-gaps.
+The pre-optimization consolidated record does not establish fresh serial
+ABCL/ECL/CLISP/CCL gates, a whole-project SBCL run beyond the two components
+above, or completion of the 16 named Nix checks and 293 layout checks. At that
+checkpoint, `nonterminate/8.sml` awaited an actual host-compilation result; its
+mandated disposition remains compile-only, never execution for an output
+comparison. Its current guarded result is in [the optimized-epoch
+record](sml/conformance.md#prolog-unification-allocation-optimization). Older
+component successes and resource failures remain associated with their own
+checkpoints rather than filling these gaps.
 
 A prior aggregate-check environment was SBCL 2.5.4, GCC 13.3 and Linux x86-64;
 its aggregate suite ran with a 1 MiB control stack. This is separate from the

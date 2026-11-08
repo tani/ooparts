@@ -200,8 +200,11 @@ executing the nonterminating program.
 ### Coherent artifact provenance and lifecycle
 
 `build/sml/splice-coherence/final-result.json` consolidates the ordinary,
-negative, COBOL, regression, and semantic-control evidence. The ordinary batch,
-both isolated COBOL runs, and negative batch used the same isolated sequential
+negative, COBOL, regression, and semantic-control evidence. This is a
+**pre-optimization historical epoch**: its `5405ee6f…` engine source and
+`fb29e29f…` loaded FASL below are not the current optimized source/FASL check
+documented at the end of this file. The ordinary batch, both isolated COBOL runs,
+and negative batch used the same isolated sequential
 ASDF cache on SBCL 2.6.8/Linux arm64. All **59 loaded FASLs** remained stable,
 with before/after source and artifact manifests, rather than mixing a newly
 edited source with an older compiled object. The full registry is
@@ -868,11 +871,32 @@ corpus/child-Lisp and selection configuration, the complete discovered-case
 list, actual phase/worker data,
 oracle and generated-artifact paths where applicable, and separate summary,
 outcome, and classification counts (the latter include nonselected discoveries).
-The backend-dependent execution provisions above apply unchanged to this engine
-optimization: neither a microbenchmark nor an installer/helper exit code is a
-conformance result.
+`PASS` is only written after successful required compilation, nonzero-SML/oracle handling, and strict comparison, or after a properly classified deliberate fail-suite rejection or compile-only host compilation.
+
+There are no placeholder pass fields or invented coverage results.
+
+Other explicit outcomes include `COMPILER-ERROR`, `UNKNOWN-PREREQUISITE`,
+`HOST-COMPILATION-ERROR`, `EXECUTION-ERROR`, `UNEXPECTED-REJECTION`, `MISMATCH`,
+`ORACLE-ERROR`, `INPUT-ERROR`, `OUTPUT-ERROR`, `NO-ORACLE`, `WORKER-ERROR`, and
+`TIMEOUT`. These counters are additive with skipped/unclassified outcomes and
+never hide individual entries.
+
+To inventory without exercising backend code, use `--list`. Backend-dependent
+execution requires a stable `ooparts/sml/compiler`; this tool's implementation
+and --help/inventory path are not evidence that any semantic regression case
+has compiled, run, or matched an oracle.
 
 ### Prolog unification allocation optimization
+
+The current optimized production source was validated at commit
+`e07a4a34fc875dd44aef36a17429c8a7d194c2ed`; documentation-only follow-up
+commits do not replace that validated production-code epoch. The optimized
+`src/prolog/kernel/engine.lisp` SHA-256 is
+`01b43388094e59a1881e8a8a0ee23f85d401681515f015554cebe213c0b49742`, and the
+loaded SBCL conformance-cached engine FASL SHA-256 is
+`cbe603c92df34dade7e4f81cb64f1c351fda0c89b421e45584f7c448670a97ba`, as
+recorded in `build/sml/prolog-unification/loaded-fasls.sha256`. This manifest
+identifies the current conformance-cache FASL, not an earlier private FASL.
 
 `src/prolog/kernel/engine.lisp` now processes the original root pair directly,
 with its work list and rational-cycle `seen` table initially empty. The table
@@ -903,7 +927,10 @@ including distinct equal bignums, duplicate/reversed logical-variable IDs,
 physical sharing and cycles, rollback of provisional bindings, and mutable host
 references. Nonidentical scalar and fresh-variable cases also avoided the root
 work allocations. Some distinct compound traversals were approximately
-1.03–1.04 times slower; this is not a claim of uniform speedup.
+1.03–1.04 times slower; this is not a claim of uniform speedup. The
+backend-dependent execution provisions above apply unchanged to this engine
+optimization: neither a microbenchmark nor an installer/helper exit code is a
+conformance result.
 
 The earlier `EQ` guard plus dynamic fallback wrapper was rejected: its
 allocation saving was selective, its nonidentical scalar fallbacks cost
@@ -917,11 +944,15 @@ incomplete rejected input does not make that an ordinary-input speedup. See
 GC requests, and grammar rules were not removed or broadened.
 
 The production regression in `tests/prolog/kernel/instantiate.lisp` adds six
-checks for both direct-root older/younger argument directions, exact success,
-physical binding direction, one conditional trail entry, and rollback restoring
-both original cells. This brings the SBCL Prolog suite to 6,103 checks. Post-change check totals for other hosts and corpus outcomes must be
-reported separately when actually completed, rather than inferred from these
-performance measurements.
+focused root-binding checks for both direct-root older/younger argument
+directions, exact success, physical binding direction, one conditional trail
+entry, and rollback restoring both original cells. The original existing 6,097
+Prolog checks still pass; with these six regressions, SBCL, CCL, CLISP, and ABCL
+report 6,097 + 6 = **6,103 checks**. ECL retains its platform-specific existing
+6,094-check baseline and reports 6,094 + 6 = **6,100 checks**. These are
+observed suite completions, not inferences from performance measurements. The
+continuation suite's separate 3,190 checks are not included in either Prolog
+total.
 
 Post-change host validation completed with these counts:
 
@@ -937,20 +968,22 @@ CCL and CLISP completed whole-project suites. ECL's retained platform-specific
 difference includes 402 native-specializer checks; the other hosts retained 110
 explicit-stack and 405 native-specializer checks. ECL SML and ABCL Prolog/SML
 were validated as scoped suites rather than whole-project runs. Every named
-suite exited 0. ABCL SML separately completed all 229 native-module checks in
+suite exited 0. The raw host output is not warning-free: warnings occurred
+under the suites' own existing diagnostic cases and were not execution
+failures. ABCL SML separately completed all 229 native-module checks in
 28:50.07 seconds with 2,421,048 KiB maximum RSS; this is a current-scope result,
 not a controlled comparison against an older host run.
 
 The ordinary gate independently completed 288 discovered / 98 selected cases:
-69 exact-execution PASS, 2 intentional-nonzero PASS, and 6 compile-only PASS,
-with 21 genuine NO-ORACLE outcomes and 190 NOT-SELECTED. Its independent audit
-reported no failures. The negative gate completed 117 discovered / 111 selected
-cases, all 111 intentional PASS with six exact NOT-SELECTED inputs. There were
-104 source rejections and seven reviewed missing-prerequisite classifications,
-46 syntax and 65 elaboration outcomes, and no representation rejections. The
-seven exact expected unbound identifiers were preserved. Its audit likewise
-reported no failures and no timeout, OOM, or nonpass. Reports and response
-audits are under `build/sml/prolog-unification/`.
+**77 PASS** comprising 69 exact-execution PASS, 2 intentional-nonzero PASS, and
+6 compile-only PASS, with 21 genuine NO-ORACLE outcomes and 190 NOT-SELECTED.
+Its independent audit reported no failures. The negative gate completed 117
+discovered / 111 selected cases, all 111 intentional PASS with six exact
+NOT-SELECTED inputs. There were 104 source rejections and seven reviewed
+missing-prerequisite classifications, 46 syntax and 65 elaboration outcomes,
+and no representation rejections. The seven exact expected unbound identifiers
+were preserved. Its audit likewise reported no failures and no timeout, OOM, or
+nonpass. Reports and response audits are under `build/sml/prolog-unification/`.
 
 The separately selected `nonterminate/8.sml` now has a guarded current result:
 the complete 160-byte source and host compilation completed, execution was
@@ -961,25 +994,13 @@ qualification evidence. Fresh SML FASL/core reload and the actual continuation
 FASL/core reload additionally completed successfully.
 
 The isolated COBOL guard in `build/sml/prolog-unification/cobol/` also completed
-all required phases. It used the full original 239,194-byte source with the same
-SHA-256 as above, the explicit 1 GiB heap wrapper, and a 360-second case
-timeout. The response is terminal `:EXECUTED` with completed input,
-elaboration, host compilation, and execution. Execution emitted zero bytes, but
-the oracle is absent and the comparison remains missing: the outcome is
-NO-ORACLE, not an empty-oracle pass. Its independent audit reported no
-failures. The run took 3:23.47 and reached 1,077,284 KiB peak RSS; the outer
-status 1 records the missing oracle rather than a worker failure. Source bytes,
-case selection, timeout, and heap were not reduced or relaxed.
-
-There are no placeholder pass fields or invented coverage results.
-
-Other explicit outcomes include `COMPILER-ERROR`, `UNKNOWN-PREREQUISITE`,
-`HOST-COMPILATION-ERROR`, `EXECUTION-ERROR`, `UNEXPECTED-REJECTION`, `MISMATCH`, `ORACLE-ERROR`,
-`INPUT-ERROR`, `OUTPUT-ERROR`, `NO-ORACLE`, `WORKER-ERROR`, and `TIMEOUT`.
-These counters are additive with skipped/unclassified outcomes and never hide
-individual entries.
-
-To inventory without exercising backend code, use `--list`. Backend-dependent
-execution requires a stable `ooparts/sml/compiler`; this tool's implementation
-and --help/inventory path are not evidence that any semantic regression case
-has compiled, run, or matched an oracle.
+all required phases, including execution. It used the full original
+239,194-byte source with the same SHA-256 as above, an explicit dynamic heap of
+**1073741824 bytes** (1 GiB), and a 360-second case timeout. The response is
+terminal `:EXECUTED` with completed input, elaboration, host compilation, and
+execution. Execution emitted zero bytes, but the oracle is absent and the
+comparison remains missing: the outcome is NO-ORACLE, not an empty-oracle pass.
+Its independent audit reported no failures. The run took 3:23.47 and reached
+1,077,284 KiB peak RSS; the outer status 1 records the missing oracle rather
+than a worker failure. Source bytes, case selection, timeout, and heap were not
+reduced or relaxed.

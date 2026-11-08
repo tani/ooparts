@@ -1,15 +1,37 @@
 (uiop:define-package #:ooparts-tests/prolog/kernel/instantiate
   (:use #:cl #:ooparts/prolog)
   (:import-from #:ooparts/prolog/kernel/engine
-    #:deref #:fresh-cons #:fresh-var #:instantiate #:map-term #:reify)
+    #:deref #:fresh-cons #:fresh-var #:instantiate #:map-term #:push-choice #:reify #:unify
+    #:unwind-trail)
   (:import-from #:ooparts/prolog/kernel/model
-    #:%make-machine #:logic-var-binding #:logic-var-id #:machine-heap #:machine-variables
-    #:make-host-goal #:slot-ref)
+    #:%make-machine #:logic-var-binding #:logic-var-id #:machine-heap #:machine-trail
+    #:machine-variables #:make-host-goal #:slot-ref)
   (:import-from #:ooparts-tests/prolog/support/assertions #:check #:value-of)
   (:export #:run-instantiate-tests))
 (in-package #:ooparts-tests/prolog/kernel/instantiate)
 
 (defun run-instantiate-tests ()
+  ;; Direct roots retain age-based orientation, conditional trails and rollback.
+  (dolist (younger-left '(nil t))
+    (let* ((vm (%make-machine))
+           (older (fresh-var vm))
+           (younger (fresh-var vm)))
+      (push-choice vm 0)
+      (unwind-protect
+           (progn
+             (check (eq t (unify vm (if younger-left younger older)
+                                 (if younger-left older younger)))
+                    "direct root variable unification returns exactly true")
+             (check (and (= 1 (length (machine-trail vm)))
+                         (eq younger (aref (machine-trail vm) 0))
+                         (eq older (logic-var-binding younger))
+                         (eq older (deref older)))
+                    "direct root variables bind younger to older with one undo record")
+             (unwind-trail vm 0)
+             (check (and (eq older (deref older)) (eq younger (deref younger)))
+                    "direct root variable rollback restores both original cells"))
+        (close-query vm))))
+
   ;; Runtime slot values are inserted atomically, however complex or source-like.
   (let* ((vm (%make-machine))
          (opaque (make-array 3 :initial-contents '(:nominal 17 :opaque)))
